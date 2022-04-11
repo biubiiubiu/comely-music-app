@@ -1,10 +1,17 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
-        maven { url 'https://pd.zwc365.com/cfworker/https://dl.google.com/dl/android/maven2/' }
-        maven { url 'https://pd.zwc365.com/cfworker/https://jcenter.bintray.com' }
-        google()
-        mavenCentral()
+
+//        jcenter()
+//        maven {
+//            url 'https://maven.google.com/'
+//            name 'Google'
+//        }
+        maven { url 'https://plugins.gradle.org/m2/' } //复制这行
+        maven { url 'https://maven.aliyun.com/nexus/content/repositories/google' } //复制这行
+        maven { url 'https://maven.aliyun.com/nexus/content/groups/public' } //复制这行
+        maven { url 'https://maven.aliyun.com/nexus/content/repositories/jcenter'}
+        google() //复制这行
     }
     dependencies {
         classpath "com.android.tools.build:gradle:7.0.3"
