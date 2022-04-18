@@ -77,6 +77,7 @@ public class PagerFragment extends Fragment {
         MyListAdapter adapter = new MyListAdapter(true);
         ViewPager2 viewPager = requireActivity().findViewById(R.id.viewPager);
         viewPager.setAdapter(adapter);
+        viewPager.setPageTransformer(new DepthPageTransformer());
         adapter.submitList(MyListAdapter.ICON_LIST);
     }
 }
