@@ -59,13 +59,15 @@ public class TextFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_text, container, false);
-        CollapsingToolbarLayout toolBar = view.findViewById(R.id.collapsingToolbarLayout);
-//        CollapsingToolbarLayout toolBar = requireActivity().findViewById(R.id.collapsingToolbarLayout);
-//        ImageView imageView = requireActivity().findViewById(R.id.toolbarIconImageView);
-//        toolBar.setTitle(getString(R.string.text_fragment_title));
-//        imageView.setImageResource(R.drawable.ic_looks_one);
+        CollapsingToolbarLayout toolBar = requireActivity().findViewById(R.id.collapsingToolbarLayout);
+        if (toolBar != null) {
+            toolBar.setTitle(getString(R.string.text_fragment_title));
+        }
+        ImageView imageView = requireActivity().findViewById(R.id.toolbarIconImageView);
+        if (imageView != null) {
+            imageView.setImageResource(R.drawable.ic_looks_one);
+        }
         // Inflate the layout for this fragment
-        return view;
+        return inflater.inflate(R.layout.fragment_text, container, false);
     }
 }

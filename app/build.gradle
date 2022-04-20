@@ -40,6 +40,8 @@ dependencies {
 
     // jetpack核心库
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
+
+    // aliyun oss服务
     implementation 'com.aliyun.dpa:oss-android-sdk:2.9.5'
 
     // 网络组件
