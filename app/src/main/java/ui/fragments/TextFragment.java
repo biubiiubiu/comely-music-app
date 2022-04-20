@@ -1,4 +1,4 @@
-package com.example.comely_music_app;
+package ui.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,6 +8,7 @@ import android.widget.ImageView;
 
 import androidx.fragment.app.Fragment;
 
+import com.example.comely_music_app.R;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 /**

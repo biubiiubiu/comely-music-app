@@ -14,7 +14,9 @@ import androidx.navigation.ui.NavigationUI;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.api.request.FileUploadRequest;
@@ -23,6 +25,7 @@ import com.example.comely_music_app.api.service.impl.FileServiceImpl;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.navigation.NavigationView;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +38,22 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        setNavControllerAndAppBarConfiguration();
+
+        ImageButton button = findViewById(R.id.ic_play);
+        button.setOnClickListener(v -> {
+            // todo 展示播放界面
+        });
+
+    }
+
+    // 汉堡图绑定拉出导航的事件
+    @Override
+    public boolean onSupportNavigateUp() {
+        return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
+    }
+
+    private void setNavControllerAndAppBarConfiguration() {
         // 设置新的 toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -58,13 +77,6 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(navigationView, navController);
     }
 
-    // 汉堡图绑定拉出导航的事件
-    @Override
-    public boolean onSupportNavigateUp() {
-        return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
-    }
-
-
 
 //    FileService fileService = new FileServiceImpl();
 //
@@ -86,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
 //            fileService.downloadFile(this,"zt002","IMAGE/2022/04/17/1de9a246-2a3e-4887-b2f7-27d2beb3d234.jpg");
 //        });
 //    }
-
 
 
 }

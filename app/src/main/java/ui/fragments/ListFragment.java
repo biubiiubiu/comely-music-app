@@ -1,4 +1,4 @@
-package com.example.comely_music_app;
+package ui.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,16 +9,20 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.viewpager2.widget.ViewPager2;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import ui.adapter.MyListAdapter;
+import com.example.comely_music_app.R;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link PagerFragment#newInstance} factory method to
+ * Use the {@link ListFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class PagerFragment extends Fragment {
+public class ListFragment extends Fragment {
+
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -29,7 +33,7 @@ public class PagerFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public PagerFragment() {
+    public ListFragment() {
         // Required empty public constructor
     }
 
@@ -39,11 +43,11 @@ public class PagerFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment PagerFragment.
+     * @return A new instance of fragment ListFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static PagerFragment newInstance(String param1, String param2) {
-        PagerFragment fragment = new PagerFragment();
+    public static ListFragment newInstance(String param1, String param2) {
+        ListFragment fragment = new ListFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -64,20 +68,21 @@ public class PagerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ((CollapsingToolbarLayout) requireActivity().findViewById(R.id.collapsingToolbarLayout))
-                .setTitle(getString(R.string.pager_fragment_title));
+                .setTitle(getString(R.string.list_fragment_title));
         ((ImageView) requireActivity().findViewById(R.id.toolbarIconImageView))
-                .setImageResource(R.drawable.ic_looks_three);
+                .setImageResource(R.drawable.ic_looks_two);
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_pager, container, false);
+        return inflater.inflate(R.layout.fragment_list, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        MyListAdapter adapter = new MyListAdapter(true);
-        ViewPager2 viewPager = requireActivity().findViewById(R.id.viewPager);
-        viewPager.setAdapter(adapter);
-        viewPager.setPageTransformer(new DepthPageTransformer());
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
+        MyListAdapter adapter = new MyListAdapter();
+        RecyclerView recyclerView = requireActivity().findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter);
         adapter.submitList(MyListAdapter.ICON_LIST);
     }
 }

@@ -1,4 +1,4 @@
-package com.example.comely_music_app;
+package ui.animation;
 
 import android.view.View;
 
