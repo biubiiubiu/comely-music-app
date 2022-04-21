@@ -7,17 +7,17 @@
 
     <fragment
         android:id="@+id/textFragment"
-        android:name="ui.fragments.TextFragment"
+        android:name="com.example.comely_music_app.ui.fragments.TextFragment"
         android:label="@string/text_fragment_title"
         tools:layout="@layout/fragment_text" />
     <fragment
         android:id="@+id/listFragment"
-        android:name="ui.fragments.ListFragment"
+        android:name="com.example.comely_music_app.ui.fragments.ListFragment"
         android:label="@string/list_fragment_title"
         tools:layout="@layout/fragment_list" />
     <fragment
         android:id="@+id/pagerFragment"
-        android:name="ui.fragments.PagerFragment"
+        android:name="com.example.comely_music_app.ui.fragments.PagerFragment"
         android:label="@string/pager_fragment_title"
         tools:layout="@layout/fragment_pager" />
 </navigation>

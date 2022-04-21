@@ -1,4 +1,4 @@
-package ui.fragments;
+package com.example.comely_music_app.ui.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

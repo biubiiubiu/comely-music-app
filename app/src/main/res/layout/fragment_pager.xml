@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ui.fragments.PagerFragment">
+    tools:context="com.example.comely_music_app.ui.fragments.PagerFragment">
 
     <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPager"
+        android:id="@+id/viewpage_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </FrameLayout>

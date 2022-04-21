@@ -8,6 +8,12 @@
     tools:context=".MainActivity"
     tools:openDrawer="start">
 
+<!--    <androidx.viewpager2.widget.ViewPager2-->
+<!--        android:id="@+id/viewpage_playing"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:background="@color/teal_700"/>-->
+
     <include layout="@layout/content_layout" />
 
     <com.google.android.material.navigation.NavigationView

@@ -1,37 +1,37 @@
 package com.example.comely_music_app;
 
-import androidx.appcompat.app.AppCompatActivity;
+import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.viewpager2.widget.ViewPager2;
 
 
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.comely_music_app.R;
-import com.example.comely_music_app.api.request.FileUploadRequest;
-import com.example.comely_music_app.api.service.FileService;
-import com.example.comely_music_app.api.service.impl.FileServiceImpl;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
+import com.example.comely_music_app.ui.animation.DepthPageTransformer;
+import com.example.comely_music_app.ui.fragments.PlayingFragment;
 import com.google.android.material.navigation.NavigationView;
-
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private NavController navController;
     private AppBarConfiguration appBarConfiguration;
+    private FragmentManager fm;
+    private ImageButton enterPlayingPage;
+
+    private PlayingFragment playingFragment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,12 +39,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         setNavControllerAndAppBarConfiguration();
-
-        ImageButton button = findViewById(R.id.ic_play);
-        button.setOnClickListener(v -> {
-            // todo 展示播放界面
+        if (fm == null) {
+            fm = getSupportFragmentManager();
+        }
+        enterPlayingPage = findViewById(R.id.ic_play);
+        enterPlayingPage.setOnClickListener(v -> {
+            Toast.makeText(MainActivity.this, "playing", Toast.LENGTH_SHORT).show();
+            if (playingFragment == null) {
+                playingFragment = new PlayingFragment();
+            }
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.replace(R.id.content_layout, playingFragment);
+            ft.commit();
         });
-
     }
 
     // 汉堡图绑定拉出导航的事件

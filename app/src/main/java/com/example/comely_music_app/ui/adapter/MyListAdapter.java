@@ -1,4 +1,4 @@
-package ui.adapter;
+package com.example.comely_music_app.ui.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;

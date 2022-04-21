@@ -1,4 +1,4 @@
-package ui.fragments;
+package com.example.comely_music_app.ui.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import ui.adapter.MyListAdapter;
+import com.example.comely_music_app.ui.adapter.MyListAdapter;
 import com.example.comely_music_app.R;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 

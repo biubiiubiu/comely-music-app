@@ -1,4 +1,4 @@
-package ui.fragments;
+package com.example.comely_music_app.ui.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,8 +11,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
-import ui.animation.DepthPageTransformer;
-import ui.adapter.MyListAdapter;
+import com.example.comely_music_app.ui.animation.DepthPageTransformer;
+import com.example.comely_music_app.ui.adapter.MyListAdapter;
 import com.example.comely_music_app.R;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
@@ -78,7 +78,7 @@ public class PagerFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         MyListAdapter adapter = new MyListAdapter(true);
-        ViewPager2 viewPager = requireActivity().findViewById(R.id.viewPager);
+        ViewPager2 viewPager = requireActivity().findViewById(R.id.viewpage_pager);
         viewPager.setAdapter(adapter);
         viewPager.setPageTransformer(new DepthPageTransformer());
         adapter.submitList(MyListAdapter.ICON_LIST);
