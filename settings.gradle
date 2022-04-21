@@ -8,3 +8,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "comely-music-app"
 include ':app'
+include ':library'
