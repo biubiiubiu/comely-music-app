@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
             }
             FragmentTransaction ft = fm.beginTransaction();
             ft.replace(R.id.content_layout, playingFragment);
+            ft.addToBackStack(null);
             ft.commit();
         });
     }
