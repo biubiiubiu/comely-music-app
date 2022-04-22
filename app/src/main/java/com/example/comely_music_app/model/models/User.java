@@ -1,7 +1,9 @@
 package com.example.comely_music_app.model.models;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper=false)
 @Data
 public class User extends BaseEntity<User> {
 
