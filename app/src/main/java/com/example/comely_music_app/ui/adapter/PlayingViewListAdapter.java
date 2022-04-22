@@ -13,7 +13,7 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
     @NonNull
     @Override
     public PlayingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new PlayingViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.playing_fragment,
+        return new PlayingViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_playing,
                 parent, false));
     }
 

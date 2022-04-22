@@ -1,7 +1,5 @@
 package com.example.comely_music_app.ui;
 
-import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL;
-
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Context;
@@ -10,20 +8,16 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.viewpager2.widget.ViewPager2;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.comely_music_app.R;
-import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
-import com.example.comely_music_app.ui.animation.DepthPageTransformer;
 
 public class PlayingFragment extends Fragment implements View.OnClickListener {
 
@@ -45,7 +39,7 @@ public class PlayingFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         TAG = getContext();
-        View itemView = inflater.inflate(R.layout.playing_fragment, container, false);
+        View itemView = inflater.inflate(R.layout.fragment_playing, container, false);
         initViewBind(itemView);
         return itemView;
     }
