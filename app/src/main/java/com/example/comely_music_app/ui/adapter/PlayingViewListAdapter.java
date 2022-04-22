@@ -7,13 +7,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
+import com.example.comely_music_app.ui.PlayingViewHolder;
 
 public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHolder> {
 
     @NonNull
     @Override
     public PlayingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new PlayingViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.playing_fragment,
+        return new PlayingViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_playing_view,
                 parent, false));
     }
 

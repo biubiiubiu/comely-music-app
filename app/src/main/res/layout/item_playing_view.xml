@@ -16,12 +16,12 @@
         android:layout_weight="1">
 
         <ImageButton
-            android:id="@+id/back_btn"
+            android:id="@+id/check_module"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_weight="1"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_back"
+            android:src="@drawable/ic_check_module"
             tools:ignore="SpeakableTextPresentCheck" />
 
         <TextView

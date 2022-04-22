@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
         View find = findViewById(R.id.find_btn);
         find.setOnClickListener(v->{
+
             Toast.makeText(this, "发现", Toast.LENGTH_SHORT).show();
         });
 
