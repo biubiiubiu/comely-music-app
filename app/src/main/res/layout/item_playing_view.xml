@@ -45,6 +45,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_weight="1"
+        android:textColor="@color/white"
         android:text="稻香 - 周杰伦"
         android:textSize="30sp" />
 

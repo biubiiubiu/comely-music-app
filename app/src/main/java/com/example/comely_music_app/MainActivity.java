@@ -3,19 +3,22 @@ package com.example.comely_music_app;
 import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
-import com.example.comely_music_app.R;
+import com.example.comely_music_app.ui.FindingFragment;
+import com.example.comely_music_app.ui.MyFragment;
 import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
 import com.example.comely_music_app.ui.animation.DepthPageTransformer;
 
-import lombok.ToString;
 
 public class MainActivity extends AppCompatActivity {
+    private FragmentManager manager;
+    private View frameBlank;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,21 +31,35 @@ public class MainActivity extends AppCompatActivity {
 
         PlayingViewListAdapter adapter = new PlayingViewListAdapter();
         viewPager.setAdapter(adapter);
+        if (manager == null) {
+            manager = getSupportFragmentManager();
+        }
+        frameBlank = findViewById(R.id.frame_blank);
 
         View play = findViewById(R.id.play_pause_btn);
-        play.setOnClickListener(v->{
-            Toast.makeText(this, "播放", Toast.LENGTH_SHORT).show();
+        play.setOnClickListener(v -> {
+            frameBlank.setVisibility(View.INVISIBLE);
+            viewPager.setVisibility(View.VISIBLE);
         });
 
         View find = findViewById(R.id.find_btn);
-        find.setOnClickListener(v->{
-
-            Toast.makeText(this, "发现", Toast.LENGTH_SHORT).show();
+        find.setOnClickListener(v -> {
+            FragmentTransaction ft = manager.beginTransaction();
+            viewPager.setVisibility(View.INVISIBLE);
+            ft.replace(R.id.frame_blank, new FindingFragment());
+            ft.commit();
+            frameBlank.setVisibility(View.VISIBLE);
         });
 
         View my = findViewById(R.id.my_btn);
-        my.setOnClickListener(v->{
-            Toast.makeText(this, "我的", Toast.LENGTH_SHORT).show();
+        my.setOnClickListener(v -> {
+            FragmentTransaction ft = manager.beginTransaction();
+            viewPager.setVisibility(View.INVISIBLE);
+            ft.replace(R.id.frame_blank, new MyFragment());
+//            transaction.add(new MyFragment(),"my");
+            ft.commit();
+            frameBlank.setVisibility(View.VISIBLE);
         });
     }
+
 }

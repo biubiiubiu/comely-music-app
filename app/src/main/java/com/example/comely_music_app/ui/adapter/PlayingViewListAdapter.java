@@ -1,6 +1,7 @@
 package com.example.comely_music_app.ui.adapter;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -15,7 +16,7 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
     @Override
     public PlayingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new PlayingViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_playing_view,
-                parent, false));
+                                                                                      parent, false));
     }
 
     @Override
