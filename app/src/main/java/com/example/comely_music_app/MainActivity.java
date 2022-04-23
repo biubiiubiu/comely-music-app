@@ -12,6 +12,8 @@ import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -28,7 +30,8 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager2 viewPager;
     private volatile PageStatus status;
     private ImageButton findBtn, playBtn, myBtn, checkModuleBtn, searchBtn;
-    private boolean isPlaying = false;
+    private boolean isPlaying;
+    private Animation mAnimation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         PlayingViewListAdapter adapter = new PlayingViewListAdapter();
         viewPager.setAdapter(adapter);
 
-
+        isPlaying = false;
         if (manager == null) {
             manager = getSupportFragmentManager();
         }
@@ -91,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 改变页面状态
      */
-    @SuppressLint({"UseCompatLoadingForDrawables", "ResourceAsColor"})
+    @SuppressLint({"UseCompatLoadingForDrawables", "ResourceAsColor", "ResourceType"})
     private void changeIconByStatus(PageStatus status) {
         myBtn.setImageDrawable(getDrawable(R.drawable.ic_my_down));
         findBtn.setImageDrawable(getDrawable(R.drawable.ic_find_down));
@@ -110,12 +113,15 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case PLAYING:
                 playBtn.setImageDrawable(getDrawable(R.drawable.ic_play));
+                View image = findViewById(R.id.music_cover_img);
+                mAnimation = AnimationUtils.loadAnimation(this, R.anim.rotaterepeat);
+                image.startAnimation(mAnimation);
                 break;
             case PAUSE:
                 playBtn.setImageDrawable(getDrawable(R.drawable.ic_pause));
+                View image1 = findViewById(R.id.music_cover_img);
+                image1.clearAnimation();
                 break;
-            default:
-                playBtn.setImageDrawable(getDrawable(R.drawable.ps_image_placeholder));
         }
     }
 

@@ -1,4 +1,4 @@
-package com.example.comely_music_app.model.models;
+package com.example.comely_music_app.entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

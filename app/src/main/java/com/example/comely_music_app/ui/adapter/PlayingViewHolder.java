@@ -1,10 +1,12 @@
-package com.example.comely_music_app.ui;
+package com.example.comely_music_app.ui.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -21,22 +23,22 @@ import com.example.comely_music_app.ui.animation.MyClickListener;
 import jp.wasabeef.blurry.Blurry;
 
 public class PlayingViewHolder extends RecyclerView.ViewHolder {
-    private Context TAG;
+    Context TAG;
     View itemView;
     ImageButton checkModuleBtn, searchBtn;
     TextView titleText, lyrics;
     ImageView coverImage;
     FrameLayout blankFrame;
     ImageButton likeBtn, commentBtn, downloadBtn, moreBtn;
-    private boolean isLike = false, showCover = true;
-    private PlayingViewModel mViewModel;
     // 进度条
-    private SeekBar seekBar;
+    SeekBar seekBar;
+
+    private boolean isLike, showCover;
 
     public PlayingViewHolder(@NonNull View itemView) {
         super(itemView);
-        this.itemView = itemView;
         TAG = itemView.getContext();
+        this.itemView = itemView;
         initViewBind(itemView);
         initViewContents();
         setOnClick();
@@ -56,7 +58,7 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
 
     }
 
-    private void initCoverAndBackground() {
+    public void initCoverAndBackground() {
         String path = "/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg";
         BitmapDrawable bd = (BitmapDrawable) Drawable.createFromPath(path);
         // 设置背景毛玻璃
@@ -68,7 +70,6 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
 
     @SuppressLint("ResourceType")
     private void initViewBind(View itemView) {
-
         checkModuleBtn = itemView.findViewById(R.id.check_module);
         searchBtn = itemView.findViewById(R.id.search_btn);
         titleText = itemView.findViewById(R.id.music_title_text);
@@ -123,7 +124,7 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    private void changeLikeStatus() {
+    public void changeLikeStatus() {
         if (isLike) {
             likeBtn.setImageDrawable(itemView.getResources().getDrawable(R.drawable.ic_liked));
         } else {
@@ -131,11 +132,14 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
-    private void changeCover2LyricStatus() {
+    public void changeCover2LyricStatus() {
         if (showCover) {
+            Animation mAnimation = AnimationUtils.loadAnimation(itemView.getContext(), R.anim.rotaterepeat);
+            coverImage.startAnimation(mAnimation);
             coverImage.setVisibility(View.VISIBLE);
             lyrics.setVisibility(View.INVISIBLE);
         } else {
+            coverImage.clearAnimation();
             coverImage.setVisibility(View.INVISIBLE);
             lyrics.setVisibility(View.VISIBLE);
         }
@@ -156,10 +160,6 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
     private void changeLikeDisLike() {
         isLike = !isLike;
         changeLikeStatus();
-    }
-
-    private void changeCoverLyric() {
-        Toast.makeText(TAG, "点击封面", Toast.LENGTH_SHORT).show();
     }
 
     private void search() {

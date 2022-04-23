@@ -68,7 +68,7 @@
             android:layout_gravity="bottom"
             android:layout_weight="1"
             android:background="@android:color/transparent"
-            app:srcCompat="@drawable/ic_play"
+            app:srcCompat="@drawable/ic_pause"
             tools:ignore="SpeakableTextPresentCheck" />
 
         <LinearLayout
