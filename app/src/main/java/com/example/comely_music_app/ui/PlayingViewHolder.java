@@ -1,6 +1,8 @@
 package com.example.comely_music_app.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -11,25 +13,29 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
+import com.example.comely_music_app.ui.animation.MyClickListener;
 
-public class PlayingViewHolder extends RecyclerView.ViewHolder{
-    ImageButton backBtn, searchBtn;
+public class PlayingViewHolder extends RecyclerView.ViewHolder {
+    View itemView;
+    ImageButton checkModuleBtn, searchBtn;
     TextView titleText;
     ImageView coverImage;
     ImageButton likeBtn, commentBtn, downloadBtn, moreBtn;
-    private volatile boolean isPalying = false, isLike = false;
+    private boolean isPalying = false, isLike = false;
     private PlayingViewModel mViewModel;
     private Context TAG;
 
     public PlayingViewHolder(@NonNull View itemView) {
         super(itemView);
+        this.itemView = itemView;
         TAG = itemView.getContext();
         initViewBind(itemView);
         setOnClick();
     }
 
+
     private void initViewBind(View itemView) {
-        backBtn = itemView.findViewById(R.id.check_module);
+        checkModuleBtn = itemView.findViewById(R.id.check_module);
         searchBtn = itemView.findViewById(R.id.search_btn);
         titleText = itemView.findViewById(R.id.music_title_text);
         coverImage = itemView.findViewById(R.id.music_cover_img);
@@ -39,14 +45,35 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder{
         moreBtn = itemView.findViewById(R.id.more_btn);
     }
 
-    private void setOnClick(){
-        backBtn.setOnClickListener(v -> Toast.makeText(TAG, "返回", Toast.LENGTH_SHORT).show());
-        searchBtn.setOnClickListener(v->search());
-        coverImage.setOnClickListener(v->changeCoverLyric());
-        likeBtn.setOnClickListener(v->changeLikeDisLike());
-        commentBtn.setOnClickListener(v->comment());
-        downloadBtn.setOnClickListener(v->comment());
-        moreBtn.setOnClickListener(v->getMore());
+    @SuppressLint("ClickableViewAccessibility")
+    private void setOnClick() {
+        checkModuleBtn.setOnClickListener(v -> Toast.makeText(TAG, "切换模式", Toast.LENGTH_SHORT).show());
+        searchBtn.setOnClickListener(v -> search());
+        coverImage.setOnTouchListener(new MyClickListener(new MyClickListener.MyClickCallBack() {
+            @Override
+            public void oneClick() {
+                Toast.makeText(itemView.getContext(),"单击",Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void doubleClick() {
+                isLike = true;
+                changeIconStatus();
+            }
+        }));
+        likeBtn.setOnClickListener(v -> changeLikeDisLike());
+        commentBtn.setOnClickListener(v -> comment());
+        downloadBtn.setOnClickListener(v -> download());
+        moreBtn.setOnClickListener(v -> getMore());
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void changeIconStatus() {
+        if (isLike) {
+            likeBtn.setImageDrawable(itemView.getResources().getDrawable(R.drawable.ic_liked));
+        } else {
+            likeBtn.setImageDrawable(itemView.getResources().getDrawable(R.drawable.ic_dislike));
+        }
     }
 
     private void getMore() {
@@ -62,13 +89,8 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder{
     }
 
     private void changeLikeDisLike() {
-        if (isPalying) {
-            isPalying = false;
-            Toast.makeText(TAG, "取消点赞", Toast.LENGTH_SHORT).show();
-        } else {
-            isPalying = true;
-            Toast.makeText(TAG, "点赞", Toast.LENGTH_SHORT).show();
-        }
+        isLike = !isLike;
+        changeIconStatus();
     }
 
     private void changeCoverLyric() {
@@ -77,15 +99,5 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder{
 
     private void search() {
         Toast.makeText(TAG, "搜索", Toast.LENGTH_SHORT).show();
-    }
-
-    private void changePlayPauseStatus() {
-        if (isPalying) {
-            isPalying = false;
-            Toast.makeText(TAG, "暂停", Toast.LENGTH_SHORT).show();
-        } else {
-            isPalying = true;
-            Toast.makeText(TAG, "播放", Toast.LENGTH_SHORT).show();
-        }
     }
 }
