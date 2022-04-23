@@ -66,4 +66,7 @@ dependencies {
     // lombok
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
+
+    // 图片模糊
+    implementation 'jp.wasabeef:blurry:4.0.1'
 }

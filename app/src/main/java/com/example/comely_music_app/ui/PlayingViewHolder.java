@@ -2,8 +2,10 @@ package com.example.comely_music_app.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.view.MotionEvent;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -16,14 +18,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.ui.animation.MyClickListener;
 
+import jp.wasabeef.blurry.Blurry;
+
 public class PlayingViewHolder extends RecyclerView.ViewHolder {
     private Context TAG;
     View itemView;
     ImageButton checkModuleBtn, searchBtn;
-    TextView titleText;
+    TextView titleText, lyrics;
     ImageView coverImage;
+    FrameLayout blankFrame;
     ImageButton likeBtn, commentBtn, downloadBtn, moreBtn;
-    private boolean isLike = false;
+    private boolean isLike = false, showCover = true;
     private PlayingViewModel mViewModel;
     // 进度条
     private SeekBar seekBar;
@@ -33,11 +38,37 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
         this.itemView = itemView;
         TAG = itemView.getContext();
         initViewBind(itemView);
+        initViewContents();
         setOnClick();
     }
 
+    /**
+     * 初始化界面数据
+     */
+    private void initViewContents() {
+        // 初始化歌曲封面和背景
+        initCoverAndBackground();
+        // 初始化歌词
+        initLyrics();
+    }
 
+    private void initLyrics() {
+
+    }
+
+    private void initCoverAndBackground() {
+        String path = "/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg";
+        BitmapDrawable bd = (BitmapDrawable) Drawable.createFromPath(path);
+        // 设置背景毛玻璃
+        Blurry.with(itemView.getContext()).radius(50).from(bd.getBitmap()).into(coverImage);
+        itemView.setBackground(coverImage.getDrawable());
+        coverImage.setImageDrawable(Drawable.createFromPath(path));
+    }
+
+
+    @SuppressLint("ResourceType")
     private void initViewBind(View itemView) {
+
         checkModuleBtn = itemView.findViewById(R.id.check_module);
         searchBtn = itemView.findViewById(R.id.search_btn);
         titleText = itemView.findViewById(R.id.music_title_text);
@@ -47,6 +78,8 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
         downloadBtn = itemView.findViewById(R.id.download_btn);
         moreBtn = itemView.findViewById(R.id.more_btn);
 
+        blankFrame = itemView.findViewById(R.id.frame_blank_for_cover_lyrics);
+        lyrics = itemView.findViewById(R.id.lyrics);
         seekBar = itemView.findViewById(R.id.process_sb);
     }
 
@@ -54,23 +87,23 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
     private void setOnClick() {
         checkModuleBtn.setOnClickListener(v -> Toast.makeText(TAG, "切换模式", Toast.LENGTH_SHORT).show());
         searchBtn.setOnClickListener(v -> search());
-        coverImage.setOnTouchListener(new MyClickListener(new MyClickListener.MyClickCallBack() {
+        blankFrame.setOnTouchListener(new MyClickListener(new MyClickListener.MyClickCallBack() {
             @Override
             public void oneClick() {
-                Toast.makeText(itemView.getContext(),"单击",Toast.LENGTH_SHORT).show();
+                showCover = !showCover;
+                changeCover2LyricStatus();
             }
 
             @Override
             public void doubleClick() {
                 isLike = true;
-                changeIconStatus();
+                changeLikeStatus();
             }
         }));
         likeBtn.setOnClickListener(v -> changeLikeDisLike());
         commentBtn.setOnClickListener(v -> comment());
         downloadBtn.setOnClickListener(v -> download());
         moreBtn.setOnClickListener(v -> getMore());
-        seekBar.setProgress(50);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -90,11 +123,21 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    private void changeIconStatus() {
+    private void changeLikeStatus() {
         if (isLike) {
             likeBtn.setImageDrawable(itemView.getResources().getDrawable(R.drawable.ic_liked));
         } else {
             likeBtn.setImageDrawable(itemView.getResources().getDrawable(R.drawable.ic_dislike));
+        }
+    }
+
+    private void changeCover2LyricStatus() {
+        if (showCover) {
+            coverImage.setVisibility(View.VISIBLE);
+            lyrics.setVisibility(View.INVISIBLE);
+        } else {
+            coverImage.setVisibility(View.INVISIBLE);
+            lyrics.setVisibility(View.VISIBLE);
         }
     }
 
@@ -112,7 +155,7 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
 
     private void changeLikeDisLike() {
         isLike = !isLike;
-        changeIconStatus();
+        changeLikeStatus();
     }
 
     private void changeCoverLyric() {
