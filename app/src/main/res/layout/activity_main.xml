@@ -52,6 +52,7 @@
                 tools:ignore="SpeakableTextPresentCheck" />
 
             <TextView
+                android:id="@+id/find_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -87,6 +88,7 @@
                 tools:ignore="SpeakableTextPresentCheck" />
 
             <TextView
+                android:id="@+id/my_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

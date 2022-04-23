@@ -61,55 +61,81 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:gravity="center"
         android:layout_weight="2">
 
-        <ImageButton
-            android:id="@+id/like_btn"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_dislike"
-            tools:ignore="SpeakableTextPresentCheck" />
+            android:gravity="center"
+            android:layout_weight="3">
 
-        <ImageButton
-            android:id="@+id/comment_btn"
-            android:layout_width="wrap_content"
+            <ImageButton
+                android:id="@+id/like_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_dislike"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+            <ImageButton
+                android:id="@+id/comment_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_comment"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"/>
+
+            <ImageButton
+                android:id="@+id/download_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_download"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+            <ImageButton
+                android:id="@+id/more_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_more"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_comment"
-            tools:ignore="SpeakableTextPresentCheck" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="3"/>
-
-        <ImageButton
-            android:id="@+id/download_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_download"
-            tools:ignore="SpeakableTextPresentCheck" />
-
-        <ImageButton
-            android:id="@+id/more_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_more"
-            tools:ignore="SpeakableTextPresentCheck" />
-
+            android:gravity="center"
+            android:layout_weight="1">
+            <SeekBar
+                android:id="@+id/process_sb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="5.0dp"
+                android:minHeight="5.0dp"
+                android:progressDrawable="@drawable/sb_bar"
+                android:thumb="@drawable/sb_thumb"/>
+        </LinearLayout>
     </LinearLayout>
+
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

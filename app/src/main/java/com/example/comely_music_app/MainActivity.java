@@ -9,9 +9,11 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
@@ -89,16 +91,22 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 改变页面状态
      */
-    @SuppressLint("UseCompatLoadingForDrawables")
+    @SuppressLint({"UseCompatLoadingForDrawables", "ResourceAsColor"})
     private void changeIconByStatus(PageStatus status) {
         myBtn.setImageDrawable(getDrawable(R.drawable.ic_my_down));
         findBtn.setImageDrawable(getDrawable(R.drawable.ic_find_down));
+        TextView myText = findViewById(R.id.my_text);
+        TextView findText = findViewById(R.id.find_text);
+        myText.setTextColor(Color.WHITE);
+        findText.setTextColor(Color.WHITE);
         switch (status) {
             case MY:
                 myBtn.setImageDrawable(getDrawable(R.drawable.ic_my_up));
+                myText.setTextColor(R.color.theme_green_light);
                 break;
             case FINDING:
                 findBtn.setImageDrawable(getDrawable(R.drawable.ic_find_up));
+                findText.setTextColor(R.color.theme_green_light);
                 break;
             case PLAYING:
                 playBtn.setImageDrawable(getDrawable(R.drawable.ic_play));

@@ -6,6 +6,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,14 +17,16 @@ import com.example.comely_music_app.R;
 import com.example.comely_music_app.ui.animation.MyClickListener;
 
 public class PlayingViewHolder extends RecyclerView.ViewHolder {
+    private Context TAG;
     View itemView;
     ImageButton checkModuleBtn, searchBtn;
     TextView titleText;
     ImageView coverImage;
     ImageButton likeBtn, commentBtn, downloadBtn, moreBtn;
-    private boolean isPalying = false, isLike = false;
+    private boolean isLike = false;
     private PlayingViewModel mViewModel;
-    private Context TAG;
+    // 进度条
+    private SeekBar seekBar;
 
     public PlayingViewHolder(@NonNull View itemView) {
         super(itemView);
@@ -43,6 +46,8 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
         commentBtn = itemView.findViewById(R.id.comment_btn);
         downloadBtn = itemView.findViewById(R.id.download_btn);
         moreBtn = itemView.findViewById(R.id.more_btn);
+
+        seekBar = itemView.findViewById(R.id.process_sb);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -65,6 +70,23 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
         commentBtn.setOnClickListener(v -> comment());
         downloadBtn.setOnClickListener(v -> download());
         moreBtn.setOnClickListener(v -> getMore());
+        seekBar.setProgress(50);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // 进度变化回调
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // 触碰
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // 放开
+            }
+        });
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
