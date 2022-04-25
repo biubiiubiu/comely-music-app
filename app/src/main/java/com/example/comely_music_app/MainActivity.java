@@ -17,11 +17,20 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.example.comely_music_app.api.request.FileUploadRequest;
+import com.example.comely_music_app.api.service.FileService;
+import com.example.comely_music_app.api.service.impl.FileServiceImpl;
+import com.example.comely_music_app.config.FileConfig;
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
 import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
 import com.example.comely_music_app.ui.animation.DepthPageTransformer;
+import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
 import com.example.comely_music_app.ui.enums.PageStatus;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -40,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
         viewPager = findViewById(R.id.viewpage_playing);
         viewPager.setOrientation(ORIENTATION_VERTICAL);
-        viewPager.setPageTransformer(new DepthPageTransformer());
+//        viewPager.setPageTransformer(new DepthPageTransformer());
         PlayingViewListAdapter adapter = new PlayingViewListAdapter();
         viewPager.setAdapter(adapter);
 
@@ -137,4 +146,27 @@ public class MainActivity extends AppCompatActivity {
         frameBlank.setVisibility(View.INVISIBLE);
         viewPager.setVisibility(View.VISIBLE);
     }
+
+//    // 临时上传文件测试
+//    private void uploadFileTest() {
+//        FileService fileService = new FileServiceImpl();
+//        FileUploadRequest request = new FileUploadRequest();
+//        List<FileUploadRequest.FileUploadInfo> list = new ArrayList<>();
+//
+//        List<String> filenames = new ArrayList<>();
+//        filenames.add("许嵩 - 雨幕.jpg");
+//        filenames.add("周杰伦 - 稻香.jpg");
+//        filenames.add("文贝武 - 燕归巢.jpg");
+//        filenames.add("不是花火呀 - TA.jpg");
+//        filenames.add("队长 - 哪里都是你.jpg");
+//        filenames.add("文贝武 - 南山南.jpg");
+//
+//        for (String filename : filenames) {
+//            File file = new File("/storage/emulated/0/$MuMu共享文件夹/" + filename);
+//            list.add(new FileUploadRequest.FileUploadInfo(filename, file.length()));
+//        }
+//
+//        request.setFileUploadInfoList(list);
+//        fileService.uploadFile(this, request);
+//    }
 }

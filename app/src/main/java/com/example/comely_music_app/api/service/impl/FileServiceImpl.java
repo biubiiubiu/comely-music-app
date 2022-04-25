@@ -25,6 +25,7 @@ import com.example.comely_music_app.api.request.FileUploadRequest;
 import com.example.comely_music_app.api.response.file.FileUploadResponse;
 import com.example.comely_music_app.api.response.file.OssTokenInfo;
 import com.example.comely_music_app.api.service.FileService;
+import com.example.comely_music_app.config.FileConfig;
 import com.example.comely_music_app.utils.FileOperationUtils;
 
 import java.io.File;
@@ -42,9 +43,9 @@ public class FileServiceImpl implements FileService {
     private final FileApi fileApiService = ApiManager.getInstance().getApiService(FileApi.class);
 
     // 上传文件根文件夹
-    private final static String BASE_UPLOAD_DIR = "/storage/emulated/0/$MuMu共享文件夹/";
+    private final static String BASE_UPLOAD_DIR = FileConfig.BASE_PATH;
     // 下载文件根文件夹
-    private final static String BASE_DOWNLOAD_DIR = "/storage/emulated/0/$MuMu共享文件夹/";
+    private final static String BASE_DOWNLOAD_DIR = FileConfig.BASE_PATH;
 
     /**
      * 上传文件，文件位置 BASE_DIR/filename

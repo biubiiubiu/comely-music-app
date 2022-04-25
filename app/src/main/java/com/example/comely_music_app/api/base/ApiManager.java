@@ -1,5 +1,7 @@
 package com.example.comely_music_app.api.base;
 
+import com.example.comely_music_app.config.ServerConfig;
+
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -10,11 +12,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class ApiManager {
-    public final static String BASE_URL = "http://10.0.2.2:8080/";
-
     private static ApiManager apiManager;
     private final Retrofit retrofit;
-    //    private BaseApi baseApi;
 
     public static ApiManager getInstance() {
         if (apiManager == null) {
@@ -38,7 +37,7 @@ public class ApiManager {
                 .build();
 
         retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(ServerConfig.BASE_RUL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addConverterFactory(ScalarsConverterFactory.create())
                 //支持RxJava
