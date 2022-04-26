@@ -120,7 +120,7 @@
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
-                android:src="@drawable/ic_download"
+                android:src="@drawable/ic_local_music"
                 tools:ignore="SpeakableTextPresentCheck" />
 
             <ImageButton
