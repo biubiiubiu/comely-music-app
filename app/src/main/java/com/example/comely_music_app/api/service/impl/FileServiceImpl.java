@@ -19,9 +19,8 @@ import com.example.comely_music_app.api.apis.FileApi;
 import com.example.comely_music_app.api.base.ApiManager;
 import com.example.comely_music_app.api.base.BaseObserver;
 import com.example.comely_music_app.api.base.BaseResult;
-import com.example.comely_music_app.api.request.FileCommonRequest;
-import com.example.comely_music_app.api.request.FileDownloadRequest;
-import com.example.comely_music_app.api.request.FileUploadRequest;
+import com.example.comely_music_app.api.request.file.FileCommonRequest;
+import com.example.comely_music_app.api.request.file.FileUploadRequest;
 import com.example.comely_music_app.api.response.file.FileUploadResponse;
 import com.example.comely_music_app.api.response.file.OssTokenInfo;
 import com.example.comely_music_app.api.service.FileService;
@@ -29,7 +28,6 @@ import com.example.comely_music_app.config.FileConfig;
 import com.example.comely_music_app.utils.FileOperationUtils;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +38,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class FileServiceImpl implements FileService {
 
-    private final FileApi fileApiService = ApiManager.getInstance().getApiService(FileApi.class);
+    private final FileApi fileApi = ApiManager.getInstance().getApiService(FileApi.class);
 
     // 上传文件根文件夹
     private final static String BASE_UPLOAD_DIR = FileConfig.BASE_PATH;
@@ -52,7 +50,7 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public void uploadFile(Context context, FileUploadRequest request) {
-        Observable<BaseResult<FileUploadResponse>> uploadingObservable = fileApiService.upLoading(request);
+        Observable<BaseResult<FileUploadResponse>> uploadingObservable = fileApi.upLoading(request);
         uploadingObservable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new BaseObserver<FileUploadResponse>(false) {
@@ -131,7 +129,7 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public void downloadFile(Context context, String username, String storageUrl) {
-        Observable<BaseResult<OssTokenInfo>> ossTokenObservable = fileApiService.getOssToken(username);
+        Observable<BaseResult<OssTokenInfo>> ossTokenObservable = fileApi.getOssToken(username);
         ossTokenObservable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new BaseObserver<OssTokenInfo>(false) {
@@ -157,7 +155,7 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public void batchDownloadFile(Context context, String username, List<String> storageUrlList) {
-        Observable<BaseResult<OssTokenInfo>> ossTokenObservable = fileApiService.getOssToken(username);
+        Observable<BaseResult<OssTokenInfo>> ossTokenObservable = fileApi.getOssToken(username);
         ossTokenObservable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new BaseObserver<OssTokenInfo>(false) {
@@ -234,7 +232,7 @@ public class FileServiceImpl implements FileService {
     }
 
     private void setUploadSuccessResult(FileCommonRequest request) {
-        Observable<BaseResult<Boolean>> uploadingObservable = fileApiService.setUploadSuccess(request);
+        Observable<BaseResult<Boolean>> uploadingObservable = fileApi.setUploadSuccess(request);
         uploadingObservable.subscribe(new BaseObserver<Boolean>(false) {
             @Override
             public void onSuccess(Boolean o) {

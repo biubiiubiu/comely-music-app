@@ -20,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
+import com.example.comely_music_app.api.request.music.MusicSelectRequest;
+import com.example.comely_music_app.enums.PlayerModule;
 import com.example.comely_music_app.ui.animation.MyClickListener;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.provider.MusicModelProvider;
@@ -30,7 +32,7 @@ import java.util.List;
 import jp.wasabeef.blurry.Blurry;
 
 public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewListAdapter.PlayingViewHolder> {
-    private Context TAG;
+    private Context context;
     private View item;
     private boolean isLike, showCover;
     //    // 进度条
@@ -60,11 +62,11 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewList
     @NonNull
     @Override
     public PlayingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        modelProvider = new MusicModelProvider();
         item = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_playing_view,
                 parent, false);
         // 初始化各个item list的数据
-        TAG = item.getContext();
+        context = item.getContext();
+        modelProvider = new MusicModelProvider(context);
         return new PlayingViewHolder(item);
     }
 
@@ -94,8 +96,6 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewList
         // 使用holder把数据解析到当前位置的itemView上
         initViewContents(holder);
 
-//        initViewBind(holder);
-//        setOnClick();
     }
 
     @Override
@@ -109,8 +109,9 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewList
     /**
      * Retrofit2 MusicService，初始化一次音乐信息，一次获取NUM首
      */
-    private List<MusicModel> initMusicModelList() {
-        return modelProvider.getPatchMusicModel(NUM);
+    private List<MusicModel> initMusicModelList(PlayerModule module) {
+        MusicSelectRequest request = new MusicSelectRequest(module, NUM);
+        return modelProvider.getPatchMusicModel(request);
     }
 
     private List<String> initTitleList() {
@@ -237,9 +238,9 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewList
          * 初始化界面数据
          */
 //        private void initViewContents() {
-            // 初始化歌曲封面和背景
+        // 初始化歌曲封面和背景
 //            initCoverAndBackground();
-            // 初始化歌词
+        // 初始化歌词
 //            initLyrics();
 //        }
 //
@@ -255,8 +256,6 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewList
 //            itemView.setBackground(coverImage.getDrawable());
 //            coverImage.setImageDrawable(Drawable.createFromPath(path));
 //        }
-
-
         @SuppressLint("ResourceType")
         private void initViewBind(View itemView) {
             checkModuleBtn = itemView.findViewById(R.id.check_module);

@@ -11,10 +11,10 @@ import lombok.Data;
 public class MusicModel {
     private String name;
     private String artistName;
-    private String lyricPath;
+    private String lyricLocalPath;
     /**
      * 根据mp3可以获取时长
      */
-    private String audioPath;
-    private String coverPath;
+    private String audioLocalPath;
+    private String coverLocalPath;
 }

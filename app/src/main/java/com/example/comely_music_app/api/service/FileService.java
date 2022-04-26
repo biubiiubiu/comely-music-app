@@ -2,9 +2,7 @@ package com.example.comely_music_app.api.service;
 
 import android.content.Context;
 
-import com.example.comely_music_app.api.request.FileDownloadRequest;
-import com.example.comely_music_app.api.request.FileUploadRequest;
-import com.example.comely_music_app.api.response.file.OssTokenInfo;
+import com.example.comely_music_app.api.request.file.FileUploadRequest;
 
 import java.util.List;
 

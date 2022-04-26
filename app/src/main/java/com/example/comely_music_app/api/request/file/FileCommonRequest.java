@@ -1,4 +1,4 @@
-package com.example.comely_music_app.api.request;
+package com.example.comely_music_app.api.request.file;
 
 import java.util.Map;
 

@@ -17,20 +17,10 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.example.comely_music_app.api.request.FileUploadRequest;
-import com.example.comely_music_app.api.service.FileService;
-import com.example.comely_music_app.api.service.impl.FileServiceImpl;
-import com.example.comely_music_app.config.FileConfig;
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
 import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
-import com.example.comely_music_app.ui.animation.DepthPageTransformer;
-import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
 import com.example.comely_music_app.ui.enums.PageStatus;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -154,12 +144,12 @@ public class MainActivity extends AppCompatActivity {
 //        List<FileUploadRequest.FileUploadInfo> list = new ArrayList<>();
 //
 //        List<String> filenames = new ArrayList<>();
-//        filenames.add("许嵩 - 雨幕.jpg");
-//        filenames.add("周杰伦 - 稻香.jpg");
-//        filenames.add("文贝武 - 燕归巢.jpg");
-//        filenames.add("不是花火呀 - TA.jpg");
-//        filenames.add("队长 - 哪里都是你.jpg");
-//        filenames.add("文贝武 - 南山南.jpg");
+//        filenames.add("许嵩 - 雨幕.mp3");
+//        filenames.add("周杰伦 - 稻香.mp3");
+//        filenames.add("文武贝 - 燕归巢.mp3");
+//        filenames.add("不是花火呀 - TA.mp3");
+//        filenames.add("队长 - 哪里都是你.mp3");
+//        filenames.add("文武贝 - 南山南.mp3");
 //
 //        for (String filename : filenames) {
 //            File file = new File("/storage/emulated/0/$MuMu共享文件夹/" + filename);
