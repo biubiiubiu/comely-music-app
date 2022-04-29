@@ -11,4 +11,9 @@
     <color name="theme_blue_gray">#418080</color>
     <color name="theme_green_light">#44A8A0</color>
     <color name="main_background">#B7051919</color>
+
+    <color name="colorPrimary">#FFFFFF</color>
+    <color name="colorPrimaryDark">#FFFFFF</color>
+    <color name="colorAccent">#FFFFFF</color>
+    <color name="textInputLayout">#96ffffff</color>
 </resources>

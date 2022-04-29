@@ -8,14 +8,17 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 
 import com.example.comely_music_app.MainActivity;
+import com.example.comely_music_app.ui.enums.PageStatus;
+
+import java.util.Objects;
 
 public class MainViewModel extends AndroidViewModel {
     private MutableLiveData<Boolean> isPlayingLiveData;
-    private MutableLiveData<Integer> pageStatusLiveData;
-    private SavedStateHandle handle;
+    private MutableLiveData<PageStatus> pageStatusLiveData;
+    private final SavedStateHandle handle;
 
     public MainViewModel(@Nullable Application application, SavedStateHandle handle) {
-        super(application);
+        super(Objects.requireNonNull(application));
         this.handle = handle;
     }
 
@@ -27,7 +30,7 @@ public class MainViewModel extends AndroidViewModel {
         return handle.getLiveData(MainActivity.KEY_IS_PLAYING);
     }
 
-    public MutableLiveData<Integer> getPageStatusLiveData() {
+    public MutableLiveData<PageStatus> getPageStatusLiveData() {
         if (!handle.contains(MainActivity.KEY_PAGE_STATUS)) {
             handle.set(MainActivity.KEY_PAGE_STATUS, 2);
         }
@@ -43,15 +46,10 @@ public class MainViewModel extends AndroidViewModel {
         isPlayingLiveData.setValue(!isPlaying);
     }
 
-    public void changeIsPlayingAndPageStatusLiveData(){
-        changeIsPlayingLiveData();
-        changePageStatusLiveData(2);
-    }
-
     /**
      * 更改页面状态
      */
-    public void changePageStatusLiveData(Integer status) {
+    public void changePageStatusLiveData(PageStatus status) {
         pageStatusLiveData.setValue(status);
     }
 

@@ -7,165 +7,134 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.comely_music_app.databinding.ActivityMainBinding;
-import com.example.comely_music_app.databinding.ItemPlayingViewBinding;
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
 import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
+import com.example.comely_music_app.ui.enums.PageStatus;
 import com.example.comely_music_app.ui.viewmodels.MainViewModel;
 
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private FragmentManager manager;
     private Animation mAnimation;
 
+    private View frameBlank;
+    private ImageView musicCoverImg;
+    private ImageButton playPauseBtn;
+    private ViewPager2 viewPager;
+
     private MainViewModel mainViewModel;
-    private ActivityMainBinding mainBinding;
-    private ItemPlayingViewBinding itemPlayingViewBinding;
 
     public final static String KEY_IS_PLAYING = "KEY_IS_PLAYING";
     public final static String KEY_PAGE_STATUS = "KEY_PAGE_STATUS";
 
+    @SuppressLint({"UseCompatLoadingForDrawables", "ResourceAsColor"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        itemPlayingViewBinding = DataBindingUtil.setContentView(this, R.layout.item_playing_view);
+        setContentView(R.layout.activity_main);
 
-        mainBinding.viewpagePlaying.setOrientation(ORIENTATION_VERTICAL);
+        frameBlank = findViewById(R.id.frame_blank);
+        musicCoverImg = findViewById(R.id.music_cover_img);
+        playPauseBtn = findViewById(R.id.play_pause_btn);
+        viewPager = findViewById(R.id.viewpage_playing);
+
+        viewPager.setOrientation(ORIENTATION_VERTICAL);
         PlayingViewListAdapter adapter = new PlayingViewListAdapter();
-        mainBinding.viewpagePlaying.setAdapter(adapter);
+        viewPager.setAdapter(adapter);
 
         if (manager == null) {
             manager = getSupportFragmentManager();
         }
 
+
         // 存活时间更久
         SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(getApplication(), this);
         mainViewModel = ViewModelProviders.of(this, savedState).get(MainViewModel.class);
-        mainBinding.setData(mainViewModel);
-        mainBinding.setLifecycleOwner(this);
 
-        mainViewModel.getIsPlayingLiveData().observe(this, new Observer<Boolean>() {
-            @SuppressLint("UseCompatLoadingForDrawables")
-            @Override
-            public void onChanged(Boolean isPlaying) {
-                if(isPlaying){
-                    mainBinding.playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_play));
-                    // 封面旋转
-                    mAnimation = AnimationUtils.loadAnimation(getApplication(), R.anim.rotaterepeat);
-                    itemPlayingViewBinding.musicCoverImg.startAnimation(mAnimation);
-                } else {
-                    mainBinding.playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_pause));
-                    // 封面停止旋转
-                    itemPlayingViewBinding.musicCoverImg.clearAnimation();
-                }
+        mainViewModel.getIsPlayingLiveData().observe(this, isPlaying -> {
+            if (isPlaying) {
+                playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_play));
+                // 封面旋转
+                mAnimation = AnimationUtils.loadAnimation(getApplication(), R.anim.rotaterepeat);
+                musicCoverImg.startAnimation(mAnimation);
+            } else {
+                playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_pause));
+                // 封面停止旋转
+                musicCoverImg.clearAnimation();
             }
         });
 
 
-        mainViewModel.getPageStatusLiveData().observe(this, new Observer<Integer>() {
-            @SuppressLint({"UseCompatLoadingForDrawables", "ResourceAsColor"})
-            @Override
-            public void onChanged(Integer status) {
-                switch (status) {
-                    case 1:
-                        checkout2TargetFragment(new MyFragment());
-                        mainBinding.myBtn.setImageDrawable(getDrawable(R.drawable.ic_my_up));
-                        mainBinding.myText.setTextColor(R.color.theme_green_light);
-                        break;
-                    case 2:
-                        checkout2TargetFragment(new FindingFragment());
-                        mainBinding.findBtn.setImageDrawable(getDrawable(R.drawable.ic_find_up));
-                        mainBinding.findText.setTextColor(R.color.theme_green_light);
-                        break;
-                    case 3:
-                        checkout2Playing();
-                        break;
-                }
+        mainViewModel.getPageStatusLiveData().observe(this, status -> {
+            ImageButton myBtn = findViewById(R.id.my_btn);
+            ImageButton findBtn = findViewById(R.id.find_btn);
+            switch (status) {
+                case MY:
+                    TextView myText = findViewById(R.id.my_text);
+                    checkout2TargetFragment(new MyFragment());
+                    myBtn.setImageDrawable(getDrawable(R.drawable.ic_my_up));
+                    myText.setTextColor(R.color.theme_green_light);
+                    break;
+                case FINDING:
+                    TextView findText = findViewById(R.id.find_text);
+                    checkout2TargetFragment(new FindingFragment());
+                    findBtn.setImageDrawable(getDrawable(R.drawable.ic_find_up));
+                    findText.setTextColor(R.color.theme_green_light);
+                    break;
+                case PLAYING:
+                    checkout2Playing();
+                    break;
             }
         });
     }
 
 //    /**
-//     * 页面点击响应
+//     * 初始化界面组件
 //     */
-//    private void onClick() {
-//        binding.playPauseBtn.setOnClickListener(v -> {
-//            isPlaying = !isPlaying;
-//            status = isPlaying ? PageStatus.PLAYING : PageStatus.PAUSE;
-//            checkout2Playing();
-//            changeIconByStatus(status);
-//        });
-//
-//        binding.findBtn.setOnClickListener(v -> {
-//            status = PageStatus.FINDING;
-//            checkout2TargetFragment(new FindingFragment());
-//            changeIconByStatus(status);
-//        });
-//        binding.myBtn.setOnClickListener(v -> {
-//            status = PageStatus.MY;
-//            checkout2TargetFragment(new MyFragment());
-//            changeIconByStatus(status);
-//        });
+//    private void initIcon() {
+//        playPauseBtn = findViewById(R.id.play_pause_btn);
+//        findBtn = findViewById(R.id.find_btn);
+//        myBtn = findViewById(R.id.my_btn);
 //    }
 
-//    /**
-//     * 改变页面状态
-//     */
-//    @SuppressLint({"UseCompatLoadingForDrawables", "ResourceAsColor", "ResourceType"})
-//    private void changeIconByStatus(PageStatus status) {
-//        binding.myBtn.setImageDrawable(getDrawable(R.drawable.ic_my_down));
-//        binding.findBtn.setImageDrawable(getDrawable(R.drawable.ic_find_down));
-//        TextView myText = findViewById(R.id.my_text);
-//        TextView findText = findViewById(R.id.find_text);
-//        myText.setTextColor(Color.WHITE);
-//        findText.setTextColor(Color.WHITE);
-//        switch (status) {
-//            case MY:
-//                binding.myBtn.setImageDrawable(getDrawable(R.drawable.ic_my_up));
-//                myText.setTextColor(R.color.theme_green_light);
-//                break;
-//            case FINDING:
-//                binding.findBtn.setImageDrawable(getDrawable(R.drawable.ic_find_up));
-//                findText.setTextColor(R.color.theme_green_light);
-//                break;
-//            case PLAYING:
-//                binding.playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_play));
-//                View image = findViewById(R.id.music_cover_img);
-//                mAnimation = AnimationUtils.loadAnimation(this, R.anim.rotaterepeat);
-//                image.startAnimation(mAnimation);
-//                break;
-//            case PAUSE:
-//                binding.playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_pause));
-//                View image1 = findViewById(R.id.music_cover_img);
-//                image1.clearAnimation();
-//                break;
-//        }
-//    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.play_pause_btn) {
+            mainViewModel.changeIsPlayingLiveData();
+            mainViewModel.changePageStatusLiveData(PageStatus.PLAYING);
+        } else if (v.getId() == R.id.find_btn) {
+            mainViewModel.changePageStatusLiveData(PageStatus.FINDING);
+        } else if (v.getId() == R.id.my_btn) {
+            mainViewModel.changePageStatusLiveData(PageStatus.MY);
+        }
+    }
 
     private void checkout2TargetFragment(Fragment targetFragment) {
         FragmentTransaction ft = manager.beginTransaction();
-        mainBinding.viewpagePlaying.setVisibility(View.INVISIBLE);
-        ft.replace(mainBinding.frameBlank.getId(), targetFragment);
+        viewPager.setVisibility(View.INVISIBLE);
+        ft.replace(R.id.frame_blank, targetFragment);
         ft.commit();
-        mainBinding.frameBlank.setVisibility(View.VISIBLE);
+        frameBlank.setVisibility(View.VISIBLE);
     }
 
     private void checkout2Playing() {
-        mainBinding.frameBlank.setVisibility(View.INVISIBLE);
-        mainBinding.viewpagePlaying.setVisibility(View.VISIBLE);
+        frameBlank.setVisibility(View.INVISIBLE);
+        viewPager.setVisibility(View.VISIBLE);
     }
+
 
 //    // 临时上传文件测试
 //    private void uploadFileTest() {
