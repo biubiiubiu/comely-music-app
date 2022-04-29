@@ -1,32 +1,65 @@
 package com.example.comely_music_app.ui.viewmodels;
 
+import android.app.Application;
+
+import androidx.annotation.Nullable;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
-import androidx.lifecycle.ViewModel;
 
-import com.example.comely_music_app.ui.enums.PageStatus;
+import com.example.comely_music_app.MainActivity;
 
-public class MainViewModel extends ViewModel {
-    private boolean isPlaying = true;
-    private PageStatus status = PageStatus.PLAYING;
+public class MainViewModel extends AndroidViewModel {
+    private MutableLiveData<Boolean> isPlayingLiveData;
+    private MutableLiveData<Integer> pageStatusLiveData;
     private SavedStateHandle handle;
 
-    public MainViewModel(SavedStateHandle handle) {
+    public MainViewModel(@Nullable Application application, SavedStateHandle handle) {
+        super(application);
         this.handle = handle;
     }
 
-    public void playBtnClick() {
-        isPlaying = !isPlaying;
-        status = isPlaying ? PageStatus.PLAYING : PageStatus.PAUSE;
-        checkout2Playing();
-        changeIconByStatus(status);
+    public MutableLiveData<Boolean> getIsPlayingLiveData() {
+        // 如果没有就初始化为isPlaying=true
+        if (!handle.contains(MainActivity.KEY_IS_PLAYING)) {
+            handle.set(MainActivity.KEY_IS_PLAYING, true);
+        }
+        return handle.getLiveData(MainActivity.KEY_IS_PLAYING);
     }
 
-    private void changeIconByStatus(PageStatus status) {
-
+    public MutableLiveData<Integer> getPageStatusLiveData() {
+        if (!handle.contains(MainActivity.KEY_PAGE_STATUS)) {
+            handle.set(MainActivity.KEY_PAGE_STATUS, 2);
+        }
+        return handle.getLiveData(MainActivity.KEY_PAGE_STATUS);
     }
 
-    private void checkout2Playing() {
-
+    /**
+     * 改变播放状态isPlaying，取反
+     */
+    public void changeIsPlayingLiveData() {
+        Boolean isPlaying = getIsPlayingLiveData().getValue();
+        isPlaying = isPlaying == null || isPlaying;
+        isPlayingLiveData.setValue(!isPlaying);
     }
+
+    public void changeIsPlayingAndPageStatusLiveData(){
+        changeIsPlayingLiveData();
+        changePageStatusLiveData(2);
+    }
+
+    /**
+     * 更改页面状态
+     */
+    public void changePageStatusLiveData(Integer status) {
+        pageStatusLiveData.setValue(status);
+    }
+
+//    private void load(){
+//
+//    }
+//
+//    public void save(){
+//
+//    }
 }
