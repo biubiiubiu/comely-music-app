@@ -32,7 +32,7 @@ public class MainViewModel extends AndroidViewModel {
 
     public MutableLiveData<PageStatus> getPageStatusLiveData() {
         if (!handle.contains(MainActivity.KEY_PAGE_STATUS)) {
-            handle.set(MainActivity.KEY_PAGE_STATUS, 2);
+            handle.set(MainActivity.KEY_PAGE_STATUS, PageStatus.PLAYING);
         }
         return handle.getLiveData(MainActivity.KEY_PAGE_STATUS);
     }
@@ -41,15 +41,21 @@ public class MainViewModel extends AndroidViewModel {
      * 改变播放状态isPlaying，取反
      */
     public void changeIsPlayingLiveData() {
-        Boolean isPlaying = getIsPlayingLiveData().getValue();
+        if (isPlayingLiveData == null) {
+            isPlayingLiveData = getIsPlayingLiveData();
+        }
+        Boolean isPlaying = isPlayingLiveData.getValue();
         isPlaying = isPlaying == null || isPlaying;
-        isPlayingLiveData.setValue(!isPlaying);
+        this.isPlayingLiveData.setValue(!isPlaying);
     }
 
     /**
      * 更改页面状态
      */
     public void changePageStatusLiveData(PageStatus status) {
+        if (isPlayingLiveData == null) {
+            isPlayingLiveData = getIsPlayingLiveData();
+        }
         pageStatusLiveData.setValue(status);
     }
 

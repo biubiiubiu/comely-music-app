@@ -17,6 +17,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.SavedStateViewModelFactory;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
@@ -25,6 +27,7 @@ import com.example.comely_music_app.enums.PlayerModule;
 import com.example.comely_music_app.ui.animation.MyClickListener;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.provider.MusicModelProvider;
+import com.example.comely_music_app.ui.viewmodels.MainViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -232,6 +235,7 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewList
             initViewBind(itemView);
 //            initViewContents();
             setOnClick();
+
         }
 
         /**

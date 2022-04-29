@@ -5,10 +5,10 @@ import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,8 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FragmentManager manager;
     private Animation mAnimation;
 
-    private View frameBlank;
-    private ImageView musicCoverImg;
+    private View frameBlank,findBtn,myBtn;
     private ImageButton playPauseBtn;
     private ViewPager2 viewPager;
 
@@ -43,12 +42,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
-        frameBlank = findViewById(R.id.frame_blank);
-        musicCoverImg = findViewById(R.id.music_cover_img);
-        playPauseBtn = findViewById(R.id.play_pause_btn);
-        viewPager = findViewById(R.id.viewpage_playing);
+        initIcon();
 
         viewPager.setOrientation(ORIENTATION_VERTICAL);
         PlayingViewListAdapter adapter = new PlayingViewListAdapter();
@@ -58,7 +56,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             manager = getSupportFragmentManager();
         }
 
-
         // 存活时间更久
         SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(getApplication(), this);
         mainViewModel = ViewModelProviders.of(this, savedState).get(MainViewModel.class);
@@ -67,12 +64,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (isPlaying) {
                 playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_play));
                 // 封面旋转
-                mAnimation = AnimationUtils.loadAnimation(getApplication(), R.anim.rotaterepeat);
-                musicCoverImg.startAnimation(mAnimation);
+//                mAnimation = AnimationUtils.loadAnimation(getApplication(), R.anim.rotaterepeat);
+//                musicCoverImg.startAnimation(mAnimation);
             } else {
                 playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_pause));
                 // 封面停止旋转
-                musicCoverImg.clearAnimation();
+//                musicCoverImg.clearAnimation();
             }
         });
 
@@ -100,14 +97,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-//    /**
-//     * 初始化界面组件
-//     */
-//    private void initIcon() {
-//        playPauseBtn = findViewById(R.id.play_pause_btn);
-//        findBtn = findViewById(R.id.find_btn);
-//        myBtn = findViewById(R.id.my_btn);
-//    }
+    /**
+     * 初始化界面组件
+     */
+    private void initIcon() {
+        playPauseBtn = findViewById(R.id.play_pause_btn);
+        findBtn = findViewById(R.id.find_btn);
+        myBtn = findViewById(R.id.my_btn);
+        frameBlank = findViewById(R.id.frame_blank);
+        playPauseBtn = findViewById(R.id.play_pause_btn);
+        viewPager = findViewById(R.id.viewpage_playing);
+
+        playPauseBtn.setOnClickListener(this);
+        findBtn.setOnClickListener(this);
+        myBtn.setOnClickListener(this);
+    }
 
 
     @Override
