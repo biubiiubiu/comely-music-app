@@ -1,65 +1,53 @@
 package com.example.comely_music_app.ui.adapter;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.SeekBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.SavedStateViewModelFactory;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.api.request.music.MusicSelectRequest;
 import com.example.comely_music_app.enums.PlayerModule;
-import com.example.comely_music_app.ui.animation.MyClickListener;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.provider.MusicModelProvider;
-import com.example.comely_music_app.ui.viewmodels.MainViewModel;
+import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import jp.wasabeef.blurry.Blurry;
 
-public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewListAdapter.PlayingViewHolder> {
-    private Context context;
+/**
+ * 用于修改PlayingViewPager界面数据
+ */
+public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHolder> {
     private View item;
-    private boolean isLike, showCover;
-    //    // 进度条
-//    private SeekBar seekBar;
-    private MusicModelProvider modelProvider;
 
-    /**
-     * 音乐信息列表
-     */
-    private List<MusicModel> musicModelList;
+    private MusicModelProvider modelProvider;
 
     /**
      * 一次获取10首音乐
      */
     private final static int NUM = 10;
-
     private List<String> titleList;
     private List<Drawable> coverList, backgroundList;
 
     private PlayingViewHolder holder;
     private int position;
 
-    public PlayingViewListAdapter() {
+    private PlayingViewModel playingViewModel;
 
+    public PlayingViewListAdapter(PlayingViewModel playingViewModel) {
+        this.playingViewModel = playingViewModel;
+    }
+
+    public PlayingViewHolder getHolder() {
+        return holder;
     }
 
     @NonNull
@@ -68,9 +56,8 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewList
         item = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_playing_view,
                 parent, false);
         // 初始化各个item list的数据
-        context = item.getContext();
-        modelProvider = new MusicModelProvider(context);
-        return new PlayingViewHolder(item);
+        modelProvider = new MusicModelProvider(item.getContext());
+        return new PlayingViewHolder(item, playingViewModel);
     }
 
     /**
@@ -93,12 +80,9 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewList
             coverList = initCoverList();
         }
         // 刷新点赞按钮样式、封面歌词状态
-        isLike = false;
-        showCover = true;
 
         // 使用holder把数据解析到当前位置的itemView上
         initViewContents(holder);
-
     }
 
     @Override
@@ -114,7 +98,7 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewList
      */
     private List<MusicModel> initMusicModelList(PlayerModule module) {
         MusicSelectRequest request = new MusicSelectRequest(module, NUM);
-        return modelProvider.getPatchMusicModel(request);
+        return modelProvider.getPatchMusicModel(request, playingViewModel);
     }
 
     private List<String> initTitleList() {
@@ -206,168 +190,4 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewList
     }
 
 
-    /**
-     * 用来解析item_playing_view界面，变量绑定绑定控件
-     */
-    public static class PlayingViewHolder extends RecyclerView.ViewHolder {
-        Context TAG;
-        View itemView;
-        // 这里按照界面布局从上往下写，代码可读性好
-        ImageButton checkModuleBtn, searchBtn;
-
-        FrameLayout blankFrame;
-        TextView titleText, lyrics;
-        ImageView coverImage;
-
-        ImageButton likeBtn, commentBtn, downloadBtn, moreBtn;
-
-        // 进度条
-        SeekBar seekBar;
-
-        private boolean isLike, showCover;
-
-        public PlayingViewHolder(@NonNull View itemView) {
-            super(itemView);
-            TAG = itemView.getContext();
-            isLike = false;
-            showCover = false;
-            this.itemView = itemView;
-            initViewBind(itemView);
-//            initViewContents();
-            setOnClick();
-
-        }
-
-        /**
-         * 初始化界面数据
-         */
-//        private void initViewContents() {
-        // 初始化歌曲封面和背景
-//            initCoverAndBackground();
-        // 初始化歌词
-//            initLyrics();
-//        }
-//
-//        private void initLyrics() {
-//
-//        }
-
-//        public void initCoverAndBackground() {
-//            String path = "/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg";
-//            BitmapDrawable bd = (BitmapDrawable) Drawable.createFromPath(path);
-//            // 设置背景毛玻璃
-//            Blurry.with(itemView.getContext()).radius(50).from(bd.getBitmap()).into(coverImage);
-//            itemView.setBackground(coverImage.getDrawable());
-//            coverImage.setImageDrawable(Drawable.createFromPath(path));
-//        }
-        @SuppressLint("ResourceType")
-        private void initViewBind(View itemView) {
-            checkModuleBtn = itemView.findViewById(R.id.check_module);
-            searchBtn = itemView.findViewById(R.id.search_btn);
-            titleText = itemView.findViewById(R.id.music_title_text);
-            coverImage = itemView.findViewById(R.id.music_cover_img);
-            likeBtn = itemView.findViewById(R.id.like_btn);
-            commentBtn = itemView.findViewById(R.id.comment_btn);
-            downloadBtn = itemView.findViewById(R.id.download_btn);
-            moreBtn = itemView.findViewById(R.id.more_btn);
-
-            blankFrame = itemView.findViewById(R.id.frame_blank_for_cover_lyrics);
-            lyrics = itemView.findViewById(R.id.lyrics);
-            seekBar = itemView.findViewById(R.id.process_sb);
-        }
-
-        @SuppressLint("ClickableViewAccessibility")
-        private void setOnClick() {
-            checkModuleBtn.setOnClickListener(v -> Toast.makeText(TAG, "切换模式", Toast.LENGTH_SHORT).show());
-            searchBtn.setOnClickListener(v -> search());
-            blankFrame.setOnTouchListener(new MyClickListener(new MyClickListener.MyClickCallBack() {
-                @Override
-                public void oneClick() {
-                    showCover = !showCover;
-                    changeCover2LyricStatus();
-                }
-
-                @Override
-                public void doubleClick() {
-                    isLike = true;
-                    changeLikeStatus();
-                }
-            }));
-            likeBtn.setOnClickListener(v -> changeLikeDisLike());
-            commentBtn.setOnClickListener(v -> comment());
-            downloadBtn.setOnClickListener(v -> download());
-            moreBtn.setOnClickListener(v -> getMore());
-            seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    // 进度变化回调
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-                    // 触碰
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-                    // 放开
-                }
-            });
-        }
-
-        @SuppressLint("UseCompatLoadingForDrawables")
-        public void changeLikeStatus() {
-            if (isLike) {
-                likeBtn.setImageDrawable(itemView.getResources().getDrawable(R.drawable.ic_liked));
-            } else {
-                likeBtn.setImageDrawable(itemView.getResources().getDrawable(R.drawable.ic_dislike));
-            }
-        }
-
-        public void changeCover2LyricStatus() {
-            if (showCover) {
-                Animation mAnimation = AnimationUtils.loadAnimation(itemView.getContext(), R.anim.rotaterepeat);
-                coverImage.startAnimation(mAnimation);
-                coverImage.setVisibility(View.VISIBLE);
-                lyrics.setVisibility(View.INVISIBLE);
-            } else {
-                coverImage.clearAnimation();
-                coverImage.setVisibility(View.INVISIBLE);
-                lyrics.setVisibility(View.VISIBLE);
-            }
-        }
-
-        private void getMore() {
-            Toast.makeText(TAG, "更多", Toast.LENGTH_SHORT).show();
-        }
-
-        private void download() {
-            Toast.makeText(TAG, "下载", Toast.LENGTH_SHORT).show();
-        }
-
-        private void comment() {
-            Toast.makeText(TAG, "评论", Toast.LENGTH_SHORT).show();
-        }
-
-        private void changeLikeDisLike() {
-            isLike = !isLike;
-            changeLikeStatus();
-        }
-
-        private void search() {
-            Toast.makeText(TAG, "搜索", Toast.LENGTH_SHORT).show();
-        }
-
-        public void setBackground(Drawable drawable) {
-            itemView.setBackground(drawable);
-        }
-
-        public void setTitle(String title) {
-            titleText.setText(title);
-        }
-
-        public void setCover(Drawable drawable) {
-            coverImage.setImageDrawable(drawable);
-        }
-    }
 }

@@ -7,15 +7,17 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.Animation;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -23,22 +25,24 @@ import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
 import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
 import com.example.comely_music_app.ui.enums.PageStatus;
-import com.example.comely_music_app.ui.viewmodels.MainViewModel;
+import com.example.comely_music_app.ui.models.MusicModel;
+import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private FragmentManager manager;
-    private Animation mAnimation;
 
-    private View frameBlank,findBtn,myBtn;
+    private View frameBlank, findBtn, myBtn;
     private ImageButton playPauseBtn;
     private ViewPager2 viewPager;
 
-    private MainViewModel mainViewModel;
+    private PlayingViewModel playingViewModel;
+    private PlayingViewListAdapter viewPagerAdapter;
 
-    public final static String KEY_IS_PLAYING = "KEY_IS_PLAYING";
-    public final static String KEY_PAGE_STATUS = "KEY_PAGE_STATUS";
+//    public final static String KEY_IS_PLAYING = "KEY_IS_PLAYING";
+//    public final static String KEY_PAGE_STATUS = "KEY_PAGE_STATUS";
 
-    @SuppressLint({"UseCompatLoadingForDrawables", "ResourceAsColor"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,34 +51,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         initIcon();
+// 存活时间更久
+        SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(getApplication(), this);
+        playingViewModel = ViewModelProviders.of(this, savedState).get(PlayingViewModel.class);
 
         viewPager.setOrientation(ORIENTATION_VERTICAL);
-        PlayingViewListAdapter adapter = new PlayingViewListAdapter();
-        viewPager.setAdapter(adapter);
+        viewPagerAdapter = new PlayingViewListAdapter(playingViewModel);
+        viewPager.setAdapter(viewPagerAdapter);
 
         if (manager == null) {
             manager = getSupportFragmentManager();
         }
 
-        // 存活时间更久
-        SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(getApplication(), this);
-        mainViewModel = ViewModelProviders.of(this, savedState).get(MainViewModel.class);
-
-        mainViewModel.getIsPlayingLiveData().observe(this, isPlaying -> {
-            if (isPlaying) {
-                playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_play));
-                // 封面旋转
-//                mAnimation = AnimationUtils.loadAnimation(getApplication(), R.anim.rotaterepeat);
-//                musicCoverImg.startAnimation(mAnimation);
-            } else {
-                playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_pause));
-                // 封面停止旋转
-//                musicCoverImg.clearAnimation();
-            }
-        });
+        setObserveOnOkayingViewModel();
 
 
-        mainViewModel.getPageStatusLiveData().observe(this, status -> {
+    }
+
+    @SuppressLint({"UseCompatLoadingForDrawables", "ResourceAsColor"})
+    private void setObserveOnOkayingViewModel() {
+        // 切换页面状态
+        playingViewModel.getPageStatusLiveData().observe(this, status -> {
             ImageButton myBtn = findViewById(R.id.my_btn);
             ImageButton findBtn = findViewById(R.id.find_btn);
             switch (status) {
@@ -93,6 +90,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case PLAYING:
                     checkout2Playing();
                     break;
+            }
+        });
+        // 切换播放状态
+        playingViewModel.getIsPlayingLiveData().observe(this, isPlaying -> {
+            if (isPlaying) {
+                // 更改图标
+                playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_play));
+            } else {
+                playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_pause));
+            }
+        });
+
+        // 点赞 取消
+        playingViewModel.getIsLikeLiveData().observe(this, isLike -> {
+            if (viewPagerAdapter.getHolder() != null) {
+                viewPagerAdapter.getHolder().changeLikeStatus(isLike);
+            }
+        });
+        // 封面 歌词切换
+        playingViewModel.getIsShowCoverLiveData().observe(this, showCover -> {
+            if (viewPagerAdapter.getHolder() != null) {
+                viewPagerAdapter.getHolder().changeCover2LyricStatus(showCover);
+            }
+        });
+        playingViewModel.getMusicListLiveData().observe(this, new Observer<List<MusicModel>>() {
+            @Override
+            public void onChanged(List<MusicModel> musicModels) {
+                Toast.makeText(getApplicationContext(), "获取了" + musicModels.size() + "首音乐", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -117,12 +142,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.play_pause_btn) {
-            mainViewModel.changeIsPlayingLiveData();
-            mainViewModel.changePageStatusLiveData(PageStatus.PLAYING);
+            playingViewModel.changeIsPlayingLiveData();
+            playingViewModel.changePageStatusLiveData(PageStatus.PLAYING);
         } else if (v.getId() == R.id.find_btn) {
-            mainViewModel.changePageStatusLiveData(PageStatus.FINDING);
+            playingViewModel.changePageStatusLiveData(PageStatus.FINDING);
         } else if (v.getId() == R.id.my_btn) {
-            mainViewModel.changePageStatusLiveData(PageStatus.MY);
+            playingViewModel.changePageStatusLiveData(PageStatus.MY);
         }
     }
 
