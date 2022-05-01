@@ -38,7 +38,8 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
     // 进度条
     SeekBar seekBar;
 
-    private PlayingViewModel playingViewModel;
+    private final PlayingViewModel playingViewModel;
+    private boolean showCover;
 
     public PlayingViewHolder(@NonNull View itemView, PlayingViewModel playingViewModel) {
         super(itemView);
@@ -48,6 +49,11 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
         this.playingViewModel = playingViewModel;
         initViewBind(itemView);
         setOnClick();
+
+        Animation mAnimation = AnimationUtils.loadAnimation(itemView.getContext(), R.anim.rotaterepeat);
+        coverImage.startAnimation(mAnimation);
+        coverImage.setVisibility(View.VISIBLE);
+        lyrics.setVisibility(View.INVISIBLE);
     }
 
     @SuppressLint("ResourceType")
@@ -73,15 +79,17 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
         blankFrame.setOnTouchListener(new MyClickListener(new MyClickListener.MyClickCallBack() {
             @Override
             public void oneClick() {
-                playingViewModel.changeIsShowCoverLiveData();
+                changeCover2LyricStatus();
             }
 
             @Override
             public void doubleClick() {
-                playingViewModel.changeIsLikeLiveData();
+                changeLikeStatus();
             }
         }));
-        likeBtn.setOnClickListener(v -> changeLikeDisLike());
+        likeBtn.setOnClickListener(v -> {
+            changeLikeStatus();
+        });
         commentBtn.setOnClickListener(v -> comment());
         downloadBtn.setOnClickListener(v -> download());
         moreBtn.setOnClickListener(v -> getMore());
@@ -104,7 +112,9 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    public void changeLikeStatus(boolean isLike) {
+    public void changeLikeStatus() {
+        playingViewModel.changeIsLikeLiveData();
+        Boolean isLike = playingViewModel.getIsLikeLiveData().getValue();
         if (isLike) {
             likeBtn.setImageDrawable(itemView.getResources().getDrawable(R.drawable.ic_liked));
         } else {
@@ -112,7 +122,8 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
-    public void changeCover2LyricStatus(boolean showCover) {
+    public void changeCover2LyricStatus() {
+        showCover = !showCover;
         if (showCover) {
             Animation mAnimation = AnimationUtils.loadAnimation(itemView.getContext(), R.anim.rotaterepeat);
             coverImage.startAnimation(mAnimation);
@@ -135,10 +146,6 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
 
     private void comment() {
         Toast.makeText(TAG, "评论", Toast.LENGTH_SHORT).show();
-    }
-
-    private void changeLikeDisLike() {
-        playingViewModel.changeIsLikeLiveData();
     }
 
     private void search() {

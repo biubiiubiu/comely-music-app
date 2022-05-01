@@ -69,6 +69,7 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
         this.position = position;
         this.holder = holder;
 
+        // todo 这里改成入队出队操作
         if (titleList == null) {
             titleList = initTitleList();
         }
@@ -188,6 +189,5 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
         // 初始化歌词
 //        initLyrics();
     }
-
 
 }

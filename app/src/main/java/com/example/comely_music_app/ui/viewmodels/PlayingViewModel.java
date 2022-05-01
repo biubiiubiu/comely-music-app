@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 
 import com.example.comely_music_app.MainActivity;
+import com.example.comely_music_app.ui.adapter.PlayingViewHolder;
 import com.example.comely_music_app.ui.enums.PageStatus;
 import com.example.comely_music_app.ui.models.MusicModel;
 
@@ -16,12 +17,14 @@ import java.util.List;
 import java.util.Objects;
 
 public class PlayingViewModel extends AndroidViewModel {
+    // =========== 界面 =============
     private MutableLiveData<PageStatus> pageStatusLiveData;
 
+    // =========== 写入数据库 ===============
     private MutableLiveData<Boolean> isPlayingLiveData;
     private MutableLiveData<Boolean> isLikeLiveData;
-    private MutableLiveData<Boolean> isShowCoverLiveData;
 
+    //=========== 读取数据库 ================
     private MutableLiveData<List<MusicModel>> musicListLiveData;
 //    private final SavedStateHandle handle;
 
@@ -30,6 +33,7 @@ public class PlayingViewModel extends AndroidViewModel {
 //        this.handle = handle;
     }
 
+    // ============================ getter ===============================================
 
     public MutableLiveData<PageStatus> getPageStatusLiveData() {
 //        if (!handle.contains(MainActivity.KEY_PAGE_STATUS)) {
@@ -63,19 +67,14 @@ public class PlayingViewModel extends AndroidViewModel {
         return isLikeLiveData;
     }
 
-    public MutableLiveData<Boolean> getIsShowCoverLiveData() {
-        if (isShowCoverLiveData == null) {
-            isShowCoverLiveData = new MutableLiveData<>(true);
-        }
-        return isShowCoverLiveData;
-    }
-
     public MutableLiveData<List<MusicModel>> getMusicListLiveData() {
         if (musicListLiveData == null) {
             musicListLiveData = new MutableLiveData<>(new ArrayList<>());
         }
         return musicListLiveData;
     }
+
+    // ================================= setter ==============================================
 
     public void addMusicListLiveData(List<MusicModel> list) {
         List<MusicModel> value = getMusicListLiveData().getValue();
@@ -121,18 +120,6 @@ public class PlayingViewModel extends AndroidViewModel {
         Boolean isLike = isLikeLiveData.getValue();
         isLike = isLike == null || isLike;
         this.isLikeLiveData.setValue(!isLike);
-    }
-
-    /**
-     * 改变展示封面，取反
-     */
-    public void changeIsShowCoverLiveData() {
-        if (isShowCoverLiveData == null) {
-            isShowCoverLiveData = getIsPlayingLiveData();
-        }
-        Boolean isShowCover = isShowCoverLiveData.getValue();
-        isShowCover = isShowCover == null || isShowCover;
-        this.isShowCoverLiveData.setValue(!isShowCover);
     }
 
 //    private void load(){

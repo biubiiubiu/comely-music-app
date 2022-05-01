@@ -104,16 +104,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // 点赞 取消
         playingViewModel.getIsLikeLiveData().observe(this, isLike -> {
-            if (viewPagerAdapter.getHolder() != null) {
-                viewPagerAdapter.getHolder().changeLikeStatus(isLike);
-            }
+            Toast.makeText(getApplicationContext(),"点赞写数据库",Toast.LENGTH_SHORT).show();
         });
-        // 封面 歌词切换
-        playingViewModel.getIsShowCoverLiveData().observe(this, showCover -> {
-            if (viewPagerAdapter.getHolder() != null) {
-                viewPagerAdapter.getHolder().changeCover2LyricStatus(showCover);
-            }
-        });
+
         playingViewModel.getMusicListLiveData().observe(this, new Observer<List<MusicModel>>() {
             @Override
             public void onChanged(List<MusicModel> musicModels) {
