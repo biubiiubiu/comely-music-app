@@ -76,6 +76,9 @@ public class PlayingViewModel extends AndroidViewModel {
 
     // ================================= setter ==============================================
 
+    /**
+     * 追加list
+     */
     public void addMusicListLiveData(List<MusicModel> list) {
         List<MusicModel> value = getMusicListLiveData().getValue();
         if (value != null) {
@@ -84,6 +87,9 @@ public class PlayingViewModel extends AndroidViewModel {
         musicListLiveData.setValue(value);
     }
 
+    /**
+     * 重置list
+     */
     public void setMusicListLiveData(List<MusicModel> list){
         musicListLiveData.setValue(list);
     }

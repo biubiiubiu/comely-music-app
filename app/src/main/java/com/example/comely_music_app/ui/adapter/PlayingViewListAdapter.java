@@ -34,6 +34,8 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
      * 一次获取10首音乐
      */
     private final static int NUM = 10;
+    private List<MusicModel> musicModelList;
+
     private List<String> titleList;
     private List<Drawable> coverList, backgroundList;
 
@@ -97,9 +99,13 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
     /**
      * Retrofit2 MusicService，初始化一次音乐信息，一次获取NUM首
      */
-    private List<MusicModel> initMusicModelList(PlayerModule module) {
+    private void initMusicModelList(PlayerModule module) {
         MusicSelectRequest request = new MusicSelectRequest(module, NUM);
-        return modelProvider.getPatchMusicModel(request, playingViewModel);
+        modelProvider.getPatchMusicModel(request, playingViewModel);
+    }
+
+    public void setMusicModelList(List<MusicModel> list) {
+        musicModelList = list;
     }
 
     private List<String> initTitleList() {
@@ -183,6 +189,7 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
         holder.setTitle(titleList.get(position));
         holder.setBackground(backgroundList.get(position));
         holder.setCover(coverList.get(position));
+
 
         // 初始化歌曲封面和背景
 //        initCoverAndBackground();

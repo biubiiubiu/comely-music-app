@@ -3,7 +3,10 @@ package com.example.comely_music_app;
 import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL;
 
 import android.annotation.SuppressLint;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -21,14 +24,19 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.comely_music_app.config.FileConfig;
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
 import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
 import com.example.comely_music_app.ui.enums.PageStatus;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
+import com.example.comely_music_app.utils.FileOperationUtils;
 
+import java.io.IOException;
 import java.util.List;
+
+import lombok.SneakyThrows;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private FragmentManager manager;
@@ -40,9 +48,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private PlayingViewModel playingViewModel;
     private PlayingViewListAdapter viewPagerAdapter;
 
+    private MediaPlayer mediaPlayer;
+
 //    public final static String KEY_IS_PLAYING = "KEY_IS_PLAYING";
 //    public final static String KEY_PAGE_STATUS = "KEY_PAGE_STATUS";
 
+    @SneakyThrows
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,13 +74,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             manager = getSupportFragmentManager();
         }
 
+
+        String path = FileConfig.BASE_PATH + "周杰伦 - Mojito.mp3";
+        mediaPlayer = new MediaPlayer();
+
+        mediaPlayer.setDataSource(path);
+        mediaPlayer.prepare();
+
         setObserveOnOkayingViewModel();
-
-
     }
 
     @SuppressLint({"UseCompatLoadingForDrawables", "ResourceAsColor"})
     private void setObserveOnOkayingViewModel() {
+        // 切换播放状态
+        playingViewModel.getIsPlayingLiveData().observe(this, isPlaying -> {
+            if (isPlaying) {
+                // 更改图标
+                playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_play));
+//                play();
+                mediaPlayer.start();
+            } else {
+                playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_pause));
+                mediaPlayer.pause();
+                //在player.stop()后面添加player.prepare()，需要处理异常！
+            }
+        });
+
         // 切换页面状态
         playingViewModel.getPageStatusLiveData().observe(this, status -> {
             ImageButton myBtn = findViewById(R.id.my_btn);
@@ -92,24 +122,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
             }
         });
-        // 切换播放状态
-        playingViewModel.getIsPlayingLiveData().observe(this, isPlaying -> {
-            if (isPlaying) {
-                // 更改图标
-                playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_play));
-            } else {
-                playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_pause));
-            }
-        });
 
         // 点赞 取消
         playingViewModel.getIsLikeLiveData().observe(this, isLike -> {
-            Toast.makeText(getApplicationContext(),"点赞写数据库",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "点赞写数据库", Toast.LENGTH_SHORT).show();
         });
 
+        // 获取musicModelList信息，存储到本地，并生成界面可使用的list
         playingViewModel.getMusicListLiveData().observe(this, new Observer<List<MusicModel>>() {
             @Override
             public void onChanged(List<MusicModel> musicModels) {
+                viewPagerAdapter.setMusicModelList(musicModels);
+                // todo 把封面、歌词和MP3下载下来
+
                 Toast.makeText(getApplicationContext(), "获取了" + musicModels.size() + "首音乐", Toast.LENGTH_SHORT).show();
             }
         });

@@ -31,9 +31,8 @@ public class MusicModelProvider {
     /**
      * 批量获取10首歌曲Model
      */
-    public List<MusicModel> getPatchMusicModel(MusicSelectRequest request, PlayingViewModel playingViewModel) {
+    public void getPatchMusicModel(MusicSelectRequest request, PlayingViewModel playingViewModel) {
         musicService.getMusicList(request,playingViewModel);
-        return null;
     }
 
     // ====================================================================
