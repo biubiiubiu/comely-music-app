@@ -95,7 +95,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } else {
                 playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_pause));
                 mediaPlayer.pause();
-                //在player.stop()后面添加player.prepare()，需要处理异常！
             }
         });
 

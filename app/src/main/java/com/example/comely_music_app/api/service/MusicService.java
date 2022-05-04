@@ -1,7 +1,6 @@
 package com.example.comely_music_app.api.service;
 
 import com.example.comely_music_app.api.request.music.MusicSelectRequest;
-import com.example.comely_music_app.api.response.music.MusicSelectResponse;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 
 public interface MusicService {

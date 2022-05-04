@@ -2,9 +2,6 @@ package com.example.comely_music_app.api.service.impl;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
-
-import androidx.lifecycle.MutableLiveData;
 
 import com.example.comely_music_app.api.apis.MusicApi;
 import com.example.comely_music_app.api.base.ApiManager;

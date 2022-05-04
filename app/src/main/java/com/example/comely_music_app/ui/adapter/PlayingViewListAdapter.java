@@ -12,13 +12,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.api.request.music.MusicSelectRequest;
-import com.example.comely_music_app.config.FileConfig;
 import com.example.comely_music_app.enums.PlayerModule;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.provider.MusicModelProvider;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import jp.wasabeef.blurry.Blurry;
@@ -37,13 +35,10 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
     private final static int NUM = 5;
     private List<MusicModel> musicModelList;
 
-//    private List<String> titleList;
-//    private List<Drawable> coverList, backgroundList;
-
     private PlayingViewHolder holder;
     private int position;
 
-    private PlayingViewModel playingViewModel;
+    private final PlayingViewModel playingViewModel;
 
     public PlayingViewListAdapter(PlayingViewModel playingViewModel) {
         this.playingViewModel = playingViewModel;
@@ -69,17 +64,6 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
         this.position = position;
         this.holder = holder;
 
-        // todo 这里改成入队出队操作
-//        if (titleList == null) {
-//            titleList = initTitleList();
-//        }
-//        if (backgroundList == null) {
-//            // 这里需要先设置背景，因为背景借用了封面的imageView
-//            backgroundList = initBackgroundList();
-//        }
-//        if (coverList == null) {
-//            coverList = initCoverList();
-//        }
         // 初始化音乐队列
         initCurrentViewContents(holder);
     }
@@ -92,9 +76,8 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
         return NUM;
     }
 
-    /**
-     * ==================================获取数据=======================================================================
-     */
+
+
     /**
      * Retrofit2 MusicService，初始化一次音乐信息，一次获取NUM首
      */
@@ -109,67 +92,6 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
         }
     }
 
-//    private List<String> initTitleList() {
-//        List<String> ttList = new ArrayList<>();
-//        ttList.add("稻香-周杰伦");
-//        ttList.add("江南-林俊杰");
-//        ttList.add("本草纲目-周杰伦");
-//        ttList.add("TA-不是花火啊");
-//        ttList.add("起风了-买辣椒也用券");
-//        ttList.add("嘉宾-张远");
-//        ttList.add("哪里都是你-队长");
-//        ttList.add("勇气-梁静茹");
-//        ttList.add("明明就-周杰伦");
-//        ttList.add("庐州月-许嵩");
-//        return ttList;
-//    }
-//
-//    private List<Drawable> initBackgroundList() {
-//        List<Drawable> bkList = new ArrayList<>();
-//        bkList.add(getBkFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        bkList.add(getBkFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        bkList.add(getBkFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        bkList.add(getBkFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        bkList.add(getBkFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        bkList.add(getBkFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        bkList.add(getBkFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        bkList.add(getBkFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        bkList.add(getBkFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        bkList.add(getBkFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        return bkList;
-//    }
-//
-//    private List<Drawable> initCoverList() {
-//        List<Drawable> coverList = new ArrayList<>();
-//        coverList.add(getCoverFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        coverList.add(getCoverFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        coverList.add(getCoverFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        coverList.add(getCoverFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        coverList.add(getCoverFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        coverList.add(getCoverFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        coverList.add(getCoverFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        coverList.add(getCoverFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        coverList.add(getCoverFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        coverList.add(getCoverFromPath("/storage/emulated/0/$MuMu共享文件夹/uploadTest.jpg"));
-//        return coverList;
-//    }
-//
-//    private List<String> initLyrics() {
-//        List<String> lyricList = new ArrayList<>();
-//        lyricList.add("稻香-周杰伦-歌词");
-//        lyricList.add("江南-林俊杰-歌词");
-//        lyricList.add("本草纲目-周杰伦-歌词");
-//        lyricList.add("TA-不是花火啊-歌词");
-//        lyricList.add("起风了-买辣椒也用券-歌词");
-
-//        lyricList.add("嘉宾-张远-歌词");
-//        lyricList.add("哪里都是你-队长-歌词");
-//        lyricList.add("勇气-梁静茹-歌词");
-//        lyricList.add("明明就-周杰伦-歌词");
-//        lyricList.add("庐州月-许嵩-歌词");
-//        return lyricList;
-//    }
-
     private Drawable getBkFromPath(String path) {
         // 注意这里用到了cover的ImageView，所以需要先初始化背景，然后在初始化cover
         BitmapDrawable bd = (BitmapDrawable) Drawable.createFromPath(path);
@@ -182,10 +104,9 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
         return Drawable.createFromPath(path);
     }
 
-    /** ==================================利用holder把数据解析到view上================================ */
 
     /**
-     * 初始化界面数据
+     * 解析数据到界面上
      */
     private void initCurrentViewContents(PlayingViewHolder holder) {
 

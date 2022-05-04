@@ -7,8 +7,6 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.example.comely_music_app.MainActivity;
-import com.example.comely_music_app.ui.adapter.PlayingViewHolder;
 import com.example.comely_music_app.ui.enums.PageStatus;
 import com.example.comely_music_app.ui.models.MusicModel;
 
@@ -31,7 +29,6 @@ public class PlayingViewModel extends AndroidViewModel {
 
     public PlayingViewModel(@Nullable Application application, SavedStateHandle handle) {
         super(Objects.requireNonNull(application));
-//        this.handle = handle;
     }
 
     // ============================ getter ===============================================
