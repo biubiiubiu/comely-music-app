@@ -3,6 +3,7 @@ package com.example.comely_music_app.ui.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -41,6 +42,8 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
     private final PlayingViewModel playingViewModel;
     private boolean showCover;
 
+//    Handler handler = new Handler();
+
     public PlayingViewHolder(@NonNull View itemView, PlayingViewModel playingViewModel) {
         super(itemView);
 
@@ -54,6 +57,12 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
         coverImage.startAnimation(mAnimation);
         coverImage.setVisibility(View.VISIBLE);
         lyrics.setVisibility(View.INVISIBLE);
+//        Runnable runnableForSeekbar = () -> {
+//            if (playingViewModel.getCurrentPointFromMedia() != null) {
+//                seekBar.setProgress(playingViewModel.getCurrentPointFromMedia().getValue());
+//            }
+//        };
+//        handler.postDelayed(runnableForSeekbar, 50);
     }
 
     @SuppressLint("ResourceType")
@@ -107,6 +116,7 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 // 放开
+                playingViewModel.setCurrentPointFromUser(seekBar.getProgress());
             }
         });
     }

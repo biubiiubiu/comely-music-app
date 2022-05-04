@@ -1,6 +1,7 @@
 package com.example.comely_music_app.ui.adapter;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
@@ -40,8 +41,11 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
 
     private final PlayingViewModel playingViewModel;
 
-    public PlayingViewListAdapter(PlayingViewModel playingViewModel) {
+    public PlayingViewListAdapter(Context applicationContext, PlayingViewModel playingViewModel) {
         this.playingViewModel = playingViewModel;
+        // 初始化各个item list的数据
+        modelProvider = new MusicModelProvider(applicationContext);
+        initMusicModelList(PlayerModule.RANDOM);
     }
 
     @NonNull
@@ -49,9 +53,6 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
     public PlayingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         item = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_playing_view,
                 parent, false);
-        // 初始化各个item list的数据
-        modelProvider = new MusicModelProvider(item.getContext());
-        initMusicModelList(PlayerModule.RANDOM);
         return new PlayingViewHolder(item, playingViewModel);
     }
 

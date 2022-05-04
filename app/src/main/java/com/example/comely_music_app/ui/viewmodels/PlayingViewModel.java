@@ -17,6 +17,8 @@ import java.util.Objects;
 public class PlayingViewModel extends AndroidViewModel {
     // =========== 界面 =============
     private MutableLiveData<PageStatus> pageStatusLiveData;
+    private MutableLiveData<Integer> currentPointFromUser;
+    private MutableLiveData<Integer> currentPointFromMedia;
 
     // =========== 写入数据库 ===============
     private MutableLiveData<Boolean> isPlayingLiveData;
@@ -79,6 +81,20 @@ public class PlayingViewModel extends AndroidViewModel {
         return currentMusic;
     }
 
+    public MutableLiveData<Integer> getCurrentPointFromUser() {
+        if (currentPointFromUser == null) {
+            currentPointFromUser = new MutableLiveData<>(0);
+        }
+        return currentPointFromUser;
+    }
+
+    public MutableLiveData<Integer> getCurrentPointFromMedia() {
+        if(currentPointFromMedia == null) {
+            currentPointFromMedia = new MutableLiveData<>(0);
+        }
+        return currentPointFromMedia;
+    }
+
     // ================================= setter ==============================================
 
 
@@ -135,6 +151,9 @@ public class PlayingViewModel extends AndroidViewModel {
      * 重置list
      */
     public void setMusicListLiveData(List<MusicModel> list) {
+        if (musicListLiveData == null) {
+            musicListLiveData = getMusicListLiveData();
+        }
         musicListLiveData.setValue(list);
     }
 
@@ -142,7 +161,24 @@ public class PlayingViewModel extends AndroidViewModel {
      * 设置当前播放的music, 上下滑动时调用
      */
     public void setCurrentMusic(MusicModel current) {
+        if (currentMusic == null) {
+            currentMusic = getCurrentMusic();
+        }
         currentMusic.setValue(current);
+    }
+
+    public void setCurrentPointFromUser(Integer point) {
+        if (currentPointFromUser == null) {
+            currentPointFromUser = getCurrentPointFromUser();
+        }
+        currentPointFromUser.setValue(point);
+    }
+
+    public void setCurrentPointFromMedia(Integer point) {
+        if(currentPointFromMedia == null) {
+            currentPointFromMedia = getCurrentPointFromMedia();
+        }
+        currentPointFromMedia.setValue(point);
     }
 
     //    private void load(){

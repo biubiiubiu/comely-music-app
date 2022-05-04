@@ -5,6 +5,8 @@ import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL;
 import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -16,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
@@ -43,6 +46,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private MediaPlayer mediaPlayer;
 
+    private final Handler handler = new Handler();
+    private Runnable runnableForSeekbar;
+
 //    public final static String KEY_IS_PLAYING = "KEY_IS_PLAYING";
 //    public final static String KEY_PAGE_STATUS = "KEY_PAGE_STATUS";
 
@@ -62,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playingViewModel = ViewModelProviders.of(this, savedState).get(PlayingViewModel.class);
 
         viewPager.setOrientation(ORIENTATION_VERTICAL);
-        viewPagerAdapter = new PlayingViewListAdapter(playingViewModel);
+        viewPagerAdapter = new PlayingViewListAdapter(getApplicationContext(), playingViewModel);
         viewPager.setAdapter(viewPagerAdapter);
         // 滑动页面时更改当前音乐
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -92,6 +98,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // 更改图标
                 playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_play));
                 mediaPlayer.start();
+                // 播放的时候刷新seekbar，在viewholder中去刷新view
+//                runnableForSeekbar = () -> playingViewModel.setCurrentPointFromMedia(mediaPlayer.getCurrentPosition());
+//                handler.postDelayed(runnableForSeekbar, 50);
             } else {
                 playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_pause));
                 mediaPlayer.pause();
@@ -143,6 +152,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } catch (IOException e) {
                     Toast.makeText(getApplicationContext(), "播放错误", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        playingViewModel.getCurrentPointFromUser().observe(this, integer -> {
+            if (mediaPlayer != null) {
+                int progress = (int) ((float) (mediaPlayer.getDuration() * integer) / 100.0);
+                mediaPlayer.seekTo(progress);
             }
         });
     }
