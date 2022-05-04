@@ -18,7 +18,6 @@ public class PlayingViewModel extends AndroidViewModel {
     // =========== 界面 =============
     private MutableLiveData<PageStatus> pageStatusLiveData;
     private MutableLiveData<Integer> currentPointFromUser;
-    private MutableLiveData<Integer> currentPointFromMedia;
 
     // =========== 写入数据库 ===============
     private MutableLiveData<Boolean> isPlayingLiveData;
@@ -86,13 +85,6 @@ public class PlayingViewModel extends AndroidViewModel {
             currentPointFromUser = new MutableLiveData<>(0);
         }
         return currentPointFromUser;
-    }
-
-    public MutableLiveData<Integer> getCurrentPointFromMedia() {
-        if(currentPointFromMedia == null) {
-            currentPointFromMedia = new MutableLiveData<>(0);
-        }
-        return currentPointFromMedia;
     }
 
     // ================================= setter ==============================================
@@ -172,13 +164,6 @@ public class PlayingViewModel extends AndroidViewModel {
             currentPointFromUser = getCurrentPointFromUser();
         }
         currentPointFromUser.setValue(point);
-    }
-
-    public void setCurrentPointFromMedia(Integer point) {
-        if(currentPointFromMedia == null) {
-            currentPointFromMedia = getCurrentPointFromMedia();
-        }
-        currentPointFromMedia.setValue(point);
     }
 
     //    private void load(){

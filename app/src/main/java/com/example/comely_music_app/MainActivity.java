@@ -5,12 +5,11 @@ import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL;
 import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,13 +40,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton playPauseBtn;
     private ViewPager2 viewPager;
 
+    // 进度条
+    SeekBar seekBar;
+
     private PlayingViewModel playingViewModel;
     private PlayingViewListAdapter viewPagerAdapter;
 
     private MediaPlayer mediaPlayer;
-
-    private final Handler handler = new Handler();
-    private Runnable runnableForSeekbar;
 
 //    public final static String KEY_IS_PLAYING = "KEY_IS_PLAYING";
 //    public final static String KEY_PAGE_STATUS = "KEY_PAGE_STATUS";
@@ -79,28 +78,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mediaPlayer.stop();
                 if (Objects.requireNonNull(playingViewModel.getMusicListLiveData().getValue()).size() > position) {
                     playingViewModel.setCurrentMusic(playingViewModel.getMusicListLiveData().getValue().get(position));
+                    // 播放的时候刷新seekbar
                 }
             }
         });
+
 
         if (manager == null) {
             manager = getSupportFragmentManager();
         }
 
-        setObserveOnOkayingViewModel();
+        setObserveOnPlayingViewModel();
     }
 
     @SuppressLint({"UseCompatLoadingForDrawables", "ResourceAsColor"})
-    private void setObserveOnOkayingViewModel() {
+    private void setObserveOnPlayingViewModel() {
         // 切换播放状态
         playingViewModel.getIsPlayingLiveData().observe(this, isPlaying -> {
             if (isPlaying) {
                 // 更改图标
                 playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_play));
                 mediaPlayer.start();
-                // 播放的时候刷新seekbar，在viewholder中去刷新view
-//                runnableForSeekbar = () -> playingViewModel.setCurrentPointFromMedia(mediaPlayer.getCurrentPosition());
-//                handler.postDelayed(runnableForSeekbar, 50);
+//                new Thread() {
+//                    @Override
+//                    public void run() {
+//                        while (playingViewModel.getIsPlayingLiveData().getValue()) {
+//                            try {
+//                                Thread.sleep(300);
+//                                seekBar.setProgress(mediaPlayer.getCurrentPosition() * 100 / mediaPlayer.getDuration());
+//                            } catch (InterruptedException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+//                    }
+//                }.start();
             } else {
                 playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_pause));
                 mediaPlayer.pause();
@@ -111,15 +122,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playingViewModel.getPageStatusLiveData().observe(this, status -> {
             ImageButton myBtn = findViewById(R.id.my_btn);
             ImageButton findBtn = findViewById(R.id.find_btn);
+            myBtn.setImageDrawable(getDrawable(R.drawable.ic_my_down));
+            findBtn.setImageDrawable(getDrawable(R.drawable.ic_find_down));
+            TextView myText = findViewById(R.id.my_text);
+            TextView findText = findViewById(R.id.find_text);
+            myText.setTextColor(R.color.white);
+            findText.setTextColor(R.color.white);
             switch (status) {
                 case MY:
-                    TextView myText = findViewById(R.id.my_text);
                     checkout2TargetFragment(new MyFragment());
                     myBtn.setImageDrawable(getDrawable(R.drawable.ic_my_up));
                     myText.setTextColor(R.color.theme_green_light);
                     break;
                 case FINDING:
-                    TextView findText = findViewById(R.id.find_text);
                     checkout2TargetFragment(new FindingFragment());
                     findBtn.setImageDrawable(getDrawable(R.drawable.ic_find_up));
                     findText.setTextColor(R.color.theme_green_light);
@@ -174,9 +189,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playPauseBtn = findViewById(R.id.play_pause_btn);
         viewPager = findViewById(R.id.viewpage_playing);
 
+        seekBar = findViewById(R.id.process_sb);
+
         playPauseBtn.setOnClickListener(this);
         findBtn.setOnClickListener(this);
         myBtn.setOnClickListener(this);
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // 进度变化回调
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // 触碰
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // 放开
+                playingViewModel.setCurrentPointFromUser(seekBar.getProgress());
+            }
+        });
+
     }
 
 

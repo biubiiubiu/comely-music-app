@@ -3,14 +3,12 @@ package com.example.comely_music_app.ui.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.Handler;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,13 +34,8 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
 
     ImageButton likeBtn, commentBtn, downloadBtn, moreBtn;
 
-    // 进度条
-    SeekBar seekBar;
-
     private final PlayingViewModel playingViewModel;
     private boolean showCover;
-
-//    Handler handler = new Handler();
 
     public PlayingViewHolder(@NonNull View itemView, PlayingViewModel playingViewModel) {
         super(itemView);
@@ -57,12 +50,6 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
         coverImage.startAnimation(mAnimation);
         coverImage.setVisibility(View.VISIBLE);
         lyrics.setVisibility(View.INVISIBLE);
-//        Runnable runnableForSeekbar = () -> {
-//            if (playingViewModel.getCurrentPointFromMedia() != null) {
-//                seekBar.setProgress(playingViewModel.getCurrentPointFromMedia().getValue());
-//            }
-//        };
-//        handler.postDelayed(runnableForSeekbar, 50);
     }
 
     @SuppressLint("ResourceType")
@@ -78,7 +65,6 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
 
         blankFrame = itemView.findViewById(R.id.frame_blank_for_cover_lyrics);
         lyrics = itemView.findViewById(R.id.lyrics);
-        seekBar = itemView.findViewById(R.id.process_sb);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -102,23 +88,6 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
         commentBtn.setOnClickListener(v -> comment());
         downloadBtn.setOnClickListener(v -> download());
         moreBtn.setOnClickListener(v -> getMore());
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // 进度变化回调
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                // 触碰
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // 放开
-                playingViewModel.setCurrentPointFromUser(seekBar.getProgress());
-            }
-        });
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
