@@ -4,9 +4,7 @@ import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL;
 
 import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -18,23 +16,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.comely_music_app.config.FileConfig;
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
 import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
 import com.example.comely_music_app.ui.enums.PageStatus;
-import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
-import com.example.comely_music_app.utils.FileOperationUtils;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Objects;
 
 import lombok.SneakyThrows;
 
@@ -61,25 +54,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
+        mediaPlayer = new MediaPlayer();
+
         initIcon();
-// 存活时间更久
+        // 存活时间更久
         SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(getApplication(), this);
         playingViewModel = ViewModelProviders.of(this, savedState).get(PlayingViewModel.class);
 
         viewPager.setOrientation(ORIENTATION_VERTICAL);
         viewPagerAdapter = new PlayingViewListAdapter(playingViewModel);
         viewPager.setAdapter(viewPagerAdapter);
+        // 滑动页面时更改当前音乐
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                // 停止当前音乐播放
+                mediaPlayer.stop();
+                if (Objects.requireNonNull(playingViewModel.getMusicListLiveData().getValue()).size() > position) {
+                    playingViewModel.setCurrentMusic(playingViewModel.getMusicListLiveData().getValue().get(position));
+                }
+            }
+        });
 
         if (manager == null) {
             manager = getSupportFragmentManager();
         }
-
-
-        String path = FileConfig.BASE_PATH + "周杰伦 - Mojito.mp3";
-        mediaPlayer = new MediaPlayer();
-
-        mediaPlayer.setDataSource(path);
-        mediaPlayer.prepare();
 
         setObserveOnOkayingViewModel();
     }
@@ -91,7 +91,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (isPlaying) {
                 // 更改图标
                 playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_play));
-//                play();
                 mediaPlayer.start();
             } else {
                 playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_pause));
@@ -124,18 +123,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         // 点赞 取消
-        playingViewModel.getIsLikeLiveData().observe(this, isLike -> {
-            Toast.makeText(getApplicationContext(), "点赞写数据库", Toast.LENGTH_SHORT).show();
-        });
+        playingViewModel.getIsLikeLiveData().observe(this, isLike -> Toast.makeText(getApplicationContext(), "点赞写数据库:" + isLike, Toast.LENGTH_SHORT).show());
 
         // 获取musicModelList信息，存储到本地，并生成界面可使用的list
-        playingViewModel.getMusicListLiveData().observe(this, new Observer<List<MusicModel>>() {
-            @Override
-            public void onChanged(List<MusicModel> musicModels) {
-                viewPagerAdapter.setMusicModelList(musicModels);
-                // todo 把封面、歌词和MP3下载下来
+        playingViewModel.getMusicListLiveData().observe(this, musicModels -> {
+            viewPagerAdapter.setMusicModelList(musicModels);
+            // todo 把封面、歌词和MP3下载下来
+            Toast.makeText(getApplicationContext(), "获取了" + musicModels.size() + "首音乐", Toast.LENGTH_SHORT).show();
+        });
 
-                Toast.makeText(getApplicationContext(), "获取了" + musicModels.size() + "首音乐", Toast.LENGTH_SHORT).show();
+        // 当前界面滑动时，播放当前界面音乐
+        playingViewModel.getCurrentMusic().observe(this, currentMusic -> {
+            if (currentMusic != null) {
+                String path = currentMusic.getAudioLocalPath();
+                try {
+                    mediaPlayer = new MediaPlayer();
+                    mediaPlayer.setDataSource(path);
+                    mediaPlayer.prepare();
+                    playingViewModel.setIsPlayingLiveData(true);
+                } catch (IOException e) {
+                    Toast.makeText(getApplicationContext(), "播放错误", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

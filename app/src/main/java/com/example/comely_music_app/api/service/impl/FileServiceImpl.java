@@ -128,14 +128,14 @@ public class FileServiceImpl implements FileService {
      * 下载单个文件到指定目录，文件位置 BASE_DIR/filename
      */
     @Override
-    public void downloadFile(Context context, String username, String storageUrl) {
+    public void downloadFile(Context context, String username, String ossStorageUrl) {
         Observable<BaseResult<OssTokenInfo>> ossTokenObservable = fileApi.getOssToken(username);
         ossTokenObservable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new BaseObserver<OssTokenInfo>(false) {
                     @Override
                     public void onSuccess(OssTokenInfo ossTokenInfo) {
-                        download(context, ossTokenInfo, storageUrl, BASE_DOWNLOAD_DIR + storageUrl);
+                        download(context, ossTokenInfo, ossStorageUrl, BASE_DOWNLOAD_DIR + ossStorageUrl);
                     }
 
                     @Override

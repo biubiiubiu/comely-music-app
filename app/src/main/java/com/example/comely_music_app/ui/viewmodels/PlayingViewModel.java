@@ -26,6 +26,7 @@ public class PlayingViewModel extends AndroidViewModel {
 
     //=========== 读取数据库 ================
     private MutableLiveData<List<MusicModel>> musicListLiveData;
+    private MutableLiveData<MusicModel> currentMusic;
 //    private final SavedStateHandle handle;
 
     public PlayingViewModel(@Nullable Application application, SavedStateHandle handle) {
@@ -74,25 +75,15 @@ public class PlayingViewModel extends AndroidViewModel {
         return musicListLiveData;
     }
 
+    public MutableLiveData<MusicModel> getCurrentMusic() {
+        if (currentMusic == null) {
+            currentMusic = new MutableLiveData<>();
+        }
+        return currentMusic;
+    }
+
     // ================================= setter ==============================================
 
-    /**
-     * 追加list
-     */
-    public void addMusicListLiveData(List<MusicModel> list) {
-        List<MusicModel> value = getMusicListLiveData().getValue();
-        if (value != null) {
-            value.addAll(list);
-        }
-        musicListLiveData.setValue(value);
-    }
-
-    /**
-     * 重置list
-     */
-    public void setMusicListLiveData(List<MusicModel> list){
-        musicListLiveData.setValue(list);
-    }
 
     /**
      * 改变播放状态isPlaying，取反
@@ -104,6 +95,10 @@ public class PlayingViewModel extends AndroidViewModel {
         Boolean isPlaying = isPlayingLiveData.getValue();
         isPlaying = isPlaying == null || isPlaying;
         this.isPlayingLiveData.setValue(!isPlaying);
+    }
+
+    public void setIsPlayingLiveData(Boolean isPlaying) {
+        this.isPlayingLiveData.setValue(isPlaying);
     }
 
     /**
@@ -128,7 +123,32 @@ public class PlayingViewModel extends AndroidViewModel {
         this.isLikeLiveData.setValue(!isLike);
     }
 
-//    private void load(){
+    /**
+     * 追加list
+     */
+    public void addMusicListLiveData(List<MusicModel> list) {
+        List<MusicModel> value = getMusicListLiveData().getValue();
+        if (value != null) {
+            value.addAll(list);
+        }
+        musicListLiveData.setValue(value);
+    }
+
+    /**
+     * 重置list
+     */
+    public void setMusicListLiveData(List<MusicModel> list) {
+        musicListLiveData.setValue(list);
+    }
+
+    /**
+     * 设置当前播放的music, 上下滑动时调用
+     */
+    public void setCurrentMusic(MusicModel current) {
+        currentMusic.setValue(current);
+    }
+
+    //    private void load(){
 //
 //    }
 //

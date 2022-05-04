@@ -32,7 +32,7 @@ public class MusicModelProvider {
      * 批量获取10首歌曲Model
      */
     public void getPatchMusicModel(MusicSelectRequest request, PlayingViewModel playingViewModel) {
-        musicService.getMusicList(request,playingViewModel);
+        musicService.getMusicList(request, playingViewModel);
     }
 
     // ====================================================================

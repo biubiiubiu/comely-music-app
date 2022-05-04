@@ -38,8 +38,7 @@ public class MusicServiceImpl implements MusicService {
 
 
     @Override
-    public MusicSelectResponse getMusicList(MusicSelectRequest request, PlayingViewModel playingViewModel) {
-        MusicSelectResponse response = new MusicSelectResponse();
+    public void getMusicList(MusicSelectRequest request, PlayingViewModel playingViewModel) {
         Observable<BaseResult<MusicSelectResponse>> musicObservable = musicApi.getMusicListByModule(request);
         musicObservable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -55,12 +54,12 @@ public class MusicServiceImpl implements MusicService {
                             String coverLocalPath = getFileFromOSS(info.getCoverStoragePath());
                             String lyricLocalPath = getFileFromOSS(info.getLyricStoragePath());
                             model.setAudioLocalPath(audioLocalPath);
-                            model.setAudioLocalPath(coverLocalPath);
-                            model.setAudioLocalPath(lyricLocalPath);
+                            model.setCoverLocalPath(coverLocalPath);
+                            model.setLyricLocalPath(lyricLocalPath);
                             modelList.add(model);
                         }
                         // 放到modelview中
-                        playingViewModel.addMusicListLiveData(modelList);
+                        playingViewModel.setMusicListLiveData(modelList);
                     }
 
                     @Override
@@ -73,9 +72,6 @@ public class MusicServiceImpl implements MusicService {
 
                     }
                 });
-        List<MusicSelectResponse.MusicInfo> musicList = response.getMusicList();
-        musicList.add(new MusicSelectResponse.MusicInfo());
-        return null;
     }
 
     /**
@@ -85,6 +81,9 @@ public class MusicServiceImpl implements MusicService {
      * @return 本地存储位置
      */
     private String getFileFromOSS(String storagePath) {
+        if (storagePath == null) {
+            return null;
+        }
         File file = new File(FileConfig.BASE_PATH + storagePath);
         if (!file.exists()) {
             // 本地不存在就下载

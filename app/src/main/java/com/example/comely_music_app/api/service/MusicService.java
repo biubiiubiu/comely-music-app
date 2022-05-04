@@ -8,5 +8,5 @@ public interface MusicService {
     /**
      * 获取一定数量的music，用于播放界面的viewPager2使用
      */
-    MusicSelectResponse getMusicList(MusicSelectRequest request, PlayingViewModel playingViewModel);
+    void getMusicList(MusicSelectRequest request, PlayingViewModel playingViewModel);
 }
