@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // 更改图标
                 playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_play));
                 mediaPlayer.start();
+                // 进度条及时刷新
 //                new Thread() {
 //                    @Override
 //                    public void run() {
