@@ -1,11 +1,7 @@
 package com.example.comely_music_app;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
-
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -14,13 +10,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+
 import com.example.comely_music_app.api.request.user.LoginRequest;
 import com.example.comely_music_app.api.response.user.UserInfo;
 import com.example.comely_music_app.api.service.UserService;
 import com.example.comely_music_app.api.service.impl.UserServiceImpl;
-import com.example.comely_music_app.config.IntentKey;
+import com.example.comely_music_app.config.ShpConfig;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
-import com.google.gson.Gson;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
     private TextView usernameText, passwordText, forget_password;
@@ -88,10 +88,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         Toast.makeText(getApplicationContext(), "密码错误！", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(getApplicationContext(), "登录成功！", Toast.LENGTH_SHORT).show();
+
+                        SharedPreferences shp = getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
+                        SharedPreferences.Editor editor = shp.edit();
+                        editor.putString(ShpConfig.USERNAME, userInfo.getUsername());
+                        editor.apply();
+
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        Gson gson = new Gson();
-                        String strUserInfo = gson.toJson(userInfo);
-                        intent.putExtra(IntentKey.USER_INFO_KEY, strUserInfo);
                         startActivity(intent);
                     }
                 }

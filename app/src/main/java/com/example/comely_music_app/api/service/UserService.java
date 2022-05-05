@@ -6,4 +6,6 @@ public interface UserService {
     void judgeNewUser(LoginRequest loginRequest);
 
     void loginOrRegister(LoginRequest loginRequest);
+
+    void getLoginStatus(String username);
 }

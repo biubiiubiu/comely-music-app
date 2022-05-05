@@ -70,4 +70,25 @@ public class UserServiceImpl implements UserService {
             }
         });
     }
+
+    @Override
+    public void getLoginStatus(String username) {
+        Observable<BaseResult<Boolean>> loginStatus = userApi.getLoginStatus(username);
+        loginStatus.subscribe(new BaseObserver<Boolean>(true) {
+            @Override
+            public void onSuccess(Boolean isLogin) {
+                userInfoViewModel.setIsLogin(isLogin);
+            }
+
+            @Override
+            public void onFail(int errorCode, String errorMsg, Boolean response) {
+                Log.e("LoginStatus", "网络错误！" + errorMsg);
+            }
+
+            @Override
+            public void onError(String msg) {
+
+            }
+        });
+    }
 }

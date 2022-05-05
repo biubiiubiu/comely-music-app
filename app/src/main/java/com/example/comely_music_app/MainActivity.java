@@ -4,6 +4,7 @@ import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
@@ -19,12 +20,16 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.comely_music_app.api.response.user.UserInfo;
+import com.example.comely_music_app.api.service.UserService;
+import com.example.comely_music_app.api.service.impl.UserServiceImpl;
 import com.example.comely_music_app.config.IntentKey;
+import com.example.comely_music_app.config.ShpConfig;
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
 import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
@@ -52,8 +57,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private PlayingViewListAdapter viewPagerAdapter;
 
     private UserInfoViewModel userInfoViewModel;
+    private UserService userService;
 
     private MediaPlayer mediaPlayer;
+
 
 //    public final static String KEY_IS_PLAYING = "KEY_IS_PLAYING";
 //    public final static String KEY_PAGE_STATUS = "KEY_PAGE_STATUS";
@@ -66,15 +73,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
-        // 检测登录状态
-        checkLoginStatus();
-
-        mediaPlayer = new MediaPlayer();
-
-        initIcon();
         // 存活时间更久
         SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(getApplication(), this);
         playingViewModel = ViewModelProviders.of(this, savedState).get(PlayingViewModel.class);
+        userInfoViewModel = ViewModelProviders.of(this, savedState).get(UserInfoViewModel.class);
+
+        userService = new UserServiceImpl(userInfoViewModel);
+
+        mediaPlayer = new MediaPlayer();
+
+        // 检测登录状态
+        checkLoginStatus();
+
+        initIcon();
 
         viewPager.setOrientation(ORIENTATION_VERTICAL);
         viewPagerAdapter = new PlayingViewListAdapter(getApplicationContext(), playingViewModel);
@@ -93,13 +104,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-
         if (manager == null) {
             manager = getSupportFragmentManager();
         }
 
         setObserveOnPlayingViewModel();
-
+        setObserveOnUserInfoViewModel();
     }
 
 
@@ -107,25 +117,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 检查登录状态
      */
     private void checkLoginStatus() {
-        if (userInfoViewModel == null) {
-            userInfoViewModel = ViewModelProviders.of(this).get(UserInfoViewModel.class);
-        }
-        // 获取传过来的intent，检查用户信息
-        Intent intent = getIntent();
-        if (intent != null) {
-            Gson gson = new Gson();
-            UserInfo info = gson.fromJson(intent.getStringExtra(IntentKey.USER_INFO_KEY), UserInfo.class);
-            if (info != null) {
-                userInfoViewModel.setUserInfo(info);
-                return;
-            }
+        SharedPreferences shp = getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
+        String username = shp.getString(ShpConfig.USERNAME, "");
+        if (!username.equals("")) {
+            userService.getLoginStatus(username);
+            return;
         }
         // 未登录，跳转到LoginActivity
-        if (userInfoViewModel.getUserInfo().getValue() == null) {
-            Intent intent1 = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent1);
-        }
+        Intent intent1 = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(intent1);
+
     }
+
+    private void setObserveOnUserInfoViewModel() {
+        userInfoViewModel.getIsLogin().observe(this, isLogin -> {
+            if (!isLogin) {
+                SharedPreferences shp = getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
+                @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = shp.edit();
+                editor.remove(ShpConfig.USERNAME);
+                editor.apply();
+            }
+        });
+    }
+
 
     @SuppressLint({"UseCompatLoadingForDrawables", "ResourceAsColor"})
     private void setObserveOnPlayingViewModel() {

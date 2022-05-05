@@ -10,6 +10,7 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 
 public interface UserApi extends BaseApi {
 //    @GET("generate/user/list")
@@ -23,4 +24,7 @@ public interface UserApi extends BaseApi {
 
     @POST("generate/user/login-register")
     Observable<BaseResult<UserInfo>> loginOrRegister(@Body LoginRequest loginRequest);
+
+    @GET("generate/user/login-status/{username}")
+    Observable<BaseResult<Boolean>> getLoginStatus(@Path("username") String username);
 }

@@ -8,6 +8,7 @@ import com.example.comely_music_app.api.response.user.UserInfo;
 public class UserInfoViewModel extends ViewModel {
     private MutableLiveData<Boolean> isNewUser;
     private MutableLiveData<UserInfo> userInfo;
+    private MutableLiveData<Boolean> isLogin;
 
     public MutableLiveData<Boolean> getIsNewUser() {
         if (isNewUser == null) {
@@ -17,7 +18,7 @@ public class UserInfoViewModel extends ViewModel {
     }
 
     public void setIsNewUser(Boolean isnew) {
-        if(isNewUser == null){
+        if (isNewUser == null) {
             isNewUser = getIsNewUser();
         }
         isNewUser.postValue(isnew);
@@ -35,5 +36,19 @@ public class UserInfoViewModel extends ViewModel {
             userInfo = getUserInfo();
         }
         userInfo.postValue(info);
+    }
+
+    public MutableLiveData<Boolean> getIsLogin() {
+        if (isLogin == null) {
+            isLogin = new MutableLiveData<>(null);
+        }
+        return isLogin;
+    }
+
+    public void setIsLogin(Boolean isLog) {
+        if (isLogin == null) {
+            isLogin = getIsLogin();
+        }
+        isLogin.postValue(isLog);
     }
 }
