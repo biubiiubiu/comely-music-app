@@ -3,6 +3,7 @@ package com.example.comely_music_app;
 import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
@@ -17,16 +18,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.comely_music_app.api.response.user.UserInfo;
+import com.example.comely_music_app.config.IntentKey;
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
 import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
 import com.example.comely_music_app.ui.enums.PageStatus;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
+import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -46,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private PlayingViewModel playingViewModel;
     private PlayingViewListAdapter viewPagerAdapter;
 
+    private UserInfoViewModel userInfoViewModel;
+
     private MediaPlayer mediaPlayer;
 
 //    public final static String KEY_IS_PLAYING = "KEY_IS_PLAYING";
@@ -58,6 +65,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
+
+        // 检测登录状态
+        checkLoginStatus();
 
         mediaPlayer = new MediaPlayer();
 
@@ -89,6 +99,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         setObserveOnPlayingViewModel();
+
+    }
+
+
+    /**
+     * 检查登录状态
+     */
+    private void checkLoginStatus() {
+        if (userInfoViewModel == null) {
+            userInfoViewModel = ViewModelProviders.of(this).get(UserInfoViewModel.class);
+        }
+        // 获取传过来的intent，检查用户信息
+        Intent intent = getIntent();
+        if (intent != null) {
+            Gson gson = new Gson();
+            UserInfo info = gson.fromJson(intent.getStringExtra(IntentKey.USER_INFO_KEY), UserInfo.class);
+            if (info != null) {
+                userInfoViewModel.setUserInfo(info);
+                return;
+            }
+        }
+        // 未登录，跳转到LoginActivity
+        if (userInfoViewModel.getUserInfo().getValue() == null) {
+            Intent intent1 = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent1);
+        }
     }
 
     @SuppressLint({"UseCompatLoadingForDrawables", "ResourceAsColor"})
