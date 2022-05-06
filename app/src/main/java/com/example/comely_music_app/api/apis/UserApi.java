@@ -3,6 +3,7 @@ package com.example.comely_music_app.api.apis;
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.api.base.BaseResult;
 import com.example.comely_music_app.api.request.user.LoginRequest;
+import com.example.comely_music_app.api.request.user.UserUpdateRequest;
 import com.example.comely_music_app.api.response.user.UserInfo;
 
 import io.reactivex.rxjava3.core.Observable;
@@ -31,5 +32,8 @@ public interface UserApi extends BaseApi {
 
     @PUT("generate/user/logout/{username}")
     Observable<BaseResult<Void>> logout(@Path("username") String username);
+
+    @PUT("generate/user/update")
+    Observable<BaseResult<Void>> updateUserInfo(@Body UserUpdateRequest userUpdateRequest);
 
 }

@@ -23,6 +23,7 @@ import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.comely_music_app.api.response.user.UserInfo;
 import com.example.comely_music_app.api.service.UserService;
 import com.example.comely_music_app.api.service.impl.UserServiceImpl;
 import com.example.comely_music_app.config.ShpConfig;
@@ -32,6 +33,7 @@ import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
 import com.example.comely_music_app.ui.enums.PageStatus;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -113,9 +115,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void checkLoginStatus() {
         SharedPreferences shp = getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
-        String username = shp.getString(ShpConfig.CURRENT_USERNAME, "");
-        if (!username.equals("")) {
-            userService.getLoginStatus(username);
+        String userInfoStr = shp.getString(ShpConfig.CURRENT_USER, "");
+        if (!userInfoStr.equals("")) {
+            Gson gson = new Gson();
+            UserInfo info = gson.fromJson(userInfoStr, UserInfo.class);
+            String username = info.getUsername();
+            if (username != null) {
+                userService.getLoginStatus(username);
+            }
             return;
         }
         // 未登录，跳转到LoginActivity
@@ -129,9 +136,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (isLogin != null && !isLogin) {
                 SharedPreferences shp = getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
                 @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = shp.edit();
-                editor.remove(ShpConfig.CURRENT_USERNAME);
+                editor.putString(ShpConfig.CURRENT_USER, "");
                 editor.apply();
             }
+//            if (isLogin != null && isLogin) {
+//
+//            }
         });
     }
 
@@ -210,6 +220,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     mediaPlayer.setDataSource(path);
                     mediaPlayer.prepare();
                     playingViewModel.setIsPlayingLiveData(true);
+
+                    TextView total = findViewById(R.id.playing_total_duration);
+                    total.setText(formatTime(mediaPlayer.getDuration()));
                 } catch (IOException e) {
                     Toast.makeText(getApplicationContext(), "播放错误", Toast.LENGTH_SHORT).show();
                 }
@@ -222,6 +235,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mediaPlayer.seekTo(progress);
             }
         });
+    }
+
+    @SuppressLint("DefaultLocale")
+    private String formatTime(int duration) {
+        duration /= 1000;
+        int min = duration / 60;
+        int sec = duration - min * 60;
+        return String.format("%02d:%02d", min, sec);
     }
 
     /**

@@ -51,4 +51,5 @@
     <string name="sign_in">登录</string>
     <string name="sign_out">退出登录</string>
     <string name="forgot_password">忘记密码?</string>
+    <string name="confirm_update">确认修改</string>
 </resources>

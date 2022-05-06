@@ -21,6 +21,7 @@ import com.example.comely_music_app.api.service.UserService;
 import com.example.comely_music_app.api.service.impl.UserServiceImpl;
 import com.example.comely_music_app.config.ShpConfig;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
+import com.google.gson.Gson;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
     private TextView usernameText, passwordText, forget_password;
@@ -91,7 +92,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                         SharedPreferences shp = getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
                         SharedPreferences.Editor editor = shp.edit();
-                        editor.putString(ShpConfig.CURRENT_USERNAME, userInfo.getUsername());
+                        Gson gson = new Gson();
+                        String userInfoStr = gson.toJson(userInfo);
+                        editor.putString(ShpConfig.CURRENT_USER, userInfoStr);
                         editor.apply();
 
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);

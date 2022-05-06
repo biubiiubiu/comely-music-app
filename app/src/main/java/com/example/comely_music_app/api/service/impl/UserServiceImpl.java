@@ -11,6 +11,7 @@ import com.example.comely_music_app.api.base.ApiManager;
 import com.example.comely_music_app.api.base.BaseObserver;
 import com.example.comely_music_app.api.base.BaseResult;
 import com.example.comely_music_app.api.request.user.LoginRequest;
+import com.example.comely_music_app.api.request.user.UserUpdateRequest;
 import com.example.comely_music_app.api.response.user.UserInfo;
 import com.example.comely_music_app.api.service.UserService;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
@@ -107,6 +108,42 @@ public class UserServiceImpl implements UserService {
             @Override
             public void onFail(int errorCode, String errorMsg, Void response) {
                 Log.e("Logout", "网络错误！" + errorMsg);
+            }
+
+            @Override
+            public void onError(String msg) {
+
+            }
+        });
+    }
+
+    @Override
+    public void update(UserUpdateRequest request) {
+        Observable<BaseResult<Void>> updateResult = userApi.updateUserInfo(request);
+        updateResult.subscribe(new BaseObserver<Void>(false) {
+            @Override
+            public void onSuccess(Void o) {
+                // 修改成功
+                UserInfo newInfo = new UserInfo();
+                if (request.getUsername() != null) {
+                    newInfo.setUsername(request.getUsername());
+                }
+                if (request.getNickname() != null && request.getNickname().length() > 0) {
+                    newInfo.setNickname(request.getNickname());
+                }
+                if (request.getGender() != null) {
+                    newInfo.setGender(request.getGender());
+                }
+                if (request.getRole() != null) {
+                    newInfo.setRole(request.getRole());
+                }
+                userInfoViewModel.setUserInfo(newInfo);
+            }
+
+            @Override
+            public void onFail(int errorCode, String errorMsg, Void response) {
+                // 修改失败
+                Log.e("UpdateUserInfo", "网络错误！" + errorMsg);
             }
 
             @Override

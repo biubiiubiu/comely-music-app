@@ -1,5 +1,7 @@
 package com.example.comely_music_app.api.response.user;
 
+import java.util.Objects;
+
 import lombok.Data;
 
 /**
@@ -50,6 +52,19 @@ public class UserInfo {
     public UserInfo setLoginToken(String loginToken) {
         this.loginToken = loginToken;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserInfo info = (UserInfo) o;
+        return Objects.equals(isNewUser, info.isNewUser) && Objects.equals(username, info.username) && Objects.equals(nickname, info.nickname) && Objects.equals(gender, info.gender) && Objects.equals(avatarId, info.avatarId) && Objects.equals(role, info.role) && Objects.equals(loginToken, info.loginToken);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(isNewUser, username, nickname, gender, avatarId, role, loginToken);
     }
 }
 

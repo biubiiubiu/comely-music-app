@@ -1,5 +1,8 @@
 package com.example.comely_music_app.ui;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,8 +17,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.SavedStateViewModelFactory;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.example.comely_music_app.R;
+import com.example.comely_music_app.api.response.user.UserInfo;
+import com.example.comely_music_app.config.ShpConfig;
+import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
+import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
+import com.example.comely_music_app.utils.ShpUtils;
+import com.google.gson.Gson;
+
+import java.util.Objects;
 
 public class MyFragment extends Fragment implements View.OnClickListener {
     private ImageView avatarImg;
@@ -23,6 +37,8 @@ public class MyFragment extends Fragment implements View.OnClickListener {
     private View settingFrameBlank;
 
     private FragmentManager manager;
+
+    private UserInfoViewModel userInfoViewModel;
 
     public MyFragment(FragmentManager fm) {
         manager = fm;
@@ -34,20 +50,22 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_my, container, false);
+        SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(Objects.requireNonNull(getActivity()).getApplication(), getActivity());
+        userInfoViewModel = ViewModelProviders.of(getActivity(), savedState).get(UserInfoViewModel.class);
+
         initIcons(view);
         avatarImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("TAG", "onClick: 点击了头像");
                 if (manager != null) {
                     FragmentTransaction ft = manager.beginTransaction();
                     ft.replace(R.id.frame_blank_for_setting, new SettingFragment());
                     ft.commit();
                     settingFrameBlank.setVisibility(View.VISIBLE);
-
                 }
             }
         });
+        setObserveOnUserViewModel();
         return view;
     }
 
@@ -55,6 +73,42 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         avatarImg = view.findViewById(R.id.avatar_image);
         nicknameTxt = view.findViewById(R.id.nickname);
         settingFrameBlank = view.findViewById(R.id.frame_blank_for_setting);
+
+        UserInfo info = ShpUtils.getUserInfoFromShp(getActivity());
+        if (info != null) {
+            String nickname = info.getNickname();
+            if (nickname != null && nickname.length() > 0) {
+                nicknameTxt.setText(nickname);
+            }
+        }
+    }
+
+
+    private void setObserveOnUserViewModel() {
+        if (userInfoViewModel != null) {
+            userInfoViewModel.getUserInfo().observe(Objects.requireNonNull(getActivity()), new Observer<UserInfo>() {
+                @Override
+                public void onChanged(UserInfo userInfo) {
+                    if (userInfo != null && userInfo.getNickname() != null && userInfo.getNickname().length() > 0) {
+                        // 刷界面
+                        nicknameTxt.setText(userInfo.getNickname());
+                        // 写入shp
+                        SharedPreferences shp = Objects.requireNonNull(getActivity()).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
+                        String userInfoStr = shp.getString(ShpConfig.CURRENT_USER, "");
+                        if (!userInfoStr.equals("")) {
+                            Gson gson = new Gson();
+                            UserInfo info = gson.fromJson(userInfoStr, UserInfo.class);
+                            if (!info.equals(userInfo)) {
+                                SharedPreferences.Editor editor = shp.edit();
+                                String newInfoStr = gson.toJson(userInfo);
+                                editor.putString(ShpConfig.CURRENT_USER, newInfoStr);
+                                editor.apply();
+                            }
+                        }
+                    }
+                }
+            });
+        }
     }
 
     @Override
