@@ -7,7 +7,6 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.example.comely_music_app.ui.enums.PageStatus;
 import com.example.comely_music_app.ui.models.MusicModel;
 
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ import java.util.Objects;
 
 public class PlayingViewModel extends AndroidViewModel {
     // =========== 界面 =============
-    private MutableLiveData<PageStatus> pageStatusLiveData;
+//    private MutableLiveData<PageStatus> pageStatusLiveData;
     private MutableLiveData<Integer> currentPointFromUser;
 
     // =========== 写入数据库 ===============
@@ -34,16 +33,16 @@ public class PlayingViewModel extends AndroidViewModel {
 
     // ============================ getter ===============================================
 
-    public MutableLiveData<PageStatus> getPageStatusLiveData() {
-//        if (!handle.contains(MainActivity.KEY_PAGE_STATUS)) {
-//            handle.set(MainActivity.KEY_PAGE_STATUS, PageStatus.PLAYING);
+//    public MutableLiveData<PageStatus> getPageStatusLiveData() {
+////        if (!handle.contains(MainActivity.KEY_PAGE_STATUS)) {
+////            handle.set(MainActivity.KEY_PAGE_STATUS, PageStatus.PLAYING);
+////        }
+////        return handle.getLiveData(MainActivity.KEY_PAGE_STATUS);
+//        if (pageStatusLiveData == null) {
+//            pageStatusLiveData = new MutableLiveData<>(PageStatus.PLAYING);
 //        }
-//        return handle.getLiveData(MainActivity.KEY_PAGE_STATUS);
-        if (pageStatusLiveData == null) {
-            pageStatusLiveData = new MutableLiveData<>(PageStatus.PLAYING);
-        }
-        return pageStatusLiveData;
-    }
+//        return pageStatusLiveData;
+//    }
 
 
     public MutableLiveData<Boolean> getIsPlayingLiveData() {
@@ -106,15 +105,15 @@ public class PlayingViewModel extends AndroidViewModel {
         this.isPlayingLiveData.setValue(isPlaying);
     }
 
-    /**
-     * 更改页面状态
-     */
-    public void changePageStatusLiveData(PageStatus status) {
-        if (isPlayingLiveData == null) {
-            isPlayingLiveData = getIsPlayingLiveData();
-        }
-        pageStatusLiveData.setValue(status);
-    }
+//    /**
+//     * 更改页面状态
+//     */
+//    public void changePageStatusLiveData(PageStatus status) {
+//        if (isPlayingLiveData == null) {
+//            isPlayingLiveData = getIsPlayingLiveData();
+//        }
+//        pageStatusLiveData.setValue(status);
+//    }
 
     /**
      * 改变点赞，取反

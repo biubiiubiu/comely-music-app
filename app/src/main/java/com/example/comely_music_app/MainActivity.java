@@ -12,31 +12,20 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.comely_music_app.api.response.user.UserInfo;
 import com.example.comely_music_app.api.service.UserService;
 import com.example.comely_music_app.api.service.impl.UserServiceImpl;
-import com.example.comely_music_app.config.IntentKey;
 import com.example.comely_music_app.config.ShpConfig;
-import com.example.comely_music_app.ui.FindingFragment;
-import com.example.comely_music_app.ui.MyFragment;
 import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
-import com.example.comely_music_app.ui.enums.PageStatus;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
-import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -46,7 +35,7 @@ import lombok.SneakyThrows;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private FragmentManager manager;
 
-    private View frameBlank, findBtn, myBtn;
+    private View frameBlank;
     private ImageButton playPauseBtn;
     private ViewPager2 viewPager;
 
@@ -77,15 +66,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(getApplication(), this);
         playingViewModel = ViewModelProviders.of(this, savedState).get(PlayingViewModel.class);
         userInfoViewModel = ViewModelProviders.of(this, savedState).get(UserInfoViewModel.class);
-
         userService = new UserServiceImpl(userInfoViewModel);
-
         mediaPlayer = new MediaPlayer();
+
+        initIcons();
 
         // 检测登录状态
         checkLoginStatus();
 
-        initIcon();
 
         viewPager.setOrientation(ORIENTATION_VERTICAL);
         viewPagerAdapter = new PlayingViewListAdapter(getApplicationContext(), playingViewModel);
@@ -126,7 +114,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 未登录，跳转到LoginActivity
         Intent intent1 = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent1);
-
     }
 
     private void setObserveOnUserInfoViewModel() {
@@ -169,33 +156,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        // 切换页面状态
-        playingViewModel.getPageStatusLiveData().observe(this, status -> {
-            ImageButton myBtn = findViewById(R.id.my_btn);
-            ImageButton findBtn = findViewById(R.id.find_btn);
-            myBtn.setImageDrawable(getDrawable(R.drawable.ic_my_down));
-            findBtn.setImageDrawable(getDrawable(R.drawable.ic_find_down));
-            TextView myText = findViewById(R.id.my_text);
-            TextView findText = findViewById(R.id.find_text);
-            myText.setTextColor(R.color.white);
-            findText.setTextColor(R.color.white);
-            switch (status) {
-                case MY:
-                    checkout2TargetFragment(new MyFragment());
-                    myBtn.setImageDrawable(getDrawable(R.drawable.ic_my_up));
-                    myText.setTextColor(R.color.theme_green_light);
-                    break;
-                case FINDING:
-                    checkout2TargetFragment(new FindingFragment());
-                    findBtn.setImageDrawable(getDrawable(R.drawable.ic_find_up));
-                    findText.setTextColor(R.color.theme_green_light);
-                    break;
-                case PLAYING:
-                    checkout2Playing();
-                    break;
-            }
-        });
-
         // 点赞 取消
         playingViewModel.getIsLikeLiveData().observe(this, isLike -> Toast.makeText(getApplicationContext(), "点赞写数据库:" + isLike, Toast.LENGTH_SHORT).show());
 
@@ -232,19 +192,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * 初始化界面组件
      */
-    private void initIcon() {
-        playPauseBtn = findViewById(R.id.play_pause_btn);
-        findBtn = findViewById(R.id.find_btn);
-        myBtn = findViewById(R.id.my_btn);
+    private void initIcons() {
+        findViewById(R.id.main_find_btn).setOnClickListener(this);
+        findViewById(R.id.main_home_btn).setOnClickListener(this);
+
+        playPauseBtn = findViewById(R.id.main_play_pause_btn);
         frameBlank = findViewById(R.id.frame_blank);
-        playPauseBtn = findViewById(R.id.play_pause_btn);
+        playPauseBtn = findViewById(R.id.main_play_pause_btn);
         viewPager = findViewById(R.id.viewpage_playing);
 
         seekBar = findViewById(R.id.process_sb);
 
         playPauseBtn.setOnClickListener(this);
-        findBtn.setOnClickListener(this);
-        myBtn.setOnClickListener(this);
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -266,31 +225,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.play_pause_btn) {
+        if (v.getId() == R.id.main_play_pause_btn) {
             playingViewModel.changeIsPlayingLiveData();
-            playingViewModel.changePageStatusLiveData(PageStatus.PLAYING);
-        } else if (v.getId() == R.id.find_btn) {
-            playingViewModel.changePageStatusLiveData(PageStatus.FINDING);
-        } else if (v.getId() == R.id.my_btn) {
-            playingViewModel.changePageStatusLiveData(PageStatus.MY);
+        } else if (v.getId() == R.id.main_find_btn) {
+            Intent toFindIntent = new Intent(MainActivity.this, FindActivity.class);
+            startActivity(toFindIntent);
+        } else if (v.getId() == R.id.main_home_btn) {
+            Intent toHomeIntent = new Intent(MainActivity.this, HomeActivity.class);
+            startActivity(toHomeIntent);
         }
     }
 
-    private void checkout2TargetFragment(Fragment targetFragment) {
-        FragmentTransaction ft = manager.beginTransaction();
-        viewPager.setVisibility(View.INVISIBLE);
-        ft.replace(R.id.frame_blank, targetFragment);
-        ft.commit();
-        frameBlank.setVisibility(View.VISIBLE);
-    }
+//    private void checkout2TargetFragment(Fragment targetFragment) {
+//        FragmentTransaction ft = manager.beginTransaction();
+//        viewPager.setVisibility(View.INVISIBLE);
+//        ft.replace(R.id.frame_blank, targetFragment);
+//        ft.commit();
+//        frameBlank.setVisibility(View.VISIBLE);
+//    }
 
-    private void checkout2Playing() {
-        frameBlank.setVisibility(View.INVISIBLE);
-        viewPager.setVisibility(View.VISIBLE);
-    }
+//    private void checkout2Playing() {
+//        frameBlank.setVisibility(View.INVISIBLE);
+//        viewPager.setVisibility(View.VISIBLE);
+//    }
 
 
 //    // 临时上传文件测试
