@@ -21,6 +21,9 @@ public class UserServiceImpl implements UserService {
     UserApi userApi;
     UserInfoViewModel userInfoViewModel;
 
+    public UserServiceImpl() {
+    }
+
     public UserServiceImpl(UserInfoViewModel viewModel) {
         userApi = ApiManager.getInstance().getApiService(UserApi.class);
         userInfoViewModel = viewModel;
@@ -83,6 +86,27 @@ public class UserServiceImpl implements UserService {
             @Override
             public void onFail(int errorCode, String errorMsg, Boolean response) {
                 Log.e("LoginStatus", "网络错误！" + errorMsg);
+            }
+
+            @Override
+            public void onError(String msg) {
+
+            }
+        });
+    }
+
+    @Override
+    public void logout(String username) {
+        Observable<BaseResult<Void>> logout = userApi.logout(username);
+        logout.subscribe(new BaseObserver<Void>(false) {
+            @Override
+            public void onSuccess(Void o) {
+                Log.d("Logout", "onSuccess: 退出登录");
+            }
+
+            @Override
+            public void onFail(int errorCode, String errorMsg, Void response) {
+                Log.e("Logout", "网络错误！" + errorMsg);
             }
 
             @Override

@@ -8,4 +8,6 @@ public interface UserService {
     void loginOrRegister(LoginRequest loginRequest);
 
     void getLoginStatus(String username);
+
+    void logout(String username);
 }

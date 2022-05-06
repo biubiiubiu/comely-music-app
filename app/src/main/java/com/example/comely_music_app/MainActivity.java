@@ -19,16 +19,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.comely_music_app.api.response.user.UserInfo;
 import com.example.comely_music_app.api.service.UserService;
 import com.example.comely_music_app.api.service.impl.UserServiceImpl;
-import com.example.comely_music_app.config.IntentKey;
 import com.example.comely_music_app.config.ShpConfig;
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
@@ -36,7 +32,6 @@ import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
 import com.example.comely_music_app.ui.enums.PageStatus;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
-import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -118,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void checkLoginStatus() {
         SharedPreferences shp = getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
-        String username = shp.getString(ShpConfig.USERNAME, "");
+        String username = shp.getString(ShpConfig.CURRENT_USERNAME, "");
         if (!username.equals("")) {
             userService.getLoginStatus(username);
             return;
@@ -134,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (isLogin != null && !isLogin) {
                 SharedPreferences shp = getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
                 @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = shp.edit();
-                editor.remove(ShpConfig.USERNAME);
+                editor.remove(ShpConfig.CURRENT_USERNAME);
                 editor.apply();
             }
         });
@@ -181,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             findText.setTextColor(R.color.white);
             switch (status) {
                 case MY:
-                    checkout2TargetFragment(new MyFragment());
+                    checkout2TargetFragment(new MyFragment(manager));
                     myBtn.setImageDrawable(getDrawable(R.drawable.ic_my_up));
                     myText.setTextColor(R.color.theme_green_light);
                     break;

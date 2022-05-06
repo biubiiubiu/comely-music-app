@@ -55,8 +55,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         userInfoViewModel.getIsNewUser().observe(this, isNewUser -> {
             if (isNewUser != null) {
                 if (isNewUser) {
-                    EditText editText = new EditText(getApplicationContext());
-                    new AlertDialog.Builder(getApplicationContext())
+                    EditText editText = new EditText(LoginActivity.this);
+                    new AlertDialog.Builder(LoginActivity.this)
                             .setTitle("检测当前账号为新用户，是否使用当前新账号注册并登录？（再次输入密码以确认）")
                             .setIcon(android.R.drawable.ic_dialog_info)
                             .setView(editText)
@@ -73,7 +73,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 }
                             })
                             .setNegativeButton("我再想想", null)
-                            .show();
+                            .create().show();
                 } else {
                     userService.loginOrRegister(new LoginRequest(username, password));
                 }
@@ -91,7 +91,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                         SharedPreferences shp = getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
                         SharedPreferences.Editor editor = shp.edit();
-                        editor.putString(ShpConfig.USERNAME, userInfo.getUsername());
+                        editor.putString(ShpConfig.CURRENT_USERNAME, userInfo.getUsername());
                         editor.apply();
 
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
