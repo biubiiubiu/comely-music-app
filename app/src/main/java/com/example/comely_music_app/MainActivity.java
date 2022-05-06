@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setObserveOnUserInfoViewModel() {
         userInfoViewModel.getIsLogin().observe(this, isLogin -> {
-            if (!isLogin) {
+            if (isLogin != null && !isLogin) {
                 SharedPreferences shp = getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
                 @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = shp.edit();
                 editor.remove(ShpConfig.USERNAME);
