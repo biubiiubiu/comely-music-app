@@ -32,10 +32,10 @@
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/avatar_image"
-                    android:layout_marginTop="30dp"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
                     android:layout_gravity="center"
+                    android:layout_marginTop="30dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/avatar_music" />
 
@@ -75,8 +75,8 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:hint="0"
-                            android:textColorHint="@color/white"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/white"
+                            android:textColorHint="@color/white" />
 
                         <TextView
                             android:id="@+id/follow_artist_num"
@@ -85,8 +85,8 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:hint="0"
-                            android:textColorHint="@color/white"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/white"
+                            android:textColorHint="@color/white" />
 
                         <TextView
                             android:id="@+id/fans_num"
@@ -95,8 +95,8 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:hint="0"
-                            android:textColorHint="@color/white"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/white"
+                            android:textColorHint="@color/white" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -150,130 +150,139 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
+
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="10dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/my_like_playlist"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/ic_my_like" />
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/my_collection_playlist"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/ic_collection_playlist" />
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/local_playlist"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/ic_local_music" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="64dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="我喜欢"
-                    android:textColor="@color/white" />
-
-                <TextView
-                    android:layout_width="64dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="收藏歌单"
-                    android:textColor="@color/white" />
-
-                <TextView
-                    android:layout_width="64dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="本地音乐"
-                    android:textColor="@color/white" />
-
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="20dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_height="100dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                app:cardBackgroundColor="#10FFFFFF"
+                app:cardCornerRadius="15dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:layout_gravity="center"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/my_like_playlist"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_gravity="center"
+                            android:layout_weight="1"
+                            android:background="@android:color/transparent"
+                            android:src="@drawable/ic_my_like" />
+
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/my_collection_playlist"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_gravity="center"
+                            android:layout_weight="1"
+                            android:background="@android:color/transparent"
+                            android:src="@drawable/ic_collection_playlist" />
+
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/local_playlist"
+                            android:layout_width="45dp"
+                            android:layout_height="45dp"
+                            android:layout_gravity="center"
+                            android:layout_weight="1"
+                            android:background="@android:color/transparent"
+                            android:src="@drawable/ic_local" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="64dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="我喜欢"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:layout_width="64dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="收藏歌单"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:layout_width="64dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="本地音乐"
+                            android:textColor="@color/white" />
+
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="30dp"
+                app:cardBackgroundColor="#10FFFFFF"
+                app:cardCornerRadius="15dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="12"
-                        android:text="自建歌单"
-                        android:textColor="@color/white"
-                        android:textSize="22sp" />
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="12"
+                            android:text="自建歌单"
+                            android:textColor="@color/white"
+                            android:textSize="22sp" />
 
 
-                    <ImageButton
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:layout_marginEnd="15dp"
-                        android:background="@android:color/transparent"
-                        android:src="@drawable/ic_add" />
+                        <ImageButton
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:layout_marginEnd="15dp"
+                            android:background="@android:color/transparent"
+                            android:src="@drawable/ic_add" />
+
+                    </LinearLayout>
+
+                    <!-- todo 这里放一个listview-->
 
                 </LinearLayout>
-
-                <!--                todo 这里放一个listview-->
-
-            </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
 
         </LinearLayout>
-        <!--        <androidx.constraintlayout.widget.ConstraintLayout-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="match_parent"-->
-        <!--            tools:showIn="@layout/activity_main">-->
-
-        <!--            <TextView-->
-        <!--                android:layout_width="match_parent"-->
-        <!--                android:layout_height="match_parent"-->
-        <!--                android:gravity="center"-->
-        <!--                android:text="我的"-->
-        <!--                android:textColor="@color/black"-->
-        <!--                android:textSize="40sp"-->
-        <!--                tools:layout_editor_absoluteX="0dp"-->
-        <!--                tools:layout_editor_absoluteY="-159dp" />-->
-
-
-        <!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
 
     </androidx.core.widget.NestedScrollView>
 
@@ -281,6 +290,6 @@
         android:id="@+id/frame_blank_for_setting"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="invisible"/>
+        android:visibility="invisible" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

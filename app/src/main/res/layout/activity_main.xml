@@ -39,20 +39,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_weight="1"
                 android:text="00:00"
-                android:textColor="@color/gray"
-                android:layout_weight="1"/>
+                android:textColor="@color/gray" />
+
             <TextView
                 android:id="@+id/playing_total_duration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="00:00"
+                android:layout_marginRight="25dp"
+                android:layout_weight="1"
                 android:gravity="right"
-                android:textColor="@color/gray"
-                android:layout_weight="1"/>
+                android:text="00:00"
+                android:textColor="@color/gray" />
 
         </LinearLayout>
 
@@ -60,6 +64,8 @@
             android:id="@+id/process_sb"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:maxHeight="5.0dp"
             android:minHeight="5.0dp"
             android:progressDrawable="@drawable/sb_bar"
@@ -92,7 +98,7 @@
                     android:layout_gravity="center"
                     android:background="@android:color/transparent"
                     android:minHeight="48dp"
-                    app:srcCompat="@drawable/ic_find_down"
+                    app:srcCompat="@drawable/ic_finding_down"
                     tools:ignore="SpeakableTextPresentCheck" />
 
                 <TextView
@@ -141,7 +147,7 @@
                     android:background="@android:color/transparent"
                     android:minWidth="48dp"
                     android:minHeight="48dp"
-                    app:srcCompat="@drawable/ic_my_down"
+                    app:srcCompat="@drawable/ic_home_down"
                     tools:ignore="SpeakableTextPresentCheck" />
 
                 <TextView
@@ -155,8 +161,6 @@
 
         </LinearLayout>
     </LinearLayout>
-
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

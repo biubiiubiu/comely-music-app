@@ -9,8 +9,8 @@
     <color name="white">#FFFFFF</color>
     <color name="gray">#B3EEE8E8</color>
     <color name="theme_blue_gray">#B3418080</color>
-    <color name="theme_green_light">#B344A8A0</color>
-    <color name="main_background">#B3051919</color>
+    <color name="theme_green_light">#D34CC5BB</color>
+    <color name="main_background">#B3414743</color>
 
     <color name="colorPrimary">#FFFFFF</color>
     <color name="colorPrimaryDark">#FFFFFF</color>

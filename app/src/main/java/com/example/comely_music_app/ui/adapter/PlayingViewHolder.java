@@ -132,7 +132,8 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void setBackground(Drawable drawable) {
-        itemView.setBackground(drawable);
+        itemView.findViewById(R.id.item_plying_bk).setBackground(drawable);
+//        itemView.setBackground(drawable);
     }
 
     public void setTitle(String title) {

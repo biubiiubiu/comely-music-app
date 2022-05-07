@@ -30,6 +30,8 @@ import com.example.comely_music_app.config.ShpConfig;
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
 import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
+import com.example.comely_music_app.ui.animation.DepthPageTransformer;
+import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
 import com.example.comely_music_app.ui.enums.PageStatus;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
@@ -87,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         viewPager.setOrientation(ORIENTATION_VERTICAL);
         viewPagerAdapter = new PlayingViewListAdapter(getApplicationContext(), playingViewModel);
         viewPager.setAdapter(viewPagerAdapter);
+        viewPager.setPageTransformer(new ZoomOutPageTransformer());
         // 滑动页面时更改当前音乐
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -178,8 +181,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playingViewModel.getPageStatusLiveData().observe(this, status -> {
             ImageButton myBtn = findViewById(R.id.my_btn);
             ImageButton findBtn = findViewById(R.id.find_btn);
-            myBtn.setImageDrawable(getDrawable(R.drawable.ic_my_down));
-            findBtn.setImageDrawable(getDrawable(R.drawable.ic_find_down));
+            myBtn.setImageDrawable(getDrawable(R.drawable.ic_home_down));
+            findBtn.setImageDrawable(getDrawable(R.drawable.ic_finding_down));
             TextView myText = findViewById(R.id.my_text);
             TextView findText = findViewById(R.id.find_text);
             myText.setTextColor(R.color.white);
@@ -187,12 +190,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             switch (status) {
                 case MY:
                     checkout2TargetFragment(new MyFragment(manager));
-                    myBtn.setImageDrawable(getDrawable(R.drawable.ic_my_up));
+                    myBtn.setImageDrawable(getDrawable(R.drawable.ic_home_up));
                     myText.setTextColor(R.color.theme_green_light);
                     break;
                 case FINDING:
                     checkout2TargetFragment(new FindingFragment());
-                    findBtn.setImageDrawable(getDrawable(R.drawable.ic_find_up));
+                    findBtn.setImageDrawable(getDrawable(R.drawable.ic_finding_up));
                     findText.setTextColor(R.color.theme_green_light);
                     break;
                 case PLAYING:
