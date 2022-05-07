@@ -157,7 +157,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="10dp"
-                app:cardBackgroundColor="#10FFFFFF"
+                app:cardBackgroundColor="@color/card_bk_color"
                 app:cardCornerRadius="15dp">
 
                 <LinearLayout
@@ -173,8 +173,8 @@
 
                         <de.hdodenhof.circleimageview.CircleImageView
                             android:id="@+id/my_like_playlist"
-                            android:layout_width="60dp"
-                            android:layout_height="60dp"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
                             android:layout_gravity="center"
                             android:layout_weight="1"
                             android:background="@android:color/transparent"
@@ -191,8 +191,8 @@
 
                         <de.hdodenhof.circleimageview.CircleImageView
                             android:id="@+id/local_playlist"
-                            android:layout_width="45dp"
-                            android:layout_height="45dp"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
                             android:layout_gravity="center"
                             android:layout_weight="1"
                             android:background="@android:color/transparent"
@@ -240,7 +240,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="30dp"
-                app:cardBackgroundColor="#10FFFFFF"
+                app:cardBackgroundColor="@color/card_bk_color"
                 app:cardCornerRadius="15dp">
 
                 <LinearLayout
@@ -260,23 +260,29 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
+                            android:layout_marginStart="40dp"
                             android:layout_weight="12"
                             android:text="自建歌单"
                             android:textColor="@color/white"
-                            android:textSize="22sp" />
+                            android:textSize="20sp" />
 
 
                         <ImageButton
-                            android:layout_width="35dp"
-                            android:layout_height="35dp"
+                            android:layout_width="@dimen/icon_size_mid"
+                            android:layout_height="@dimen/icon_size_mid"
                             android:layout_marginEnd="15dp"
                             android:background="@android:color/transparent"
                             android:src="@drawable/ic_add" />
 
                     </LinearLayout>
 
-                    <!-- todo 这里放一个listview-->
+<!--                    歌单-->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="40dp"
+                        android:layout_marginRight="40dp" />
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
