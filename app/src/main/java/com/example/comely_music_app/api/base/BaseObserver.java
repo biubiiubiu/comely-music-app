@@ -127,7 +127,6 @@ public abstract class BaseObserver<T> extends DisposableObserver<BaseResult<T>> 
      * 体现思路,实现略
      */
     public void showLoading() {
-        //TODO 略
     }
 
     /**
@@ -135,7 +134,6 @@ public abstract class BaseObserver<T> extends DisposableObserver<BaseResult<T>> 
      * 体现思路,实现略
      */
     public void dismissDialog() {
-        //TODO 略
     }
 
 }
