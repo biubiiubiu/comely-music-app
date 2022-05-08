@@ -1,4 +1,4 @@
-package com.example.comely_music_app.api.request.user;
+package com.example.comely_music_app.api.request;
 
 import lombok.Data;
 

@@ -2,7 +2,7 @@ package com.example.comely_music_app.ui.provider;
 
 import android.content.Context;
 
-import com.example.comely_music_app.api.request.music.MusicSelectRequest;
+import com.example.comely_music_app.api.request.MusicSelectRequest;
 import com.example.comely_music_app.api.service.MusicService;
 import com.example.comely_music_app.api.service.impl.MusicServiceImpl;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;

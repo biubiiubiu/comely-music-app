@@ -7,12 +7,15 @@ import com.example.comely_music_app.api.apis.MusicApi;
 import com.example.comely_music_app.api.base.ApiManager;
 import com.example.comely_music_app.api.base.BaseObserver;
 import com.example.comely_music_app.api.base.BaseResult;
-import com.example.comely_music_app.api.request.music.MusicSelectRequest;
-import com.example.comely_music_app.api.response.music.MusicSelectResponse;
+import com.example.comely_music_app.api.request.MusicCreateRequest;
+import com.example.comely_music_app.api.request.MusicSelectRequest;
+import com.example.comely_music_app.api.response.MusicBatchCreateResponse;
+import com.example.comely_music_app.api.response.MusicSelectResponse;
 import com.example.comely_music_app.api.service.FileService;
 import com.example.comely_music_app.api.service.MusicService;
 import com.example.comely_music_app.config.FileConfig;
 import com.example.comely_music_app.ui.models.MusicModel;
+import com.example.comely_music_app.ui.viewmodels.MusicServiceViewModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 
 import java.io.File;
@@ -70,6 +73,33 @@ public class MusicServiceImpl implements MusicService {
                     }
                 });
     }
+
+    @Override
+    public void batchCreateMusic(List<MusicCreateRequest> requestList, MusicServiceViewModel musicServiceViewModel) {
+        Observable<BaseResult<MusicBatchCreateResponse>> batchCreateObservable = musicApi.batchCreateMusic(requestList);
+        batchCreateObservable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BaseObserver<MusicBatchCreateResponse>(true) {
+                    @Override
+                    public void onSuccess(MusicBatchCreateResponse response) {
+                        Log.d("批量创建音乐", "创建成功: " + response.getSuccessNum() + "，创建失败：" + response.getFailedNum());
+                        if (musicServiceViewModel != null) {
+                            musicServiceViewModel.setBatchCreateLiveData(response);
+                        }
+                    }
+
+                    @Override
+                    public void onFail(int errorCode, String errorMsg, MusicBatchCreateResponse response) {
+                        Log.e("批量创建音乐", errorMsg, null);
+                    }
+
+                    @Override
+                    public void onError(String msg) {
+
+                    }
+                });
+    }
+
 
     /**
      * 检查本地是否存在此MusicModel信息，有的话就直接加载，没有就从oss下载

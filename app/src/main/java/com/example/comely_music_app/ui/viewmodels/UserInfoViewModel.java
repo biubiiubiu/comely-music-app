@@ -3,7 +3,7 @@ package com.example.comely_music_app.ui.viewmodels;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.comely_music_app.api.response.user.UserInfo;
+import com.example.comely_music_app.api.response.UserInfo;
 
 public class UserInfoViewModel extends ViewModel {
     private MutableLiveData<Boolean> isNewUser;

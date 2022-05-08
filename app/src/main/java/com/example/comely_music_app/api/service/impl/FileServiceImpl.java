@@ -19,12 +19,13 @@ import com.example.comely_music_app.api.apis.FileApi;
 import com.example.comely_music_app.api.base.ApiManager;
 import com.example.comely_music_app.api.base.BaseObserver;
 import com.example.comely_music_app.api.base.BaseResult;
-import com.example.comely_music_app.api.request.file.FileCommonRequest;
-import com.example.comely_music_app.api.request.file.FileUploadRequest;
-import com.example.comely_music_app.api.response.file.FileUploadResponse;
-import com.example.comely_music_app.api.response.file.OssTokenInfo;
+import com.example.comely_music_app.api.request.FileCommonRequest;
+import com.example.comely_music_app.api.request.FileUploadRequest;
+import com.example.comely_music_app.api.response.FileUploadResponse;
+import com.example.comely_music_app.api.response.OssTokenInfo;
 import com.example.comely_music_app.api.service.FileService;
 import com.example.comely_music_app.config.FileConfig;
+import com.example.comely_music_app.ui.viewmodels.FileServiceViewModel;
 import com.example.comely_music_app.utils.FileOperationUtils;
 
 import java.io.File;
@@ -46,37 +47,44 @@ public class FileServiceImpl implements FileService {
     private final static String BASE_DOWNLOAD_DIR = FileConfig.BASE_PATH;
 
     /**
-     * 上传文件，文件位置 BASE_DIR/filename
+     * 上传文件
+     * 本地文件位置 localBaseDir/originalFilename
+     * oss文件存储位置 storageUrl
+     * 注意：一次只能上传一个文件夹（localBaseDir）里的多个文件
+     *
+     * @param context              上下文，从acticity中获得
+     * @param request              上传者、List(文件名+文件大小)
+     * @param localBaseDir         这些文件的基础文件夹，以/结尾，例如"/storage/emulated/0/$MuMu共享文件夹/音乐/纯音乐/"
+     * @param fileServiceViewModel 控制文件上传线程调度
      */
     @Override
-    public void uploadFile(Context context, FileUploadRequest request) {
+    public void uploadFile(Context context, FileUploadRequest request, String localBaseDir, FileServiceViewModel fileServiceViewModel) {
         Observable<BaseResult<FileUploadResponse>> uploadingObservable = fileApi.upLoading(request);
         uploadingObservable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new BaseObserver<FileUploadResponse>(false) {
                     @Override
                     public void onSuccess(FileUploadResponse response) {
-                        FileCommonRequest request = new FileCommonRequest();
-                        Map<String, FileCommonRequest.CommonInfo> fileKeyInfoMap = new HashMap<>();
-
                         OssTokenInfo ossTokenInfo = response.getOssTokenInfo();
                         Map<String, String> filename2StorageUrl = response.getFileStorageUrlMap();
                         for (Map.Entry<String, String> entry : filename2StorageUrl.entrySet()) {
+                            FileCommonRequest request = new FileCommonRequest();
+                            Map<String, FileCommonRequest.CommonInfo> fileKeyInfoMap = new HashMap<>();
 
                             String filename = entry.getKey();
                             String storageUrl = entry.getValue();
                             String fileKey = storageUrl.substring(storageUrl.lastIndexOf("/") + 1);
-                            String localFilePath = BASE_UPLOAD_DIR + filename;
+                            String localFilePath = localBaseDir + filename;
                             File file = new File(localFilePath);
                             long size = file.length();
-                            // 上传
-                            upload(context, ossTokenInfo, storageUrl, localFilePath);
+
                             // 需要存mysql的信息放在map里
                             fileKeyInfoMap.put(fileKey, new FileCommonRequest.CommonInfo(filename, storageUrl, size));
+                            // 上传成功的文件信息
+                            request.setFileKeyInfoMap(fileKeyInfoMap);
+                            // 上传
+                            upload(context, ossTokenInfo, storageUrl, localFilePath, request, fileServiceViewModel);
                         }
-                        // 上传成功的文件信息存数据库
-                        request.setFileKeyInfoMap(fileKeyInfoMap);
-                        setUploadSuccessResult(request);
                     }
 
                     @Override
@@ -91,23 +99,32 @@ public class FileServiceImpl implements FileService {
                 });
     }
 
-    private void upload(Context context, OssTokenInfo tokenResponseBody, String storageUrl, String localFilePath) {
+    private void upload(Context context, OssTokenInfo tokenResponseBody,
+                        String storageUrl, String localFilePath, FileCommonRequest request, FileServiceViewModel fileServiceViewModel) {
         OSS oss = getOssClient(context, tokenResponseBody);
         // 构造上传请求。
         PutObjectRequest put = new PutObjectRequest(tokenResponseBody.getBucketName(), storageUrl, localFilePath);
         // 异步上传时可以设置进度回调
-        put.setProgressCallback((request, currentSize, totalSize) -> {
+        put.setProgressCallback((req, currentSize, totalSize) -> {
             Log.d("PutObject", "currentSize:" + currentSize + " totalSize:" + totalSize);
         });
 
         oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
             @Override
-            public void onSuccess(PutObjectRequest request, PutObjectResult result) {
+            public void onSuccess(PutObjectRequest putRequest, PutObjectResult result) {
                 Log.d("TAG", localFilePath + "onSuccess: 上传成功！");
+                if (fileServiceViewModel.getCurrentFileIndex() != null) {
+                    fileServiceViewModel.setCurrentFileIndex(fileServiceViewModel.getCurrentFileIndex().getValue() + 1);
+                }
+                // 上传成功之后，文件信息存数据库
+                setUploadSuccessResult(request);
             }
 
             @Override
             public void onFailure(PutObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
+                if (fileServiceViewModel.getCurrentFileIndex() != null) {
+                    fileServiceViewModel.setCurrentFileIndex(fileServiceViewModel.getCurrentFileIndex().getValue() + 1);
+                }
                 // 请求异常。
                 if (clientExcepion != null) {
                     // 本地异常，如网络异常等。

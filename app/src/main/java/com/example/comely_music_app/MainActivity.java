@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -23,21 +24,26 @@ import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.comely_music_app.api.response.user.UserInfo;
+import com.example.comely_music_app.api.response.UserInfo;
 import com.example.comely_music_app.api.service.UserService;
 import com.example.comely_music_app.api.service.impl.UserServiceImpl;
+import com.example.comely_music_app.config.FileConfig;
 import com.example.comely_music_app.config.ShpConfig;
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
 import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
-import com.example.comely_music_app.ui.animation.DepthPageTransformer;
 import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
 import com.example.comely_music_app.ui.enums.PageStatus;
+import com.example.comely_music_app.ui.viewmodels.FileServiceViewModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
+import com.example.comely_music_app.utils.AdminUploadMusicUtils;
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import lombok.SneakyThrows;
@@ -110,6 +116,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         setObserveOnPlayingViewModel();
         setObserveOnUserInfoViewModel();
+
+        createMusicTest();
     }
 
 
@@ -334,4 +342,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        request.setFileUploadInfoList(list);
 //        fileService.uploadFile(this, request);
 //    }
+
+//    private void addMusicTest() {
+//        getFileList();
+//
+//    }
+
+    private void createMusicTest() {
+        SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(getApplication(), this);
+        FileServiceViewModel fileServiceViewModel = ViewModelProviders.of(this, savedState).get(FileServiceViewModel.class);
+
+
+        AdminUploadMusicUtils utils = new AdminUploadMusicUtils(this, getApplicationContext(), null,
+                fileServiceViewModel);
+
+        String localBaseDir = FileConfig.BASE_PATH + "音乐/DJ/01/";
+        File baseDirFile = new File(localBaseDir);
+        File[] files = baseDirFile.listFiles();
+
+        List<String> originalFilenameList = new ArrayList<>();
+        for (File file : files){
+            originalFilenameList.add(file.getName());
+        }
+        Log.i("createMusicTest", "获取音乐列表完成！" + originalFilenameList.size());
+        Log.i("createMusicTest", "开始上传音乐文件");
+        utils.uploadFiles(localBaseDir, originalFilenameList);
+
+//
+//        Log.i("createMusicTest", "开始上传歌手信息");
+//        utils.createArtist(originalFilenameList);
+//        Log.i("createMusicTest", "歌手创建完成!");
+
+//        Log.i("createMusicTest", "开始创建音乐");
+//        utils.createMusics(originalFilenameList);
+//        Log.i("createMusicTest", "音乐创建完成!");
+
+    }
+
+
 }

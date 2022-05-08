@@ -1,0 +1,174 @@
+package com.example.comely_music_app.utils;
+
+import android.app.Activity;
+import android.content.Context;
+import android.util.Log;
+
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
+
+import com.example.comely_music_app.api.apis.ArtistApi;
+import com.example.comely_music_app.api.base.BaseObserver;
+import com.example.comely_music_app.api.request.ArtistCreateRequest;
+import com.example.comely_music_app.api.request.FileUploadRequest;
+import com.example.comely_music_app.api.request.MusicCreateRequest;
+import com.example.comely_music_app.api.service.ArtistService;
+import com.example.comely_music_app.api.service.FileService;
+import com.example.comely_music_app.api.service.MusicService;
+import com.example.comely_music_app.api.service.impl.ArtistServiceImpl;
+import com.example.comely_music_app.api.service.impl.FileServiceImpl;
+import com.example.comely_music_app.api.service.impl.MusicServiceImpl;
+import com.example.comely_music_app.ui.viewmodels.FileServiceViewModel;
+import com.example.comely_music_app.ui.viewmodels.MusicServiceViewModel;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * 音乐上传脚本，暂时取代后台上传
+ */
+public class AdminUploadMusicUtils {
+    private final LifecycleOwner lifecycleOwner;
+    private final Context applicationContext;
+    private final MusicService musicService;
+    private final FileService fileService;
+    private final ArtistService artistService;
+
+    private final MusicServiceViewModel musicServiceViewModel;
+    private final FileServiceViewModel fileServiceViewModel;
+
+    /**
+     * 这里默认是admin用户上传
+     */
+    private final static String USERNAME = "admin";
+
+    public AdminUploadMusicUtils(LifecycleOwner owner, Context context, MusicServiceViewModel mViewModel,
+                                 FileServiceViewModel fViewModel) {
+        lifecycleOwner = owner;
+        applicationContext = context;
+        musicServiceViewModel = mViewModel;
+        fileServiceViewModel = fViewModel;
+        musicService = new MusicServiceImpl(context);
+        fileService = new FileServiceImpl();
+        artistService = new ArtistServiceImpl();
+    }
+
+    /**
+     * 上传音乐文件，同一批上传的音乐需要在同一个文件夹里
+     *
+     * @param localBaseDir         以/结尾，例如"/storage/emulated/0/$MuMu共享文件夹/音乐/纯音乐/"
+     * @param originalFilenameList 文件名list, 例如："稻香 -周杰伦.mp3" ，包含后缀
+     */
+    public void uploadFiles(String localBaseDir, List<String> originalFilenameList) {
+        fileServiceViewModel.getCurrentFileIndex().observe(lifecycleOwner, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer index) {
+                if (index < originalFilenameList.size()) {
+                    String filename = originalFilenameList.get(index);
+                    File file = new File(localBaseDir + filename);
+                    if (file.exists()) {
+                        FileUploadRequest request = new FileUploadRequest();
+                        List<FileUploadRequest.FileUploadInfo> fileUploadInfoList = new ArrayList<>();
+
+                        FileUploadRequest.FileUploadInfo info = new FileUploadRequest.FileUploadInfo();
+                        info.setOriginalFilename(filename);
+                        info.setSize(file.length());
+                        fileUploadInfoList.add(info);
+
+                        request.setUsername(USERNAME);
+                        request.setFileUploadInfoList(fileUploadInfoList);
+                        fileService.uploadFile(applicationContext, request, localBaseDir, fileServiceViewModel);
+                    } else {
+                        Log.e("UploadMusicUtils", "uploadFiles: " + filename + "文件不存在！", null);
+                    }
+                }
+            }
+        });
+//        for (String filename : originalFilenameList) {
+//            File file = new File(localBaseDir + filename);
+//            if (file.exists()) {
+//                FileUploadRequest request = new FileUploadRequest();
+//                List<FileUploadRequest.FileUploadInfo> fileUploadInfoList = new ArrayList<>();
+//
+//                FileUploadRequest.FileUploadInfo info = new FileUploadRequest.FileUploadInfo();
+//                info.setOriginalFilename(filename);
+//                info.setSize(file.length());
+//                fileUploadInfoList.add(info);
+//
+//                request.setUsername(USERNAME);
+//                request.setFileUploadInfoList(fileUploadInfoList);
+//                fileServiceViewModel.setIsUploading(true);
+//                fileService.uploadFile(applicationContext, request, localBaseDir, fileServiceViewModel);
+//            } else {
+//                Log.e("UploadMusicUtils", "uploadFiles: " + filename + "文件不存在！", null);
+//            }
+//        }
+    }
+
+    /**
+     * 批量创建artist
+     *
+     * @param originalFilenameList 文件名列表
+     */
+    public void createArtist(List<String> originalFilenameList) {
+        for (String filename : originalFilenameList) {
+            List<String> artistNames = getArtistNameFromFilename(filename);
+            for (String name : artistNames) {
+                ArtistCreateRequest request = new ArtistCreateRequest();
+                request.setArtistName(name);
+                artistService.create(request);
+            }
+        }
+    }
+
+    /**
+     * 创建音乐
+     *
+     * @param originalFilenameList 音乐文件名
+     */
+    public void createMusics(List<String> originalFilenameList) {
+        List<MusicCreateRequest> requestList = new ArrayList<>();
+        for (String filename : originalFilenameList) {
+            List<String> artistNames = getArtistNameFromFilename(filename);
+            for (String artistName : artistNames) {
+                MusicCreateRequest request = new MusicCreateRequest();
+                request.setName(filename);
+                request.setArtistName(artistName);
+                requestList.add(request);
+            }
+        }
+        musicService.batchCreateMusic(requestList, musicServiceViewModel);
+    }
+
+    /**
+     * 给音乐添加标签
+     *
+     * @param originalFilenameList 音乐文件名
+     */
+    public void setMusicTag(List<String> originalFilenameList) {
+
+    }
+
+    // ======================================================================================
+
+    /**
+     * 从文件名中获取artistName，可能有多个歌手合唱一首音乐
+     *
+     * @param filename 规范文件名，例如："周杰伦 - 稻香" "周杰伦_杨瑞代 - 等你下课"
+     * @return artistName，例如："周杰伦" “list（周杰伦 杨瑞代）”
+     */
+    private List<String> getArtistNameFromFilename(String filename) {
+        if (filename == null || filename.length() == 0) {
+            return null;
+        } else {
+            List<String> artistList = new ArrayList<>();
+            String artists = filename.split("-")[0].trim();
+            String[] s = artists.split("_");
+            for (String ss : s) {
+                artistList.add(ss.trim());
+            }
+            return artistList;
+        }
+    }
+}

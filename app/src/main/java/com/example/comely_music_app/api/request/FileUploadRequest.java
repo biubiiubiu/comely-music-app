@@ -1,4 +1,4 @@
-package com.example.comely_music_app.api.request.file;
+package com.example.comely_music_app.api.request;
 
 import java.util.List;
 
@@ -17,6 +17,9 @@ public class FileUploadRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class FileUploadInfo{
+        /**
+         * 包含后缀，例如：许嵩 - 雨幕.mp3
+         */
         private String originalFilename;
         private Long size;
     }

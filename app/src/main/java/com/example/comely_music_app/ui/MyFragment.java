@@ -4,11 +4,9 @@ import static android.content.Context.MODE_PRIVATE;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -22,9 +20,8 @@ import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.example.comely_music_app.R;
-import com.example.comely_music_app.api.response.user.UserInfo;
+import com.example.comely_music_app.api.response.UserInfo;
 import com.example.comely_music_app.config.ShpConfig;
-import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
 import com.example.comely_music_app.utils.ShpUtils;
 import com.google.gson.Gson;

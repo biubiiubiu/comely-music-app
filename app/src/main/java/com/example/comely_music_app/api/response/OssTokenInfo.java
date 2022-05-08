@@ -1,4 +1,4 @@
-package com.example.comely_music_app.api.response.file;
+package com.example.comely_music_app.api.response;
 
 import lombok.Data;
 

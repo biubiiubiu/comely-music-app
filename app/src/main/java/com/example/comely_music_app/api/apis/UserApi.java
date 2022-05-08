@@ -2,9 +2,9 @@ package com.example.comely_music_app.api.apis;
 
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.api.base.BaseResult;
-import com.example.comely_music_app.api.request.user.LoginRequest;
-import com.example.comely_music_app.api.request.user.UserUpdateRequest;
-import com.example.comely_music_app.api.response.user.UserInfo;
+import com.example.comely_music_app.api.request.LoginRequest;
+import com.example.comely_music_app.api.request.UserUpdateRequest;
+import com.example.comely_music_app.api.response.UserInfo;
 
 import io.reactivex.rxjava3.core.Observable;
 import retrofit2.Call;
@@ -17,9 +17,6 @@ import retrofit2.http.Path;
 public interface UserApi extends BaseApi {
 //    @GET("generate/user/list")
 //    Call<ResponseBody> getUserList();
-
-    @GET("generate/user/list")
-    Call<R> getUserList();
 
     @POST("generate/user/judge-newuser")
     Observable<BaseResult<Boolean>> judgeNewUser(@Body LoginRequest loginRequest);

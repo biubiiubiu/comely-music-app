@@ -1,4 +1,4 @@
-package com.example.comely_music_app.api.response.music;
+package com.example.comely_music_app.api.response;
 
 import java.util.List;
 

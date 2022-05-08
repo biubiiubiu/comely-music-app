@@ -2,6 +2,7 @@ package com.example.comely_music_app.api.base;
 
 import com.example.comely_music_app.config.ServerConfig;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -28,12 +29,13 @@ public class ApiManager {
 
     public ApiManager() {
         //添加log拦截器
-        //okhttp默认的
+        //okhttp默认的10秒
         OkHttpClient client = new OkHttpClient.Builder()
                 //添加log拦截器
-                .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)) //okhttp默认的
+                .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS)) //okhttp默认的
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .readTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
                 .build();
 
         retrofit = new Retrofit.Builder()

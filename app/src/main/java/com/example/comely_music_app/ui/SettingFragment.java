@@ -23,8 +23,8 @@ import android.widget.Toast;
 
 import com.example.comely_music_app.LoginActivity;
 import com.example.comely_music_app.R;
-import com.example.comely_music_app.api.request.user.UserUpdateRequest;
-import com.example.comely_music_app.api.response.user.UserInfo;
+import com.example.comely_music_app.api.request.UserUpdateRequest;
+import com.example.comely_music_app.api.response.UserInfo;
 import com.example.comely_music_app.api.service.UserService;
 import com.example.comely_music_app.api.service.impl.UserServiceImpl;
 import com.example.comely_music_app.config.ShpConfig;

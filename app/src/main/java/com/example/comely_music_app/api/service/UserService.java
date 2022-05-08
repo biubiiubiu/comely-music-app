@@ -1,7 +1,7 @@
 package com.example.comely_music_app.api.service;
 
-import com.example.comely_music_app.api.request.user.LoginRequest;
-import com.example.comely_music_app.api.request.user.UserUpdateRequest;
+import com.example.comely_music_app.api.request.LoginRequest;
+import com.example.comely_music_app.api.request.UserUpdateRequest;
 
 public interface UserService {
     void judgeNewUser(LoginRequest loginRequest);

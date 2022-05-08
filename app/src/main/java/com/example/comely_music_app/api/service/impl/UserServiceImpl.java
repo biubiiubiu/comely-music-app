@@ -1,18 +1,14 @@
 package com.example.comely_music_app.api.service.impl;
 
 import android.util.Log;
-import android.widget.Toast;
-
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModelProviders;
 
 import com.example.comely_music_app.api.apis.UserApi;
 import com.example.comely_music_app.api.base.ApiManager;
 import com.example.comely_music_app.api.base.BaseObserver;
 import com.example.comely_music_app.api.base.BaseResult;
-import com.example.comely_music_app.api.request.user.LoginRequest;
-import com.example.comely_music_app.api.request.user.UserUpdateRequest;
-import com.example.comely_music_app.api.response.user.UserInfo;
+import com.example.comely_music_app.api.request.LoginRequest;
+import com.example.comely_music_app.api.request.UserUpdateRequest;
+import com.example.comely_music_app.api.response.UserInfo;
 import com.example.comely_music_app.api.service.UserService;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
 

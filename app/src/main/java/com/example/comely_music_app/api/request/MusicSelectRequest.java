@@ -1,4 +1,4 @@
-package com.example.comely_music_app.api.request.music;
+package com.example.comely_music_app.api.request;
 
 import com.example.comely_music_app.enums.PlayerModule;
 

@@ -13,7 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
-import com.example.comely_music_app.api.request.music.MusicSelectRequest;
+import com.example.comely_music_app.api.request.MusicSelectRequest;
 import com.example.comely_music_app.enums.PlayerModule;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.provider.MusicModelProvider;
