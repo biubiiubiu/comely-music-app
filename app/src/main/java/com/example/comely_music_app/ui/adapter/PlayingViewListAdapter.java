@@ -38,7 +38,7 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
     /**
      * 一次获取10首音乐
      */
-    private final static int NUM = 6;
+    private final static int NUM = 0;
     private List<MusicModel> musicModelList;
 
     private PlayingViewHolder holder;

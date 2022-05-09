@@ -10,12 +10,16 @@ import com.example.comely_music_app.api.request.ArtistCreateRequest;
 import com.example.comely_music_app.api.request.FileCommonRequest;
 import com.example.comely_music_app.api.request.FileUploadRequest;
 import com.example.comely_music_app.api.request.MusicCreateRequest;
+import com.example.comely_music_app.api.request.TagCreateRequest;
 import com.example.comely_music_app.api.service.ArtistService;
 import com.example.comely_music_app.api.service.FileService;
 import com.example.comely_music_app.api.service.MusicService;
+import com.example.comely_music_app.api.service.TagService;
 import com.example.comely_music_app.api.service.impl.ArtistServiceImpl;
 import com.example.comely_music_app.api.service.impl.FileServiceImpl;
 import com.example.comely_music_app.api.service.impl.MusicServiceImpl;
+import com.example.comely_music_app.api.service.impl.TagServiceImpl;
+import com.example.comely_music_app.enums.TagType;
 import com.example.comely_music_app.ui.viewmodels.FileServiceViewModel;
 import com.example.comely_music_app.ui.viewmodels.MusicServiceViewModel;
 
@@ -37,6 +41,7 @@ public class AdminUploadMusicUtils {
     private final MusicService musicService;
     private final FileService fileService;
     private final ArtistService artistService;
+    private final TagService tagService;
 
     private final MusicServiceViewModel musicServiceViewModel;
     private final FileServiceViewModel fileServiceViewModel;
@@ -55,6 +60,7 @@ public class AdminUploadMusicUtils {
         musicService = new MusicServiceImpl(context);
         fileService = new FileServiceImpl();
         artistService = new ArtistServiceImpl();
+        tagService = new TagServiceImpl();
     }
 
     /**
@@ -154,8 +160,17 @@ public class AdminUploadMusicUtils {
      *
      * @param originalFilenameList 音乐文件名
      */
-    public void setMusicTag(List<String> originalFilenameList) {
-
+    public void createTags(String tagName, TagType type, List<String> originalFilenameList) {
+        List<TagCreateRequest> requestList = new ArrayList<>();
+        for (String filename : originalFilenameList) {
+            TagCreateRequest request = new TagCreateRequest();
+            request.setTagName(tagName);
+            request.setType(type);
+            request.setEntityName(filename.substring(0, filename.lastIndexOf(".")));
+            request.setUsername("admin");
+            requestList.add(request);
+        }
+        tagService.batchCreateTag(requestList);
     }
 
     // ======================================================================================
@@ -179,4 +194,5 @@ public class AdminUploadMusicUtils {
             return artistList;
         }
     }
+
 }

@@ -29,6 +29,7 @@ import com.example.comely_music_app.api.service.UserService;
 import com.example.comely_music_app.api.service.impl.UserServiceImpl;
 import com.example.comely_music_app.config.FileConfig;
 import com.example.comely_music_app.config.ShpConfig;
+import com.example.comely_music_app.enums.TagType;
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
 import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
@@ -361,7 +362,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         File[] files = baseDirFile.listFiles();
 
         List<String> originalFilenameList = new ArrayList<>();
-        for (File file : files){
+        for (File file : files) {
             originalFilenameList.add(file.getName());
         }
 //        Log.i("createMusicTest", "获取音乐列表完成！" + originalFilenameList.size());
@@ -373,9 +374,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        utils.createArtist(originalFilenameList);
 //        Log.i("createMusicTest", "歌手创建完成!");
 
-        Log.i("createMusicTest", "开始创建音乐");
-        utils.createMusics(originalFilenameList);
-        Log.i("createMusicTest", "音乐创建完成!");
+//        Log.i("createMusicTest", "开始创建音乐");
+//        utils.createMusics(originalFilenameList);
+//        Log.i("createMusicTest", "音乐创建完成!");
+
+        Log.i("createMusicTest", "开始创建音乐标签");
+        utils.createTags("纯音乐", TagType.MUSIC, originalFilenameList);
+        Log.i("createMusicTest", "标签创建完成!");
 
     }
 
