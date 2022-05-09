@@ -105,25 +105,24 @@ public class FileServiceImpl implements FileService {
         // 构造上传请求。
         PutObjectRequest put = new PutObjectRequest(tokenResponseBody.getBucketName(), storageUrl, localFilePath);
         // 异步上传时可以设置进度回调
-        put.setProgressCallback((req, currentSize, totalSize) -> {
-            Log.d("PutObject", "currentSize:" + currentSize + " totalSize:" + totalSize);
-        });
+//        put.setProgressCallback((req, currentSize, totalSize) -> {
+//            Log.d("PutObject", "currentSize:" + currentSize + " totalSize:" + totalSize);
+//        });
 
         oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
             @Override
             public void onSuccess(PutObjectRequest putRequest, PutObjectResult result) {
                 Log.d("TAG", localFilePath + "onSuccess: 上传成功！");
-                if (fileServiceViewModel.getCurrentFileIndex() != null) {
-                    fileServiceViewModel.setCurrentFileIndex(fileServiceViewModel.getCurrentFileIndex().getValue() + 1);
-                }
                 // 上传成功之后，文件信息存数据库
-                setUploadSuccessResult(request);
+                setUploadSuccessResult(request, fileServiceViewModel);
             }
 
             @Override
             public void onFailure(PutObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
                 if (fileServiceViewModel.getCurrentFileIndex() != null) {
+                    Log.d("TAG", "失败 index+1:" + fileServiceViewModel.getCurrentFileIndex().getValue() + 1);
                     fileServiceViewModel.setCurrentFileIndex(fileServiceViewModel.getCurrentFileIndex().getValue() + 1);
+                    fileServiceViewModel.changeIsUploading();
                 }
                 // 请求异常。
                 if (clientExcepion != null) {
@@ -248,12 +247,19 @@ public class FileServiceImpl implements FileService {
         return new OSSClient(context, endpoint, credentialProvider);
     }
 
-    private void setUploadSuccessResult(FileCommonRequest request) {
+    @Override
+    public void setUploadSuccessResult(FileCommonRequest request, FileServiceViewModel fileServiceViewModel) {
         Observable<BaseResult<Boolean>> uploadingObservable = fileApi.setUploadSuccess(request);
         uploadingObservable.subscribe(new BaseObserver<Boolean>(false) {
             @Override
             public void onSuccess(Boolean o) {
                 Log.d("TAG", "onSuccess: 上传完成的文件信息存入mysql完成！");
+
+                if (fileServiceViewModel != null && fileServiceViewModel.getCurrentFileIndex() != null) {
+                    Log.d("TAG", "成功 index+1:" + fileServiceViewModel.getCurrentFileIndex().getValue());
+                    fileServiceViewModel.setCurrentFileIndex(fileServiceViewModel.getCurrentFileIndex().getValue() + 1);
+                    fileServiceViewModel.changeIsUploading();
+                }
             }
 
             @Override

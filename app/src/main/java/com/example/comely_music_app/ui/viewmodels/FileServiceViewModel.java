@@ -16,7 +16,7 @@ public class FileServiceViewModel extends ViewModel {
 
     public MutableLiveData<Boolean> getIsUploading() {
         if (isUploading == null) {
-            isUploading = new MutableLiveData<>();
+            isUploading = new MutableLiveData<>(false);
         }
         return isUploading;
     }
@@ -26,6 +26,13 @@ public class FileServiceViewModel extends ViewModel {
             isUploading = getIsUploading();
         }
         isUploading.setValue(isUpload);
+    }
+
+    public void changeIsUploading() {
+        if (isUploading == null) {
+            isUploading = getIsUploading();
+        }
+        isUploading.setValue(!isUploading.getValue());
     }
 
     public MutableLiveData<Integer> getCurrentFileIndex() {

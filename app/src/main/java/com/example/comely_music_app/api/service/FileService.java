@@ -2,6 +2,7 @@ package com.example.comely_music_app.api.service;
 
 import android.content.Context;
 
+import com.example.comely_music_app.api.request.FileCommonRequest;
 import com.example.comely_music_app.api.request.FileUploadRequest;
 import com.example.comely_music_app.ui.viewmodels.FileServiceViewModel;
 
@@ -14,4 +15,6 @@ public interface FileService {
     void downloadFile(Context context, String username, String storageUrl);
 
     void batchDownloadFile(Context context, String username, List<String> storageUrlList);
+
+    void setUploadSuccessResult(FileCommonRequest request, FileServiceViewModel fileServiceViewModel);
 }

@@ -1,15 +1,13 @@
 package com.example.comely_music_app.utils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 
-import com.example.comely_music_app.api.apis.ArtistApi;
-import com.example.comely_music_app.api.base.BaseObserver;
 import com.example.comely_music_app.api.request.ArtistCreateRequest;
+import com.example.comely_music_app.api.request.FileCommonRequest;
 import com.example.comely_music_app.api.request.FileUploadRequest;
 import com.example.comely_music_app.api.request.MusicCreateRequest;
 import com.example.comely_music_app.api.service.ArtistService;
@@ -23,7 +21,12 @@ import com.example.comely_music_app.ui.viewmodels.MusicServiceViewModel;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * 音乐上传脚本，暂时取代后台上传
@@ -61,50 +64,53 @@ public class AdminUploadMusicUtils {
      * @param originalFilenameList 文件名list, 例如："稻香 -周杰伦.mp3" ，包含后缀
      */
     public void uploadFiles(String localBaseDir, List<String> originalFilenameList) {
-        fileServiceViewModel.getCurrentFileIndex().observe(lifecycleOwner, new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer index) {
-                if (index < originalFilenameList.size()) {
-                    String filename = originalFilenameList.get(index);
-                    File file = new File(localBaseDir + filename);
-                    if (file.exists()) {
-                        FileUploadRequest request = new FileUploadRequest();
-                        List<FileUploadRequest.FileUploadInfo> fileUploadInfoList = new ArrayList<>();
+        FileCommonRequest request = new FileCommonRequest();
+        Map<String, FileCommonRequest.CommonInfo> fileKeyInfoMap = new HashMap<>();
+        for (String filename : originalFilenameList) {
+            FileCommonRequest.CommonInfo info = new FileCommonRequest.CommonInfo();
+            String storageUrl = "AUDIO/2022/05/09/" + filename;
 
-                        FileUploadRequest.FileUploadInfo info = new FileUploadRequest.FileUploadInfo();
-                        info.setOriginalFilename(filename);
-                        info.setSize(file.length());
-                        fileUploadInfoList.add(info);
-
-                        request.setUsername(USERNAME);
-                        request.setFileUploadInfoList(fileUploadInfoList);
-                        fileService.uploadFile(applicationContext, request, localBaseDir, fileServiceViewModel);
-                    } else {
-                        Log.e("UploadMusicUtils", "uploadFiles: " + filename + "文件不存在！", null);
-                    }
-                }
+            // 这里用filename作为filekey
+            File file = new File(localBaseDir + filename);
+            if (file.exists()) {
+                info.setFilename(filename);
+                info.setStorageUrl(storageUrl);
+                info.setSize(file.length());
+                fileKeyInfoMap.put(filename, info);
             }
-        });
-//        for (String filename : originalFilenameList) {
-//            File file = new File(localBaseDir + filename);
-//            if (file.exists()) {
-//                FileUploadRequest request = new FileUploadRequest();
-//                List<FileUploadRequest.FileUploadInfo> fileUploadInfoList = new ArrayList<>();
-//
-//                FileUploadRequest.FileUploadInfo info = new FileUploadRequest.FileUploadInfo();
-//                info.setOriginalFilename(filename);
-//                info.setSize(file.length());
-//                fileUploadInfoList.add(info);
-//
-//                request.setUsername(USERNAME);
-//                request.setFileUploadInfoList(fileUploadInfoList);
-//                fileServiceViewModel.setIsUploading(true);
-//                fileService.uploadFile(applicationContext, request, localBaseDir, fileServiceViewModel);
-//            } else {
-//                Log.e("UploadMusicUtils", "uploadFiles: " + filename + "文件不存在！", null);
-//            }
-//        }
+        }
+        request.setFileKeyInfoMap(fileKeyInfoMap);
+        fileService.setUploadSuccessResult(request, null);
     }
+
+//    public void uploadFiles(String localBaseDir, List<String> originalFilenameList) {
+//        fileServiceViewModel.getIsUploading().observe(lifecycleOwner, new Observer<Boolean>() {
+//            @Override
+//            public void onChanged(Boolean isUploading) {
+//                Integer index = fileServiceViewModel.getCurrentFileIndex().getValue();
+//                Log.d("TAG", "开始上传第:" + index + "个文件");
+//                if (index != null && index < originalFilenameList.size()) {
+//                    String filename = originalFilenameList.get(index);
+//                    File file = new File(localBaseDir + filename);
+//                    if (file.exists()) {
+//                        FileUploadRequest request = new FileUploadRequest();
+//                        List<FileUploadRequest.FileUploadInfo> fileUploadInfoList = new ArrayList<>();
+//
+//                        FileUploadRequest.FileUploadInfo info = new FileUploadRequest.FileUploadInfo();
+//                        info.setOriginalFilename(filename);
+//                        info.setSize(file.length());
+//                        fileUploadInfoList.add(info);
+//
+//                        request.setUsername(USERNAME);
+//                        request.setFileUploadInfoList(fileUploadInfoList);
+//                        fileService.uploadFile(applicationContext, request, localBaseDir, fileServiceViewModel);
+//                    } else {
+//                        Log.e("UploadMusicUtils", "uploadFiles: " + filename + "文件不存在！", null);
+//                    }
+//                }
+//            }
+//        });
+//    }
 
     /**
      * 批量创建artist
@@ -112,13 +118,15 @@ public class AdminUploadMusicUtils {
      * @param originalFilenameList 文件名列表
      */
     public void createArtist(List<String> originalFilenameList) {
+        Set<String> artists = new HashSet<>();
         for (String filename : originalFilenameList) {
             List<String> artistNames = getArtistNameFromFilename(filename);
-            for (String name : artistNames) {
-                ArtistCreateRequest request = new ArtistCreateRequest();
-                request.setArtistName(name);
-                artistService.create(request);
-            }
+            artists.addAll(artistNames);
+        }
+        for (String name : artists) {
+            ArtistCreateRequest request = new ArtistCreateRequest();
+            request.setArtistName(name);
+            artistService.create(request);
         }
     }
 
@@ -133,7 +141,7 @@ public class AdminUploadMusicUtils {
             List<String> artistNames = getArtistNameFromFilename(filename);
             for (String artistName : artistNames) {
                 MusicCreateRequest request = new MusicCreateRequest();
-                request.setName(filename);
+                request.setName(filename.substring(0, filename.lastIndexOf(".")));
                 request.setArtistName(artistName);
                 requestList.add(request);
             }

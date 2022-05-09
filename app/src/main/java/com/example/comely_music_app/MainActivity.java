@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setObserveOnPlayingViewModel();
         setObserveOnUserInfoViewModel();
 
-        createMusicTest();
+//        createMusicTest();
     }
 
 
@@ -356,7 +356,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         AdminUploadMusicUtils utils = new AdminUploadMusicUtils(this, getApplicationContext(), null,
                 fileServiceViewModel);
 
-        String localBaseDir = FileConfig.BASE_PATH + "音乐/DJ/01/";
+        String localBaseDir = FileConfig.BASE_PATH + "音乐/纯音乐/";
         File baseDirFile = new File(localBaseDir);
         File[] files = baseDirFile.listFiles();
 
@@ -364,18 +364,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for (File file : files){
             originalFilenameList.add(file.getName());
         }
-        Log.i("createMusicTest", "获取音乐列表完成！" + originalFilenameList.size());
-        Log.i("createMusicTest", "开始上传音乐文件");
-        utils.uploadFiles(localBaseDir, originalFilenameList);
+//        Log.i("createMusicTest", "获取音乐列表完成！" + originalFilenameList.size());
+//        Log.i("createMusicTest", "开始上传音乐文件");
+//        utils.uploadFiles(localBaseDir, originalFilenameList);
 
-//
+
 //        Log.i("createMusicTest", "开始上传歌手信息");
 //        utils.createArtist(originalFilenameList);
 //        Log.i("createMusicTest", "歌手创建完成!");
 
-//        Log.i("createMusicTest", "开始创建音乐");
-//        utils.createMusics(originalFilenameList);
-//        Log.i("createMusicTest", "音乐创建完成!");
+        Log.i("createMusicTest", "开始创建音乐");
+        utils.createMusics(originalFilenameList);
+        Log.i("createMusicTest", "音乐创建完成!");
 
     }
 
