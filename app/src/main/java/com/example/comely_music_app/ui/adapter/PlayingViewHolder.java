@@ -151,11 +151,13 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
     public void setCoverAndBkFromPath(String path) throws FileNotFoundException {
         setCoverFromPath(path);
         // 获取背景毛玻璃
-        FileInputStream fis = new FileInputStream(path);
-        Bitmap sendBitmap  = BitmapFactory.decodeStream(fis);
-        Bitmap blurBitmap = ImageTransformUtils.doBlur(sendBitmap, 50, false);
-        BitmapDrawable blurDrawable = new BitmapDrawable(itemView.getContext().getResources(), blurBitmap);
-        itemView.findViewById(R.id.item_plying_bk).setBackground(blurDrawable);
+//        FileInputStream fis = new FileInputStream(path);
+//        Bitmap sendBitmap  = BitmapFactory.decodeStream(fis);
+//        Bitmap blurBitmap = ImageTransformUtils.doBlur(sendBitmap, 50, false);
+//        BitmapDrawable blurDrawable = new BitmapDrawable(itemView.getContext().getResources(), blurBitmap);
+//        itemView.findViewById(R.id.item_plying_bk).setBackground(blurDrawable);
+        Drawable drawable = Drawable.createFromPath(path);
+        itemView.findViewById(R.id.item_plying_bk).setBackground(drawable);
 
 
 //        Bitmap blurBitmap = Blurry.with(itemView.getContext())
@@ -253,14 +255,15 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
                 drawableId = R.drawable.bk_07;
                 break;
         }
-        Bitmap sendBitmap = BitmapFactory.decodeResource(itemView.getContext().getResources(),
-                drawableId);
-        Bitmap blurBitmap = ImageTransformUtils.doBlur(sendBitmap, 50, false);
-        BitmapDrawable blurDrawable = new BitmapDrawable(itemView.getContext().getResources(), blurBitmap);
+//        Bitmap sendBitmap = BitmapFactory.decodeResource(itemView.getContext().getResources(),
+//                drawableId);
+//        Bitmap blurBitmap = ImageTransformUtils.doBlur(sendBitmap, 50, false);
+//        BitmapDrawable blurDrawable = new BitmapDrawable(itemView.getContext().getResources(), blurBitmap);
 
 //        Bitmap blurBitmap = Blurry.with(itemView.getContext()).radius(50)
 //                .sampling(8).capture(coverImage).get();
 //        BitmapDrawable blurDrawable = new BitmapDrawable(itemView.getContext().getResources(), blurBitmap);
-        itemView.findViewById(R.id.item_plying_bk).setBackground(blurDrawable);
+        @SuppressLint("UseCompatLoadingForDrawables") Drawable drawable = itemView.getContext().getDrawable(drawableId);
+        itemView.findViewById(R.id.item_plying_bk).setBackground(drawable);
     }
 }
