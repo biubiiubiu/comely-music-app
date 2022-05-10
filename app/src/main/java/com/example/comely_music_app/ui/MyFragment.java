@@ -33,7 +33,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
     private TextView nicknameTxt;
     private View settingFrameBlank;
 
-    private FragmentManager manager;
+    private final FragmentManager manager;
 
     private UserInfoViewModel userInfoViewModel;
 

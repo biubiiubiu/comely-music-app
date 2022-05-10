@@ -15,7 +15,7 @@ import retrofit2.HttpException;
 
 public abstract class BaseObserver<T> extends DisposableObserver<BaseResult<T>> {
 
-    private boolean isShowDialog;   //是否需要显示Dialog
+    private final boolean isShowDialog;   //是否需要显示Dialog
     /**
      * 解析数据失败
      */

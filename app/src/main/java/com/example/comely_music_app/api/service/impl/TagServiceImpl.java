@@ -14,7 +14,7 @@ import java.util.List;
 import io.reactivex.rxjava3.core.Observable;
 
 public class TagServiceImpl implements TagService {
-    private TagApi tagApi;
+    private final TagApi tagApi;
 
     public TagServiceImpl() {
         tagApi = ApiManager.getInstance().getApiService(TagApi.class);

@@ -12,7 +12,7 @@ import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
  */
 public class MusicModelProvider {
     private final MusicService musicService;
-    private Context context;
+    private final Context context;
 
     public MusicModelProvider(Context context) {
         this.context = context;

@@ -114,7 +114,7 @@ public class MusicServiceImpl implements MusicService {
         File file = new File(FileConfig.BASE_PATH + storagePath);
         if (!file.exists()) {
             // 本地不存在就下载
-            fileService.downloadFile(context, "zt001", storagePath);
+            fileService.downloadFile(context, "admin", storagePath);
         }
         return FileConfig.BASE_PATH + storagePath;
     }

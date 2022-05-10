@@ -77,4 +77,8 @@ dependencies {
 
     // 圆角矩形等图形库
     implementation "com.github.xiaofeidev:round:1.1.1"
+
+    // 内存泄露监控插件
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
+    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.3.1'
 }

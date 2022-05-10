@@ -6,10 +6,10 @@ import android.view.View;
 
 public class MyClickListener implements View.OnTouchListener {
 
-    private static int timeout = 400;//双击间四百毫秒延时
+    private static final int timeout = 400;//双击间四百毫秒延时
     private int clickCount = 0;//记录连续点击次数
-    private Handler handler;
-    private MyClickCallBack myClickCallBack;
+    private final Handler handler;
+    private final MyClickCallBack myClickCallBack;
 
     public interface MyClickCallBack {
         void oneClick();//点击一次的回调

@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -27,24 +26,17 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.comely_music_app.api.response.UserInfo;
 import com.example.comely_music_app.api.service.UserService;
 import com.example.comely_music_app.api.service.impl.UserServiceImpl;
-import com.example.comely_music_app.config.FileConfig;
 import com.example.comely_music_app.config.ShpConfig;
-import com.example.comely_music_app.enums.TagType;
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
 import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
 import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
 import com.example.comely_music_app.ui.enums.PageStatus;
-import com.example.comely_music_app.ui.viewmodels.FileServiceViewModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
-import com.example.comely_music_app.utils.AdminUploadMusicUtils;
 import com.google.gson.Gson;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import lombok.SneakyThrows;
@@ -67,6 +59,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private MediaPlayer mediaPlayer;
 
+//    public static class SeekBarThread extends Thread {
+//        private final PlayingViewModel playingViewModel;
+//        private final SeekBar seekBar;
+//        private final MediaPlayer mediaPlayer;
+//
+//        public SeekBarThread(PlayingViewModel vm, SeekBar sb, MediaPlayer mp) {
+//            playingViewModel = vm;
+//            seekBar = sb;
+//            mediaPlayer = mp;
+//        }
+//
+//        @Override
+//        public void run() {
+//            if (playingViewModel != null && mediaPlayer != null && seekBar != null) {
+//                while (playingViewModel.getIsPlayingLiveData().getValue() != null
+//                        && playingViewModel.getIsPlayingLiveData().getValue()) {
+//                    try {
+//                        Thread.sleep(300);
+//                        seekBar.setProgress(mediaPlayer.getCurrentPosition() * 100 / mediaPlayer.getDuration());
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        }
+//    }
+
 
 //    public final static String KEY_IS_PLAYING = "KEY_IS_PLAYING";
 //    public final static String KEY_PAGE_STATUS = "KEY_PAGE_STATUS";
@@ -75,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
@@ -106,10 +126,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mediaPlayer.stop();
                 if (Objects.requireNonNull(playingViewModel.getMusicListLiveData().getValue()).size() > position) {
                     playingViewModel.setCurrentMusic(playingViewModel.getMusicListLiveData().getValue().get(position));
-                    // 播放的时候刷新seekbar
                 }
             }
         });
+
+        // 进度条及时刷新
+//        new SeekBarThread(playingViewModel, seekBar, mediaPlayer).start();
 
         if (manager == null) {
             manager = getSupportFragmentManager();
@@ -117,8 +139,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         setObserveOnPlayingViewModel();
         setObserveOnUserInfoViewModel();
-
-//        createMusicTest();
     }
 
 
@@ -166,20 +186,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // 更改图标
                 playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_play));
                 mediaPlayer.start();
-                // 进度条及时刷新
-//                new Thread() {
-//                    @Override
-//                    public void run() {
-//                        while (playingViewModel.getIsPlayingLiveData().getValue()) {
-//                            try {
-//                                Thread.sleep(300);
-//                                seekBar.setProgress(mediaPlayer.getCurrentPosition() * 100 / mediaPlayer.getDuration());
-//                            } catch (InterruptedException e) {
-//                                e.printStackTrace();
-//                            }
-//                        }
-//                    }
-//                }.start();
             } else {
                 playPauseBtn.setImageDrawable(getDrawable(R.drawable.ic_pause));
                 mediaPlayer.pause();
@@ -214,7 +220,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         // 点赞 取消
-        playingViewModel.getIsLikeLiveData().observe(this, isLike -> Toast.makeText(getApplicationContext(), "点赞写数据库:" + isLike, Toast.LENGTH_SHORT).show());
+        playingViewModel.getIsLikeLiveData().observe(this, isLike -> {
+        });
 
         // 获取musicModelList信息，存储到本地，并生成界面可使用的list
         playingViewModel.getMusicListLiveData().observe(this, musicModels -> {
@@ -349,40 +356,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //
 //    }
 
-    private void createMusicTest() {
-        SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(getApplication(), this);
-        FileServiceViewModel fileServiceViewModel = ViewModelProviders.of(this, savedState).get(FileServiceViewModel.class);
-
-
-        AdminUploadMusicUtils utils = new AdminUploadMusicUtils(this, getApplicationContext(), null,
-                fileServiceViewModel);
-
-        String localBaseDir = FileConfig.BASE_PATH + "音乐/纯音乐/";
-        File baseDirFile = new File(localBaseDir);
-        File[] files = baseDirFile.listFiles();
-
-        List<String> originalFilenameList = new ArrayList<>();
-        for (File file : files) {
-            originalFilenameList.add(file.getName());
-        }
-//        Log.i("createMusicTest", "获取音乐列表完成！" + originalFilenameList.size());
-//        Log.i("createMusicTest", "开始上传音乐文件");
-//        utils.uploadFiles(localBaseDir, originalFilenameList);
-
-
-//        Log.i("createMusicTest", "开始上传歌手信息");
-//        utils.createArtist(originalFilenameList);
-//        Log.i("createMusicTest", "歌手创建完成!");
-
-//        Log.i("createMusicTest", "开始创建音乐");
-//        utils.createMusics(originalFilenameList);
-//        Log.i("createMusicTest", "音乐创建完成!");
-
-        Log.i("createMusicTest", "开始创建音乐标签");
-        utils.createTags("纯音乐", TagType.MUSIC, originalFilenameList);
-        Log.i("createMusicTest", "标签创建完成!");
-
-    }
+//    private void createMusicTest() {
+//        SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(getApplication(), this);
+//        FileServiceViewModel fileServiceViewModel = ViewModelProviders.of(this, savedState).get(FileServiceViewModel.class);
+//
+//
+//        AdminUploadMusicUtils utils = new AdminUploadMusicUtils(this, getApplicationContext(), null,
+//                fileServiceViewModel);
+//
+//        String localBaseDir = FileConfig.BASE_PATH + "音乐/西方古典/";
+//
+//        File baseDirFile = new File(localBaseDir);
+//        File[] files = baseDirFile.listFiles();
+//        List<String> originalFilenameList = new ArrayList<>();
+//        assert files != null;
+//        for (File file : files) {
+//            originalFilenameList.add(file.getName());
+//        }
+//
+//        // 要手动写！！上传音乐文件
+////        utils.uploadFiles(localBaseDir,"AUDIO/2022/05/07/", originalFilenameList);
+//
+//
+////        上传歌手信息
+////        utils.createArtist(originalFilenameList);
+//
+////        批量创建音乐
+////        utils.createMusics(originalFilenameList);
+//
+//        // 要手动写！！创建音乐标签
+////        utils.createTags("纯音乐", TagType.MUSIC, originalFilenameList);
+//
+//    }
 
 
 }

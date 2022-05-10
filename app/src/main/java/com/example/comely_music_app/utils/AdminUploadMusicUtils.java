@@ -69,12 +69,12 @@ public class AdminUploadMusicUtils {
      * @param localBaseDir         以/结尾，例如"/storage/emulated/0/$MuMu共享文件夹/音乐/纯音乐/"
      * @param originalFilenameList 文件名list, 例如："稻香 -周杰伦.mp3" ，包含后缀
      */
-    public void uploadFiles(String localBaseDir, List<String> originalFilenameList) {
+    public void uploadFiles(String localBaseDir, String baseStorageUrl, List<String> originalFilenameList) {
         FileCommonRequest request = new FileCommonRequest();
         Map<String, FileCommonRequest.CommonInfo> fileKeyInfoMap = new HashMap<>();
         for (String filename : originalFilenameList) {
             FileCommonRequest.CommonInfo info = new FileCommonRequest.CommonInfo();
-            String storageUrl = "AUDIO/2022/05/09/" + filename;
+            String storageUrl = baseStorageUrl + filename;
 
             // 这里用filename作为filekey
             File file = new File(localBaseDir + filename);
