@@ -8,7 +8,8 @@ import com.example.comely_music_app.api.base.ApiManager;
 import com.example.comely_music_app.api.base.BaseObserver;
 import com.example.comely_music_app.api.base.BaseResult;
 import com.example.comely_music_app.api.request.MusicCreateRequest;
-import com.example.comely_music_app.api.request.MusicSelectRequest;
+import com.example.comely_music_app.api.request.MusicSelectByModuleRequest;
+import com.example.comely_music_app.api.request.MusicSelectByTagsRequest;
 import com.example.comely_music_app.api.response.MusicBatchCreateResponse;
 import com.example.comely_music_app.api.response.MusicSelectResponse;
 import com.example.comely_music_app.api.service.FileService;
@@ -38,26 +39,14 @@ public class MusicServiceImpl implements MusicService {
 
 
     @Override
-    public void getMusicList(MusicSelectRequest request, PlayingViewModel playingViewModel) {
+    public void getMusicListByModule(MusicSelectByModuleRequest request, PlayingViewModel playingViewModel) {
         Observable<BaseResult<MusicSelectResponse>> musicObservable = musicApi.getMusicListByModule(request);
         musicObservable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new BaseObserver<MusicSelectResponse>(true) {
                     @Override
                     public void onSuccess(MusicSelectResponse response) {
-                        List<MusicModel> modelList = new ArrayList<>();
-                        for (MusicSelectResponse.MusicInfo info : response.getMusicList()) {
-                            MusicModel model = new MusicModel();
-                            model.setName(info.getName());
-                            model.setArtistName(info.getArtistName());
-                            String audioLocalPath = getFileFromOSS(info.getAudioStoragePath());
-                            String coverLocalPath = getFileFromOSS(info.getCoverStoragePath());
-                            String lyricLocalPath = getFileFromOSS(info.getLyricStoragePath());
-                            model.setAudioLocalPath(audioLocalPath);
-                            model.setCoverLocalPath(coverLocalPath);
-                            model.setLyricLocalPath(lyricLocalPath);
-                            modelList.add(model);
-                        }
+                        List<MusicModel> modelList = getListFromResponse(response);
                         // 放到modelview中
                         playingViewModel.setMusicListLiveData(modelList);
                     }
@@ -73,6 +62,32 @@ public class MusicServiceImpl implements MusicService {
                     }
                 });
     }
+
+    @Override
+    public void getMusicListByTags(MusicSelectByTagsRequest request, PlayingViewModel playingViewModel) {
+        Observable<BaseResult<MusicSelectResponse>> musicListByTags = musicApi.getMusicListByTags(request);
+        musicListByTags.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BaseObserver<MusicSelectResponse>(false) {
+            @Override
+            public void onSuccess(MusicSelectResponse response) {
+                List<MusicModel> modelList = getListFromResponse(response);
+                // 放到modelview中
+                playingViewModel.setMusicListLiveData(modelList);
+            }
+
+            @Override
+            public void onFail(int errorCode, String errorMsg, MusicSelectResponse response) {
+
+            }
+
+            @Override
+            public void onError(String msg) {
+
+            }
+        });
+    }
+
 
     @Override
     public void batchCreateMusic(List<MusicCreateRequest> requestList, MusicServiceViewModel musicServiceViewModel) {
@@ -98,6 +113,23 @@ public class MusicServiceImpl implements MusicService {
 
                     }
                 });
+    }
+
+    private List<MusicModel> getListFromResponse(MusicSelectResponse response) {
+        List<MusicModel> modelList = new ArrayList<>();
+        for (MusicSelectResponse.MusicInfo info : response.getMusicList()) {
+            MusicModel model = new MusicModel();
+            model.setName(info.getName());
+            model.setArtistName(info.getArtistName());
+            String audioLocalPath = getFileFromOSS(info.getAudioStoragePath());
+            String coverLocalPath = getFileFromOSS(info.getCoverStoragePath());
+            String lyricLocalPath = getFileFromOSS(info.getLyricStoragePath());
+            model.setAudioLocalPath(audioLocalPath);
+            model.setCoverLocalPath(coverLocalPath);
+            model.setLyricLocalPath(lyricLocalPath);
+            modelList.add(model);
+        }
+        return modelList;
     }
 
 

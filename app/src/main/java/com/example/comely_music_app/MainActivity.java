@@ -225,9 +225,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // 获取musicModelList信息，存储到本地，并生成界面可使用的list
         playingViewModel.getMusicListLiveData().observe(this, musicModels -> {
-            viewPagerAdapter.setMusicModelList(musicModels);
-            // todo 把封面、歌词和MP3下载下来
-            Toast.makeText(getApplicationContext(), "获取了" + musicModels.size() + "首音乐", Toast.LENGTH_SHORT).show();
+            if (musicModels != null && musicModels.size() != 0) {
+                viewPagerAdapter.setMusicModelList(musicModels);
+                // todo 把封面、歌词和MP3下载下来
+                Toast.makeText(getApplicationContext(), "获取了" + musicModels.size() + "首音乐", Toast.LENGTH_SHORT).show();
+            }
         });
 
         // 当前界面滑动时，播放当前界面音乐

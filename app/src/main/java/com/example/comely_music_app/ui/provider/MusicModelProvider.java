@@ -2,7 +2,8 @@ package com.example.comely_music_app.ui.provider;
 
 import android.content.Context;
 
-import com.example.comely_music_app.api.request.MusicSelectRequest;
+import com.example.comely_music_app.api.request.MusicSelectByModuleRequest;
+import com.example.comely_music_app.api.request.MusicSelectByTagsRequest;
 import com.example.comely_music_app.api.service.MusicService;
 import com.example.comely_music_app.api.service.impl.MusicServiceImpl;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
@@ -20,10 +21,17 @@ public class MusicModelProvider {
     }
 
     /**
-     * 批量获取10首歌曲Model
+     * 根据播放模式批量获取10首歌曲Model
      */
-    public void getPatchMusicModel(MusicSelectRequest request, PlayingViewModel playingViewModel) {
-        musicService.getMusicList(request, playingViewModel);
+    public void getPatchMusicModelByModule(MusicSelectByModuleRequest request, PlayingViewModel playingViewModel) {
+        musicService.getMusicListByModule(request, playingViewModel);
+    }
+
+    /**
+     * 根据Tag批量获取10首歌曲Model
+     */
+    public void getPatchMusicModelByTag(MusicSelectByTagsRequest request, PlayingViewModel playingViewModel) {
+        musicService.getMusicListByTags(request, playingViewModel);
     }
 
     // ====================================================================

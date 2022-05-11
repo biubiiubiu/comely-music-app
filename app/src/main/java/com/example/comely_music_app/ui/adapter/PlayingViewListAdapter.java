@@ -12,7 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
-import com.example.comely_music_app.api.request.MusicSelectRequest;
+import com.example.comely_music_app.api.request.MusicSelectByModuleRequest;
+import com.example.comely_music_app.api.request.MusicSelectByTagsRequest;
 import com.example.comely_music_app.enums.PlayerModule;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.provider.MusicModelProvider;
@@ -21,6 +22,7 @@ import com.example.comely_music_app.utils.FileOperationUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.SneakyThrows;
@@ -101,12 +103,6 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
     }
 
     @Override
-    public int getItemViewType(int position) {
-        Log.d("TAG", "=============== getItemViewType....." + position);
-        return super.getItemViewType(position);
-    }
-
-    @Override
     public void setHasStableIds(boolean hasStableIds) {
         Log.d("TAG", "=============== setHasStableIds.....");
         super.setHasStableIds(hasStableIds);
@@ -171,8 +167,14 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
      * Retrofit2 MusicService，初始化一次音乐信息，一次获取NUM首
      */
     private void initMusicModelList() {
-        MusicSelectRequest request = new MusicSelectRequest(PlayerModule.RANDOM, NUM);
-        modelProvider.getPatchMusicModel(request, playingViewModel);
+//        MusicSelectByModuleRequest request = new MusicSelectByModuleRequest(PlayerModule.RANDOM, NUM);
+//        modelProvider.getPatchMusicModelByModule(request, playingViewModel);
+
+        List<String> tags = new ArrayList<>();
+        tags.add("古风");
+        MusicSelectByTagsRequest request = new MusicSelectByTagsRequest();
+        request.setNum(NUM).setTags(tags);
+        modelProvider.getPatchMusicModelByTag(request, playingViewModel);
     }
 
     public void setMusicModelList(List<MusicModel> list) {

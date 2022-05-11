@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MusicSelectRequest {
+public class MusicSelectByModuleRequest {
     private PlayerModule module;
     private Integer num;
 }
