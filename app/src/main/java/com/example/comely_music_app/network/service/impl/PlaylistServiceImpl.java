@@ -9,6 +9,7 @@ import com.example.comely_music_app.network.base.ApiManager;
 import com.example.comely_music_app.network.base.BaseObserver;
 import com.example.comely_music_app.network.base.BaseResult;
 import com.example.comely_music_app.network.request.PlaylistCreateRequest;
+import com.example.comely_music_app.network.response.UserPlaylistsSelectResponse;
 import com.example.comely_music_app.network.service.PlaylistService;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
@@ -40,7 +41,6 @@ public class PlaylistServiceImpl implements PlaylistService {
                     model.setMusicNum(request.getMusicNum());
                     playlistViewModel.addPlaylist2MyCreatedPlaylists(model);
                     playlistViewModel.setCreateSuccessFlag();
-                    Log.d("TAG", "onSuccess: 111111111111111111111111111");
                 }
             }
 
@@ -56,4 +56,28 @@ public class PlaylistServiceImpl implements PlaylistService {
             }
         });
     }
+
+    @Override
+    public void selectAllCreatedPlaylistByUsername(String username) {
+        Observable<BaseResult<UserPlaylistsSelectResponse>> result = playlistApi.selectAllCreatedPlaylistByUsername(username);
+        result.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BaseObserver<UserPlaylistsSelectResponse>(false) {
+                    @Override
+                    public void onSuccess(UserPlaylistsSelectResponse response) {
+                        playlistViewModel.setMyCreatedPlaylists(response.getPlaylistModelList());
+                    }
+
+                    @Override
+                    public void onFail(int errorCode, String errorMsg, UserPlaylistsSelectResponse response) {
+                        Log.e("TAG", "onFail: 获取用户自建歌单失败", null);
+                    }
+
+                    @Override
+                    public void onError(String msg) {
+
+                    }
+                });
+    }
+
 }

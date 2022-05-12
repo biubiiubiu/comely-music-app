@@ -6,4 +6,5 @@ import lombok.Data;
 public class PlaylistModel {
     private String name;
     private Integer musicNum;
+    private Integer visibility;
 }

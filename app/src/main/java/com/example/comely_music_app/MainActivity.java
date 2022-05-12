@@ -16,17 +16,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.comely_music_app.config.ShpConfig;
 import com.example.comely_music_app.network.response.UserInfo;
 import com.example.comely_music_app.network.service.UserService;
 import com.example.comely_music_app.network.service.impl.UserServiceImpl;
-import com.example.comely_music_app.config.ShpConfig;
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
 import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
@@ -44,7 +43,7 @@ import lombok.SneakyThrows;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private FragmentManager manager;
 
-    private View frameBlank, findBtn, myBtn;
+    private View frameBlank;
     private ImageButton playPauseBtn;
     private ViewPager2 viewPager;
 
@@ -58,6 +57,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private UserService userService;
 
     private MediaPlayer mediaPlayer;
+
+    private MyFragment myFragment;
+    private FindingFragment findingFragment;
 
 //    public static class SeekBarThread extends Thread {
 //        private final PlayingViewModel playingViewModel;
@@ -137,6 +139,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             manager = getSupportFragmentManager();
         }
 
+        FragmentTransaction ft = manager.beginTransaction();
+        myFragment = new MyFragment();
+        findingFragment = new FindingFragment();
+        ft.add(R.id.frame_blank, myFragment);
+        ft.add(R.id.frame_blank, findingFragment);
+        ft.commit();
+
+
         setObserveOnPlayingViewModel();
         setObserveOnUserInfoViewModel();
     }
@@ -171,9 +181,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 editor.putString(ShpConfig.CURRENT_USER, "");
                 editor.apply();
             }
-//            if (isLogin != null && isLogin) {
-//
-//            }
         });
     }
 
@@ -204,17 +211,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             findText.setTextColor(R.color.white);
             switch (status) {
                 case MY:
-                    checkout2TargetFragment(new MyFragment(manager));
+                    changeFinding2myFragment();
+                    checkoutOffPlaying();
                     myBtn.setImageDrawable(getDrawable(R.drawable.ic_home_up));
                     myText.setTextColor(R.color.theme_green_light);
                     break;
                 case FINDING:
-                    checkout2TargetFragment(new FindingFragment());
+                    changeMy2findingFragment();
+                    checkoutOffPlaying();
                     findBtn.setImageDrawable(getDrawable(R.drawable.ic_finding_up));
                     findText.setTextColor(R.color.theme_green_light);
                     break;
                 case PLAYING:
-                    checkout2Playing();
+                    checkoutIntoPlaying();
                     break;
             }
         });
@@ -271,8 +280,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void initIcon() {
         playPauseBtn = findViewById(R.id.play_pause_btn);
-        findBtn = findViewById(R.id.find_btn);
-        myBtn = findViewById(R.id.my_btn);
+        View findBtn = findViewById(R.id.find_btn);
+        View myBtn = findViewById(R.id.my_btn);
         frameBlank = findViewById(R.id.frame_blank);
         playPauseBtn = findViewById(R.id.play_pause_btn);
         viewPager = findViewById(R.id.viewpage_playing);
@@ -316,15 +325,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void checkout2TargetFragment(Fragment targetFragment) {
+    private void changeFinding2myFragment() {
         FragmentTransaction ft = manager.beginTransaction();
-        viewPager.setVisibility(View.INVISIBLE);
-        ft.replace(R.id.frame_blank, targetFragment);
+        ft.hide(findingFragment);
+        ft.show(myFragment);
         ft.commit();
-        frameBlank.setVisibility(View.VISIBLE);
     }
 
-    private void checkout2Playing() {
+    private void changeMy2findingFragment() {
+        FragmentTransaction ft = manager.beginTransaction();
+        ft.hide(myFragment);
+        ft.show(findingFragment);
+        ft.commit();
+    }
+
+    private void checkoutOffPlaying() {
+        frameBlank.setVisibility(View.VISIBLE);
+        viewPager.setVisibility(View.INVISIBLE);
+    }
+
+    private void checkoutIntoPlaying() {
         frameBlank.setVisibility(View.INVISIBLE);
         viewPager.setVisibility(View.VISIBLE);
     }

@@ -3,6 +3,8 @@ package com.example.comely_music_app.ui;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,7 +24,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
@@ -51,8 +52,6 @@ public class MyFragment extends Fragment implements View.OnClickListener {
     private TextView nicknameTxt;
     private View settingFrameBlank;
 
-    private final FragmentManager manager;
-
     private UserInfoViewModel userInfoViewModel;
 
     private PlaylistViewModel playlistViewModel;
@@ -61,10 +60,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
     private PlaylistViewListAdapter adapter;
 
     private PlaylistService playlistService;
-
-    public MyFragment(FragmentManager fm) {
-        manager = fm;
-    }
+    private FragmentActivity mActivity;
 
     @Nullable
     @Override
@@ -73,9 +69,9 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_my, container, false);
         SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(
-                Objects.requireNonNull(getActivity()).getApplication(), getActivity());
-        userInfoViewModel = ViewModelProviders.of(getActivity(), savedState).get(UserInfoViewModel.class);
-        playlistViewModel = ViewModelProviders.of(getActivity(), savedState).get(PlaylistViewModel.class);
+                Objects.requireNonNull(mActivity).getApplication(), mActivity);
+        userInfoViewModel = ViewModelProviders.of(mActivity, savedState).get(UserInfoViewModel.class);
+        playlistViewModel = ViewModelProviders.of(mActivity, savedState).get(PlaylistViewModel.class);
 
         playlistService = new PlaylistServiceImpl(playlistViewModel);
         initIcons(view);
@@ -95,18 +91,37 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         return view;
     }
 
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        //添加引用
+        if (context instanceof Activity) {
+            mActivity = (FragmentActivity) context;
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        //销毁引用
+        mActivity = null;
+    }
+
     private void initDatas() {
-        // 用户昵称
-        UserInfo info = ShpUtils.getUserInfoFromShp(getActivity());
+        UserInfo info = ShpUtils.getUserInfoFromShp(mActivity);
         if (info != null) {
+            // 用户昵称
             String nickname = info.getNickname();
             if (nickname != null && nickname.length() > 0) {
                 nicknameTxt.setText(nickname);
             }
+
+            // 用户歌单
+            playlistService.selectAllCreatedPlaylistByUsername(info.getUsername());
         }
-
-        // 用户歌单
-
     }
 
     private void initIcons(View view) {
@@ -123,7 +138,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
     @SuppressLint("NotifyDataSetChanged")
     private void setObserveOnViewModels() {
         if (userInfoViewModel != null) {
-            userInfoViewModel.getUserInfo().observe(Objects.requireNonNull(getActivity()), userInfo -> {
+            userInfoViewModel.getUserInfo().observe(Objects.requireNonNull(mActivity), userInfo -> {
                 if (userInfo != null && userInfo.getNickname() != null && userInfo.getNickname().length() > 0) {
                     // 刷界面
                     nicknameTxt.setText(userInfo.getNickname());
@@ -137,7 +152,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         }
 
         if (playlistViewModel != null) {
-            playlistViewModel.getMyCreatedPlaylists().observe(Objects.requireNonNull(getActivity()), playlistModels -> {
+            playlistViewModel.getMyCreatedPlaylists().observe(Objects.requireNonNull(mActivity), playlistModels -> {
                 adapter.setPlaylistData(playlistModels);
                 // 写入shp，下次直接打开应用不需要联网就可以加载
                 writeMyCreatePlaylistToShp(playlistModels);
@@ -147,13 +162,13 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         }
 
         if (playlistViewModel != null) {
-            playlistViewModel.getCreateSuccessFlag().observe(Objects.requireNonNull(getActivity()),
-                    integer -> Toast.makeText(getActivity(), "创建成功！", Toast.LENGTH_SHORT).show());
+            playlistViewModel.getCreateSuccessFlag().observe(Objects.requireNonNull(mActivity),
+                    integer -> Toast.makeText(mActivity, "创建成功！", Toast.LENGTH_SHORT).show());
         }
 
         if (playlistViewModel != null) {
-            playlistViewModel.getCreateFailedFlag().observe(Objects.requireNonNull(getActivity()),
-                    integer -> Toast.makeText(getActivity(), "创建失败，请检查网络", Toast.LENGTH_SHORT).show());
+            playlistViewModel.getCreateFailedFlag().observe(Objects.requireNonNull(mActivity),
+                    integer -> Toast.makeText(mActivity, "创建失败，请检查网络", Toast.LENGTH_SHORT).show());
         }
     }
 
@@ -162,19 +177,17 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         if (v.getId() == R.id.add_playlist) {
             showCreateDialog();
         } else if (v.getId() == R.id.avatar_image) {
-            if (manager != null) {
-                FragmentTransaction ft = manager.beginTransaction();
-                ft.replace(R.id.frame_blank_for_setting, new SettingFragment());
-                ft.commit();
-                settingFrameBlank.setVisibility(View.VISIBLE);
-            }
+            FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.frame_blank_for_setting, new SettingFragment());
+            ft.commit();
+            settingFrameBlank.setVisibility(View.VISIBLE);
         }
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private void showCreateDialog() {
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_create_playlist, null, false);
-        final AlertDialog dialog = new AlertDialog.Builder(Objects.requireNonNull(getActivity())).setView(view).create();
+        View view = LayoutInflater.from(mActivity).inflate(R.layout.dialog_create_playlist, null, false);
+        final AlertDialog dialog = new AlertDialog.Builder(Objects.requireNonNull(mActivity)).setView(view).create();
 
         TextView cancel = view.findViewById(R.id.dialog_create_cancel);
         TextView complete = view.findViewById(R.id.dialog_create_complete);
@@ -190,7 +203,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         complete.setOnClickListener(v -> {
             String playlistName = editText.getText().toString();
             if (playlistName.length() == 0) {
-                Toast.makeText(getActivity(), "歌单名称不能为空！", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mActivity, "歌单名称不能为空！", Toast.LENGTH_SHORT).show();
             } else {
                 int visibility = 1;
                 if (rb.isChecked()) {
@@ -208,14 +221,14 @@ public class MyFragment extends Fragment implements View.OnClickListener {
 
         dialog.show();
         //此处设置位置窗体大小，我这里设置为了手机屏幕宽度的4/5  注意一定要在show方法调用后再写设置窗口大小的代码，否则不起效果会
-        dialog.getWindow().setBackgroundDrawable(Objects.requireNonNull(getActivity()).getDrawable(R.color.ps_color_transparent));
-        dialog.getWindow().setLayout((ScreenUtils.getScreenWidth(Objects.requireNonNull(getActivity())) / 5 * 4),
+        dialog.getWindow().setBackgroundDrawable(Objects.requireNonNull(mActivity).getDrawable(R.color.ps_color_transparent));
+        dialog.getWindow().setLayout((ScreenUtils.getScreenWidth(Objects.requireNonNull(mActivity)) / 5 * 4),
                 LinearLayout.LayoutParams.WRAP_CONTENT);
     }
 
 
     private UserInfo getCurrentUserinfoFromShp() {
-        SharedPreferences shp = Objects.requireNonNull(getActivity()).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
+        SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
         String userInfoStr = shp.getString(ShpConfig.CURRENT_USER, "");
         if (!userInfoStr.equals("")) {
             Gson gson = new Gson();
@@ -225,7 +238,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
     }
 
     private void writeCurrentUserinfoToShp(UserInfo userInfo) {
-        SharedPreferences shp = Objects.requireNonNull(getActivity()).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
+        SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = shp.edit();
         Gson gson = new Gson();
         String newInfoStr = gson.toJson(userInfo);
@@ -234,7 +247,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
     }
 
     private List<PlaylistModel> getMyCreatePlaylistFromShp() {
-        SharedPreferences shp = Objects.requireNonNull(getActivity()).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
+        SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
         String myCreatePlaylistStr = shp.getString(ShpConfig.MY_CREATE_PLAYLIST, "");
         if (!myCreatePlaylistStr.equals("")) {
             Gson gson = new Gson();
@@ -245,13 +258,11 @@ public class MyFragment extends Fragment implements View.OnClickListener {
     }
 
     private void writeMyCreatePlaylistToShp(List<PlaylistModel> list) {
-        FragmentActivity activity = getActivity();
-        SharedPreferences shp = Objects.requireNonNull(activity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
+        SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = shp.edit();
         Gson gson = new Gson();
         String myCreatedPlaylistStr = gson.toJson(list);
         editor.putString(ShpConfig.MY_CREATE_PLAYLIST, myCreatedPlaylistStr);
         editor.apply();
     }
-
 }
