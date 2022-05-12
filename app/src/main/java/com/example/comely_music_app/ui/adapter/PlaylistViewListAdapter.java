@@ -1,5 +1,6 @@
 package com.example.comely_music_app.ui.adapter;
 
+import android.annotation.SuppressLint;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -30,7 +31,7 @@ public class PlaylistViewListAdapter extends RecyclerView.Adapter<PlaylistViewLi
 
     @Override
     public void onBindViewHolder(@NonNull PlaylistViewHolder holder, int position) {
-
+        holder.setDataOnView(playlistData.get(position));
     }
 
     @Override
@@ -55,6 +56,15 @@ public class PlaylistViewListAdapter extends RecyclerView.Adapter<PlaylistViewLi
             playlistCover = itemView.findViewById(R.id.item_playlist_cover);
             playlistName = itemView.findViewById(R.id.item_playlist_name);
             playlistMusicNum = itemView.findViewById(R.id.item_playlist_music_num);
+        }
+
+        @SuppressLint({"SetTextI18n", "UseCompatLoadingForDrawables"})
+        private void setDataOnView(PlaylistModel playlistModel) {
+            // todo 设置封面
+            playlistCover.setImageDrawable(itemView.getResources().getDrawable(R.drawable.avatar_music));
+            playlistName.setText(playlistModel.getName());
+            int num = playlistModel.getMusicNum() == null ? 0 : playlistModel.getMusicNum();
+            playlistMusicNum.setText(num + "首");
         }
     }
 }

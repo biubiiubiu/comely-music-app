@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#B9021313"
+    android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/ps_color_transparent"
+        app:cardCornerRadius="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/ps_color_transparent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/ps_color_transparent"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/dialog_create_cancel"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="取消"
+                    android:textColor="@color/dialog_text_color"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="创建歌单"
+                    android:textColor="@color/dialog_text_color"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/dialog_create_complete"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:text="完成"
+                    android:textColor="@color/dialog_text_color"
+                    android:textSize="15sp" />
+
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/dialog_create_playlist_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="18dp"
+                android:layout_marginRight="8dp"
+                android:hint="请输入歌单名称"
+                android:inputType="textEmailAddress"
+                android:maxLines="1"
+                android:textColor="@color/dialog_text_color"
+                android:textColorHint="@color/dialog_text_color"
+                android:textSize="16sp">
+
+
+            </EditText>
+
+            <RadioButton
+                android:id="@+id/dialog_playlist_visibility_rb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:background="@color/ps_color_transparent"
+                android:text="歌单仅自己可见"
+                android:textColor="@color/dialog_text_color"
+                android:textSize="15sp"
+                tools:ignore="TouchTargetSizeCheck" />
+
+        </LinearLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+
+</LinearLayout>

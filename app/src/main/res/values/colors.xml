@@ -17,4 +17,5 @@
     <color name="colorAccent">#FFFFFF</color>
     <color name="textInputLayout">#96ffffff</color>
     <color name="card_bk_color">#10FFFFFF</color>
+    <color name="dialog_text_color">#B3DAE1D9</color>
 </resources>

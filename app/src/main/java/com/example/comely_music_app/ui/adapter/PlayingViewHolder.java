@@ -2,8 +2,6 @@ package com.example.comely_music_app.ui.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
@@ -21,9 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.ui.animation.MyClickListener;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
-import com.example.comely_music_app.utils.ImageTransformUtils;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 import jp.wasabeef.blurry.Blurry;
