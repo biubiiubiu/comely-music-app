@@ -91,7 +91,7 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
     public void onBindViewHolder(@NonNull PlayingViewHolder holder, int position, @NonNull List<Object> payloads) {
         super.onBindViewHolder(holder, position, payloads);
 
-        Log.d("TAG", "=============== onCreateViewHolder: create....."+position);
+        Log.d("TAG", "=============== onBindViewHolder: create....."+position);
     }
 
     @Override

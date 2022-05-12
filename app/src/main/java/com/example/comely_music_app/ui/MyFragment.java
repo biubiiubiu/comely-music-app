@@ -18,10 +18,13 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.api.response.UserInfo;
 import com.example.comely_music_app.config.ShpConfig;
+import com.example.comely_music_app.ui.adapter.PlaylistViewListAdapter;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
 import com.example.comely_music_app.utils.ShpUtils;
 import com.google.gson.Gson;
@@ -37,6 +40,8 @@ public class MyFragment extends Fragment implements View.OnClickListener {
 
     private UserInfoViewModel userInfoViewModel;
 
+    private RecyclerView playlistRecycleView;
+
     public MyFragment(FragmentManager fm) {
         manager = fm;
     }
@@ -51,18 +56,20 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         userInfoViewModel = ViewModelProviders.of(getActivity(), savedState).get(UserInfoViewModel.class);
 
         initIcons(view);
-        avatarImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (manager != null) {
-                    FragmentTransaction ft = manager.beginTransaction();
-                    ft.replace(R.id.frame_blank_for_setting, new SettingFragment());
-                    ft.commit();
-                    settingFrameBlank.setVisibility(View.VISIBLE);
-                }
+        avatarImg.setOnClickListener(v -> {
+            if (manager != null) {
+                FragmentTransaction ft = manager.beginTransaction();
+                ft.replace(R.id.frame_blank_for_setting, new SettingFragment());
+                ft.commit();
+                settingFrameBlank.setVisibility(View.VISIBLE);
             }
         });
         setObserveOnUserViewModel();
+
+        RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
+        playlistRecycleView.setLayoutManager(manager);
+        PlaylistViewListAdapter adapter = new PlaylistViewListAdapter(null);
+        playlistRecycleView.setAdapter(adapter);
         return view;
     }
 
@@ -70,6 +77,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         avatarImg = view.findViewById(R.id.avatar_image);
         nicknameTxt = view.findViewById(R.id.nickname);
         settingFrameBlank = view.findViewById(R.id.frame_blank_for_setting);
+        playlistRecycleView = view.findViewById(R.id.playlist_list);
 
         UserInfo info = ShpUtils.getUserInfoFromShp(getActivity());
         if (info != null) {
@@ -79,7 +87,6 @@ public class MyFragment extends Fragment implements View.OnClickListener {
             }
         }
     }
-
 
     private void setObserveOnUserViewModel() {
         if (userInfoViewModel != null) {
