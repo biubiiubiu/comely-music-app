@@ -37,7 +37,7 @@
                     android:layout_gravity="center"
                     android:layout_marginTop="30dp"
                     android:background="@android:color/transparent"
-                    android:src="@drawable/avatar_music" />
+                    android:src="@drawable/avatar_male1" />
 
                 <TextView
                     android:layout_width="wrap_content"

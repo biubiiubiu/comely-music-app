@@ -4,19 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#B9021313"
+    android:background="@color/ps_color_transparent"
     android:orientation="vertical">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/ps_color_transparent"
+        app:cardBackgroundColor="@color/main_background"
         app:cardCornerRadius="10dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/ps_color_transparent"
             android:orientation="vertical">
 
             <LinearLayout
@@ -64,7 +63,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
-                android:layout_marginTop="18dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginRight="8dp"
                 android:hint="请输入歌单名称"
                 android:inputType="textEmailAddress"

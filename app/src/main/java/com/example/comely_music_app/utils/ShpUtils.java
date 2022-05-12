@@ -5,7 +5,7 @@ import static android.content.Context.MODE_PRIVATE;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
-import com.example.comely_music_app.api.response.UserInfo;
+import com.example.comely_music_app.network.response.UserInfo;
 import com.example.comely_music_app.config.ShpConfig;
 import com.google.gson.Gson;
 

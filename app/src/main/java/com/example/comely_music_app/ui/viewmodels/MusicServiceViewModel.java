@@ -3,7 +3,7 @@ package com.example.comely_music_app.ui.viewmodels;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.comely_music_app.api.response.MusicBatchCreateResponse;
+import com.example.comely_music_app.network.response.MusicBatchCreateResponse;
 
 /**
  * 音乐增删改查的view model

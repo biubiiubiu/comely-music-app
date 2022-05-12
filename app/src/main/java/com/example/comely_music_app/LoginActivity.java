@@ -15,10 +15,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.example.comely_music_app.api.request.LoginRequest;
-import com.example.comely_music_app.api.response.UserInfo;
-import com.example.comely_music_app.api.service.UserService;
-import com.example.comely_music_app.api.service.impl.UserServiceImpl;
+import com.example.comely_music_app.network.request.LoginRequest;
+import com.example.comely_music_app.network.response.UserInfo;
+import com.example.comely_music_app.network.service.UserService;
+import com.example.comely_music_app.network.service.impl.UserServiceImpl;
 import com.example.comely_music_app.config.ShpConfig;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
 import com.google.gson.Gson;

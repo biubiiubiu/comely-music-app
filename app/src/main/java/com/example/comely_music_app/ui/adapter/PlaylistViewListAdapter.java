@@ -15,12 +15,29 @@ import com.example.comely_music_app.ui.models.PlaylistModel;
 import java.util.List;
 
 public class PlaylistViewListAdapter extends RecyclerView.Adapter<PlaylistViewListAdapter.PlaylistViewHolder> {
-
     private List<PlaylistModel> playlistData;
+    private AdapterClickListener listener;
 
     public PlaylistViewListAdapter(List<PlaylistModel> playlistData) {
         this.playlistData = playlistData;
     }
+
+    public void setPlaylistData(List<PlaylistModel> playlistData) {
+        this.playlistData = playlistData;
+    }
+
+    public void addPlaylistData(PlaylistModel model) {
+        playlistData.add(model);
+    }
+
+    public void setListener(AdapterClickListener listener) {
+        this.listener = listener;
+    }
+
+    public interface AdapterClickListener {
+        void onClick(View itemView, int position);
+    }
+
 
     @NonNull
     @Override
@@ -30,8 +47,16 @@ public class PlaylistViewListAdapter extends RecyclerView.Adapter<PlaylistViewLi
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PlaylistViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull PlaylistViewHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.setDataOnView(playlistData.get(position));
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onClick(v, position);
+                }
+            }
+        });
     }
 
     @Override

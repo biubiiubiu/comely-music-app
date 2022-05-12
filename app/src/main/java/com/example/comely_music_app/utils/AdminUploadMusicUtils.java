@@ -1,24 +1,21 @@
 package com.example.comely_music_app.utils;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
 
-import com.example.comely_music_app.api.request.ArtistCreateRequest;
-import com.example.comely_music_app.api.request.FileCommonRequest;
-import com.example.comely_music_app.api.request.FileUploadRequest;
-import com.example.comely_music_app.api.request.MusicCreateRequest;
-import com.example.comely_music_app.api.request.TagCreateRequest;
-import com.example.comely_music_app.api.service.ArtistService;
-import com.example.comely_music_app.api.service.FileService;
-import com.example.comely_music_app.api.service.MusicService;
-import com.example.comely_music_app.api.service.TagService;
-import com.example.comely_music_app.api.service.impl.ArtistServiceImpl;
-import com.example.comely_music_app.api.service.impl.FileServiceImpl;
-import com.example.comely_music_app.api.service.impl.MusicServiceImpl;
-import com.example.comely_music_app.api.service.impl.TagServiceImpl;
+import com.example.comely_music_app.network.request.ArtistCreateRequest;
+import com.example.comely_music_app.network.request.FileCommonRequest;
+import com.example.comely_music_app.network.request.MusicCreateRequest;
+import com.example.comely_music_app.network.request.TagCreateRequest;
+import com.example.comely_music_app.network.service.ArtistService;
+import com.example.comely_music_app.network.service.FileService;
+import com.example.comely_music_app.network.service.MusicService;
+import com.example.comely_music_app.network.service.TagService;
+import com.example.comely_music_app.network.service.impl.ArtistServiceImpl;
+import com.example.comely_music_app.network.service.impl.FileServiceImpl;
+import com.example.comely_music_app.network.service.impl.MusicServiceImpl;
+import com.example.comely_music_app.network.service.impl.TagServiceImpl;
 import com.example.comely_music_app.enums.TagType;
 import com.example.comely_music_app.ui.viewmodels.FileServiceViewModel;
 import com.example.comely_music_app.ui.viewmodels.MusicServiceViewModel;
@@ -30,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * 音乐上传脚本，暂时取代后台上传

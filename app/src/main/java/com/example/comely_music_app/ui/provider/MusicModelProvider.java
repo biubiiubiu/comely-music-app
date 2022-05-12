@@ -2,10 +2,10 @@ package com.example.comely_music_app.ui.provider;
 
 import android.content.Context;
 
-import com.example.comely_music_app.api.request.MusicSelectByModuleRequest;
-import com.example.comely_music_app.api.request.MusicSelectByTagsRequest;
-import com.example.comely_music_app.api.service.MusicService;
-import com.example.comely_music_app.api.service.impl.MusicServiceImpl;
+import com.example.comely_music_app.network.request.MusicSelectByModuleRequest;
+import com.example.comely_music_app.network.request.MusicSelectByTagsRequest;
+import com.example.comely_music_app.network.service.MusicService;
+import com.example.comely_music_app.network.service.impl.MusicServiceImpl;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 
 /**
