@@ -9,6 +9,7 @@ import com.example.comely_music_app.network.base.ApiManager;
 import com.example.comely_music_app.network.base.BaseObserver;
 import com.example.comely_music_app.network.base.BaseResult;
 import com.example.comely_music_app.network.request.PlaylistCreateRequest;
+import com.example.comely_music_app.network.request.PlaylistSelectRequest;
 import com.example.comely_music_app.network.response.UserPlaylistsSelectResponse;
 import com.example.comely_music_app.network.service.PlaylistService;
 import com.example.comely_music_app.ui.models.PlaylistModel;
@@ -55,6 +56,35 @@ public class PlaylistServiceImpl implements PlaylistService {
 
             }
         });
+    }
+
+    @Override
+    public void deletePlaylist(PlaylistSelectRequest request) {
+        Observable<BaseResult<Void>> createResult = playlistApi.deletePlaylist(request);
+        createResult.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BaseObserver<Void>(false) {
+                    @Override
+                    public void onSuccess(Void o) {
+                        if (playlistViewModel != null) {
+                            PlaylistModel model = new PlaylistModel();
+                            model.setName(request.getPlaylistName());
+                            playlistViewModel.deletePlaylistInCreatedPlaylists(model);
+                            playlistViewModel.setDeleteSuccessFlag();
+                        }
+                    }
+
+                    @Override
+                    public void onFail(int errorCode, String errorMsg, Void response) {
+                        Log.e("TAG", "onFail: 后端创建歌单失败", null);
+                        playlistViewModel.setDeleteFailedFlag();
+                    }
+
+                    @Override
+                    public void onError(String msg) {
+
+                    }
+                });
     }
 
     @Override

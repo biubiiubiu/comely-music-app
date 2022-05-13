@@ -34,6 +34,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.config.ShpConfig;
 import com.example.comely_music_app.network.request.PlaylistCreateRequest;
+import com.example.comely_music_app.network.request.PlaylistSelectRequest;
 import com.example.comely_music_app.network.response.UserInfo;
 import com.example.comely_music_app.network.service.PlaylistService;
 import com.example.comely_music_app.network.service.impl.PlaylistServiceImpl;
@@ -88,11 +89,20 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         List<PlaylistModel> myCreatePlaylistFromShp = getMyCreatePlaylistFromShp();
         adapter = new PlaylistViewListAdapter(myCreatePlaylistFromShp);
         playlistRecycleView.setAdapter(adapter);
-        adapter.setListener((itemView, position) -> {
-            Log.d("TAG", "onClick: 点击了" + position);
-            // todo 进入歌单界面
-            PlaylistModel playlistModel = adapter.getPlaylistData().get(position);
-            playlistViewModel.setCurrentShowingPlaylist(playlistModel);
+        adapter.setListener(new PlaylistViewListAdapter.AdapterClickListener() {
+            @Override
+            public void onClick(View itemView, int position) {
+                // 进入歌单界面
+                PlaylistModel playlistModel = adapter.getPlaylistData().get(position);
+                playlistViewModel.setCurrentShowingPlaylist(playlistModel);
+            }
+
+            @Override
+            public void onLongClick(View v, int position) {
+                Log.d("TAG", "onClick: 长按了" + position);
+                // todo 删除当前歌单
+                showDeleteDialog(adapter.getPlaylistData().get(position).getName());
+            }
         });
 
 
@@ -197,6 +207,16 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                     model -> myFragmentViewsCtrlLiveData.setValue(2));
         }
 
+        if (playlistViewModel != null) {
+            playlistViewModel.getDeleteSuccessFlag().observe(Objects.requireNonNull(mActivity),
+                    integer -> Toast.makeText(mActivity, "删除成功！", Toast.LENGTH_SHORT).show());
+        }
+
+        if (playlistViewModel != null) {
+            playlistViewModel.getDeleteFailedFlag().observe(Objects.requireNonNull(mActivity),
+                    integer -> Toast.makeText(mActivity, "删除失败，请检查网络", Toast.LENGTH_SHORT).show());
+        }
+
         myFragmentViewsCtrlLiveData.observe(Objects.requireNonNull(mActivity), integer -> {
             if (integer == 0) {
                 // myFragment界面
@@ -247,8 +267,6 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         RadioButton rb = view.findViewById(R.id.dialog_playlist_visibility_rb);
 
         cancel.setOnClickListener(v -> {
-            Log.d("创建歌单", "onClick: 取消");
-            //... To-do
             dialog.dismiss();
         });
 
@@ -278,6 +296,37 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                 LinearLayout.LayoutParams.WRAP_CONTENT);
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void showDeleteDialog(String playlistName) {
+        View view = LayoutInflater.from(mActivity).inflate(R.layout.dialog_delete_playlist, null, false);
+        final AlertDialog dialog = new AlertDialog.Builder(Objects.requireNonNull(mActivity)).setView(view).create();
+
+        TextView cancel = view.findViewById(R.id.dialog_delete_cancel);
+        TextView complete = view.findViewById(R.id.dialog_delete_complete);
+        TextView playlistNameTxt = view.findViewById(R.id.dialog_delete_playlist_name);
+        playlistNameTxt.setText(playlistName);
+
+        cancel.setOnClickListener(v -> {
+            dialog.dismiss();
+        });
+
+        complete.setOnClickListener(v -> {
+
+            // 删除数据库歌单
+            PlaylistSelectRequest request = new PlaylistSelectRequest();
+            String username = Objects.requireNonNull(getCurrentUserinfoFromShp()).getUsername();
+            request.setPlaylistName(playlistName).setUsername(username);
+            playlistService.deletePlaylist(request);
+            //... To-do
+            dialog.dismiss();
+        });
+
+        dialog.show();
+        //此处设置位置窗体大小，我这里设置为了手机屏幕宽度的4/5  注意一定要在show方法调用后再写设置窗口大小的代码，否则不起效果会
+        dialog.getWindow().setBackgroundDrawable(Objects.requireNonNull(mActivity).getDrawable(R.color.ps_color_transparent));
+        dialog.getWindow().setLayout((ScreenUtils.getScreenWidth(Objects.requireNonNull(mActivity)) / 5 * 4),
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+    }
 
     private UserInfo getCurrentUserinfoFromShp() {
         SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);

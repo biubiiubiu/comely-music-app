@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class PlaylistViewModel extends ViewModel {
@@ -40,6 +41,23 @@ public class PlaylistViewModel extends ViewModel {
             values = new ArrayList<>();
         }
         values.add(playlistModel);
+        myCreatedPlaylists.setValue(values);
+    }
+
+    public void deletePlaylistInCreatedPlaylists(PlaylistModel playlistModel) {
+        if (myCreatedPlaylists == null) {
+            myCreatedPlaylists = getMyCreatedPlaylists();
+        }
+        List<PlaylistModel> values = myCreatedPlaylists.getValue();
+        if (values != null) {
+            Iterator<PlaylistModel> iterator = values.iterator();
+            while (iterator.hasNext()) {
+                PlaylistModel model = iterator.next();
+                if (model.getName().equals(playlistModel.getName())) {
+                    iterator.remove();
+                }
+            }
+        }
         myCreatedPlaylists.setValue(values);
     }
 
