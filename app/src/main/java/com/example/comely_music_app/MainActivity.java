@@ -151,6 +151,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setObserveOnUserInfoViewModel();
     }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (mediaPlayer == null) {
+            mediaPlayer = new MediaPlayer();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mediaPlayer.stop();
+        mediaPlayer.release();
+        mediaPlayer = null;
+    }
 
     /**
      * 检查登录状态
@@ -309,7 +324,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 playingViewModel.setCurrentPointFromUser(seekBar.getProgress());
             }
         });
-
     }
 
 
