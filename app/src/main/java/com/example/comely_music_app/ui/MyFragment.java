@@ -100,7 +100,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onLongClick(View v, int position) {
                 Log.d("TAG", "onClick: 长按了" + position);
-                // todo 删除当前歌单
+                // 删除当前歌单
                 showDeleteDialog(adapter.getPlaylistData().get(position).getName());
             }
         });
@@ -236,6 +236,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                     settingOrDetailsFrameBlank.setVisibility(View.VISIBLE);
                 }
             } else if (integer == 2) {
+                playlistDetailsFragment.initDatas(playlistViewModel.getCurrentShowingPlaylist().getValue());
                 // 歌单界面
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.show(playlistDetailsFragment);

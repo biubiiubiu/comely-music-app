@@ -1,5 +1,6 @@
 package com.example.comely_music_app.ui;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,9 +71,10 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
         playlistViewModel = null;
     }
 
-    private void initDatas(PlaylistModel model) {
+    @SuppressLint("SetTextI18n")
+    public void initDatas(PlaylistModel model) {
         if (model != null) {
-            musicNum.setText(model.getMusicNum());
+            musicNum.setText(model.getMusicNum()+"");
             if (model.getName() != null) {
                 playlistName.setText(model.getName());
             }
