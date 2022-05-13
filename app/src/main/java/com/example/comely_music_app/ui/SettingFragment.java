@@ -8,6 +8,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -35,15 +36,13 @@ import com.google.gson.Gson;
 import java.util.Objects;
 
 public class SettingFragment extends Fragment implements View.OnClickListener {
-    View inflateView;
-    private ImageButton back;
-    private ImageView avatar;
     private EditText nicknameEdit;
-    private Button confirmBtn, logoutBtn;
-
     private UserService userService;
+    private MutableLiveData<Integer> myFragmentViewsCtrlLiveData;
 
-    private UserInfoViewModel userInfoViewModel;
+    public SettingFragment(MutableLiveData<Integer> liveData) {
+        myFragmentViewsCtrlLiveData = liveData;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,10 +50,10 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     }
 
     private void initIcons(View view) {
-        back = view.findViewById(R.id.settings_back);
-        avatar = view.findViewById(R.id.settings_avatar);
-        confirmBtn = view.findViewById(R.id.settings_confirm_update);
-        logoutBtn = view.findViewById(R.id.settings_logout);
+        ImageButton back = view.findViewById(R.id.settings_back);
+        ImageView avatar = view.findViewById(R.id.settings_avatar);
+        Button confirmBtn = view.findViewById(R.id.settings_confirm_update);
+        Button logoutBtn = view.findViewById(R.id.settings_logout);
         nicknameEdit = view.findViewById(R.id.settings_nickname);
         back.setOnClickListener(this);
         avatar.setOnClickListener(this);
@@ -66,16 +65,21 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        inflateView = inflater.inflate(R.layout.fragment_setting, container, false);
+        View inflateView = inflater.inflate(R.layout.fragment_setting, container, false);
 
         SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(Objects.requireNonNull(getActivity()).getApplication(), getActivity());
-        userInfoViewModel = ViewModelProviders.of(getActivity(), savedState).get(UserInfoViewModel.class);
-
+        UserInfoViewModel userInfoViewModel = ViewModelProviders.of(getActivity(), savedState).get(UserInfoViewModel.class);
         userService = new UserServiceImpl(userInfoViewModel);
 
         initIcons(inflateView);
         initNickname();
         return inflateView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        myFragmentViewsCtrlLiveData = null;
     }
 
     private void initNickname() {
@@ -97,7 +101,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.settings_back) {
-            inflateView.setVisibility(View.INVISIBLE);
+            myFragmentViewsCtrlLiveData.setValue(0);
         } else if (v.getId() == R.id.settings_avatar) {
             Log.d("TAG", "onClick: 头像");
         } else if (v.getId() == R.id.settings_logout) {
@@ -119,6 +123,11 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
             SharedPreferences.Editor editor = shp.edit();
             editor.putString(ShpConfig.CURRENT_USER, "");
             editor.apply();
+
+//            // 清除本地用户自建歌单缓存
+            SharedPreferences.Editor editor1 = shp.edit();
+            editor1.putString(ShpConfig.MY_CREATE_PLAYLIST, "");
+            editor1.apply();
 
             if (!userInfoStr.equals("")) {
                 Gson gson = new Gson();
@@ -147,7 +156,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                 request.setNickname(nickname);
                 userService.update(request);
                 Toast.makeText(getActivity(), "修改成功！", Toast.LENGTH_SHORT).show();
-                inflateView.setVisibility(View.INVISIBLE);
+                myFragmentViewsCtrlLiveData.setValue(0);
             }
         }
     }

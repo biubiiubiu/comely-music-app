@@ -15,6 +15,8 @@ public class PlaylistViewModel extends ViewModel {
      */
     private MutableLiveData<Integer> createSuccessFlag, deleteSuccessFlag, createFailedFlag, deleteFailedFlag;
 
+    private MutableLiveData<PlaylistModel> currentShowingPlaylist;
+
     public MutableLiveData<List<PlaylistModel>> getMyCreatedPlaylists() {
         if (myCreatedPlaylists == null) {
             myCreatedPlaylists = new MutableLiveData<>();
@@ -111,5 +113,19 @@ public class PlaylistViewModel extends ViewModel {
         } else {
             deleteFailedFlag.setValue(deleteFailedFlag.getValue() + 1);
         }
+    }
+
+    public MutableLiveData<PlaylistModel> getCurrentShowingPlaylist() {
+        if (currentShowingPlaylist == null) {
+            currentShowingPlaylist = new MutableLiveData<>();
+        }
+        return currentShowingPlaylist;
+    }
+
+    public void setCurrentShowingPlaylist(PlaylistModel currentPlaylist) {
+        if (currentShowingPlaylist == null) {
+            currentShowingPlaylist = getCurrentShowingPlaylist();
+        }
+        currentShowingPlaylist.setValue(currentPlaylist);
     }
 }

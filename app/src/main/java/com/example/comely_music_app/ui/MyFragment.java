@@ -25,6 +25,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -50,10 +52,13 @@ import java.util.Objects;
 
 public class MyFragment extends Fragment implements View.OnClickListener {
     private TextView nicknameTxt;
-    private View settingFrameBlank;
+    private View settingOrDetailsFrameBlank;
+    /**
+     * 用于控制界面
+     */
+    private final MutableLiveData<Integer> myFragmentViewsCtrlLiveData = new MutableLiveData<>(0);
 
     private UserInfoViewModel userInfoViewModel;
-
     private PlaylistViewModel playlistViewModel;
 
     private RecyclerView playlistRecycleView;
@@ -61,6 +66,8 @@ public class MyFragment extends Fragment implements View.OnClickListener {
 
     private PlaylistService playlistService;
     private FragmentActivity mActivity;
+    private SettingFragment settingFragment;
+    private PlaylistDetailsFragment playlistDetailsFragment;
 
     @Nullable
     @Override
@@ -85,7 +92,22 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         adapter.setListener((itemView, position) -> {
             Log.d("TAG", "onClick: 点击了" + position);
             // todo 进入歌单界面
+            PlaylistModel playlistModel = adapter.getPlaylistData().get(position);
+            playlistViewModel.setCurrentShowingPlaylist(playlistModel);
         });
+
+
+        // Lazy加载
+        FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+        settingFragment = new SettingFragment(myFragmentViewsCtrlLiveData);
+        ft.add(R.id.frame_blank_for_setting, settingFragment);
+        ft.commit();
+
+        FragmentTransaction ft1 = mActivity.getSupportFragmentManager().beginTransaction();
+        playlistDetailsFragment = new PlaylistDetailsFragment(myFragmentViewsCtrlLiveData, playlistViewModel);
+        ft1.add(R.id.frame_blank_for_setting, playlistDetailsFragment);
+        ft1.commit();
+
 
         setObserveOnViewModels();
         return view;
@@ -127,7 +149,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
     private void initIcons(View view) {
         ImageView avatarImg = view.findViewById(R.id.avatar_image);
         nicknameTxt = view.findViewById(R.id.nickname);
-        settingFrameBlank = view.findViewById(R.id.frame_blank_for_setting);
+        settingOrDetailsFrameBlank = view.findViewById(R.id.frame_blank_for_setting);
         ImageButton addPlaylist = view.findViewById(R.id.add_playlist);
         playlistRecycleView = view.findViewById(R.id.playlist_list);
 
@@ -157,7 +179,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                 // 写入shp，下次直接打开应用不需要联网就可以加载
                 writeMyCreatePlaylistToShp(playlistModels);
                 adapter.notifyDataSetChanged();
-                Log.d("TAG", "onChanged: 222222222222222222222222222222");
+                Log.d("TAG", "writeMyCreatePlaylistToShp: 写入shp");
             });
         }
 
@@ -170,6 +192,40 @@ public class MyFragment extends Fragment implements View.OnClickListener {
             playlistViewModel.getCreateFailedFlag().observe(Objects.requireNonNull(mActivity),
                     integer -> Toast.makeText(mActivity, "创建失败，请检查网络", Toast.LENGTH_SHORT).show());
         }
+
+        if (playlistViewModel != null) {
+            playlistViewModel.getCurrentShowingPlaylist().observe(Objects.requireNonNull(mActivity),
+                    model -> myFragmentViewsCtrlLiveData.setValue(2));
+        }
+
+        myFragmentViewsCtrlLiveData.observe(Objects.requireNonNull(mActivity), integer -> {
+            if (integer == 0) {
+                // myFragment界面
+                FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+                ft.hide(settingFragment);
+                ft.hide(playlistDetailsFragment);
+                ft.commit();
+                if (settingFragment.isVisible()) {
+                    settingOrDetailsFrameBlank.setVisibility(View.INVISIBLE);
+                }
+            } else if (integer == 1) {
+                // settings界面
+                FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+                ft.show(settingFragment);
+                ft.commit();
+                if (!settingFragment.isVisible()) {
+                    settingOrDetailsFrameBlank.setVisibility(View.VISIBLE);
+                }
+            } else if (integer == 2) {
+                // 歌单界面
+                FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+                ft.show(playlistDetailsFragment);
+                ft.commit();
+                if (!settingFragment.isVisible()) {
+                    settingOrDetailsFrameBlank.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
     @Override
@@ -177,10 +233,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         if (v.getId() == R.id.add_playlist) {
             showCreateDialog();
         } else if (v.getId() == R.id.avatar_image) {
-            FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.frame_blank_for_setting, new SettingFragment());
-            ft.commit();
-            settingFrameBlank.setVisibility(View.VISIBLE);
+            myFragmentViewsCtrlLiveData.setValue(1);
         }
     }
 

@@ -30,6 +30,10 @@ public class PlaylistViewListAdapter extends RecyclerView.Adapter<PlaylistViewLi
         playlistData.add(model);
     }
 
+    public List<PlaylistModel> getPlaylistData() {
+        return playlistData;
+    }
+
     public void setListener(AdapterClickListener listener) {
         this.listener = listener;
     }
