@@ -6,7 +6,8 @@
     android:id="@+id/content_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/ps_color_transparent">
+    android:background="@color/ps_color_transparent"
+    tools:context=".ui.MyFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
@@ -176,6 +177,7 @@
                             android:layout_width="48dp"
                             android:layout_height="48dp"
                             android:layout_gravity="center"
+                            android:scaleType="centerCrop"
                             android:layout_weight="1"
                             android:background="@android:color/transparent"
                             android:src="@drawable/ic_my_like" />
@@ -183,11 +185,12 @@
                         <de.hdodenhof.circleimageview.CircleImageView
                             android:id="@+id/my_collection_playlist"
                             android:layout_width="48dp"
-                            android:layout_height="48dp"
+                            android:layout_height="40dp"
                             android:layout_gravity="center"
+                            android:scaleType="centerCrop"
                             android:layout_weight="1"
                             android:background="@android:color/transparent"
-                            android:src="@drawable/ic_collection_playlist" />
+                            android:src="@drawable/ic_collection_playlist_up" />
 
                         <de.hdodenhof.circleimageview.CircleImageView
                             android:id="@+id/local_playlist"
