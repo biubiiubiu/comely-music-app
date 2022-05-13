@@ -22,7 +22,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="15"
+            android:layout_weight="12"
             android:layout_marginStart="10dp"
             android:orientation="vertical">
 
@@ -45,9 +45,10 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/item_playlist_locked"
+            android:id="@+id/item_playlist_visibility_image"
             android:layout_weight="1"
             android:layout_width="20dp"
+            android:layout_gravity="center"
             android:layout_height="20dp"
             android:src="@drawable/ic_lock_white_24dp" />
     </LinearLayout>

@@ -68,7 +68,7 @@ public class PlaylistViewListAdapter extends RecyclerView.Adapter<PlaylistViewLi
     }
 
     public static class PlaylistViewHolder extends RecyclerView.ViewHolder {
-        private ImageView playlistCover;
+        private ImageView playlistCover, visibilityImage;
         private TextView playlistName, playlistMusicNum;
 
         public PlaylistViewHolder(@NonNull View itemView) {
@@ -81,6 +81,7 @@ public class PlaylistViewListAdapter extends RecyclerView.Adapter<PlaylistViewLi
             playlistCover = itemView.findViewById(R.id.item_playlist_cover);
             playlistName = itemView.findViewById(R.id.item_playlist_name);
             playlistMusicNum = itemView.findViewById(R.id.item_playlist_music_num);
+            visibilityImage = itemView.findViewById(R.id.item_playlist_visibility_image);
         }
 
         @SuppressLint({"SetTextI18n", "UseCompatLoadingForDrawables"})
@@ -90,6 +91,14 @@ public class PlaylistViewListAdapter extends RecyclerView.Adapter<PlaylistViewLi
             playlistName.setText(playlistModel.getName());
             int num = playlistModel.getMusicNum() == null ? 0 : playlistModel.getMusicNum();
             playlistMusicNum.setText(num + "首");
+            visibilityImage.setVisibility(View.VISIBLE);
+            if (playlistModel.getVisibility() == null || playlistModel.getVisibility() == 1) {
+                visibilityImage.setVisibility(View.INVISIBLE);
+            } else if (playlistModel.getVisibility() == 0) {
+                visibilityImage.setImageDrawable(itemView.getResources().getDrawable(R.drawable.ic_lock_white_24dp));
+            } else if (playlistModel.getVisibility() == 2) {
+                visibilityImage.setImageDrawable(itemView.getResources().getDrawable(R.drawable.ic_friends));
+            }
         }
     }
 }
