@@ -159,7 +159,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="10dp"
                 app:cardBackgroundColor="@color/card_bk_color"
-                app:cardCornerRadius="15dp">
+                app:cardCornerRadius="10dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -183,14 +183,14 @@
                             android:src="@drawable/ic_my_like" />
 
                         <de.hdodenhof.circleimageview.CircleImageView
-                            android:id="@+id/my_collection_playlist"
+                            android:id="@+id/my_latest_played"
                             android:layout_width="48dp"
-                            android:layout_height="40dp"
+                            android:layout_height="42dp"
                             android:layout_gravity="center"
                             android:scaleType="centerCrop"
                             android:layout_weight="1"
                             android:background="@android:color/transparent"
-                            android:src="@drawable/ic_collection_playlist_up" />
+                            android:src="@drawable/ic_latest_played" />
 
                         <de.hdodenhof.circleimageview.CircleImageView
                             android:id="@+id/local_playlist"
@@ -238,13 +238,13 @@
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="30dp"
                 app:cardBackgroundColor="@color/card_bk_color"
-                app:cardCornerRadius="15dp">
+                app:cardCornerRadius="10dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -282,7 +282,54 @@
 
 <!--                    歌单-->
                     <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/playlist_list"
+                        android:id="@+id/created_playlist_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="30dp"
+                        android:layout_marginRight="30dp" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="30dp"
+                app:cardBackgroundColor="@color/card_bk_color"
+                app:cardCornerRadius="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="40dp"
+                            android:layout_weight="12"
+                            android:text="收藏歌单"
+                            android:textColor="@color/white"
+                            android:textSize="20sp" />
+
+                    </LinearLayout>
+
+                    <!--                    歌单-->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/collection_playlist_list"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"

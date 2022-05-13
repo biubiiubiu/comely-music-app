@@ -26,7 +26,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -151,7 +150,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         nicknameTxt = view.findViewById(R.id.nickname);
         settingOrDetailsFrameBlank = view.findViewById(R.id.frame_blank_for_setting);
         ImageButton addPlaylist = view.findViewById(R.id.add_playlist);
-        playlistRecycleView = view.findViewById(R.id.playlist_list);
+        playlistRecycleView = view.findViewById(R.id.created_playlist_list);
 
         avatarImg.setOnClickListener(this);
         addPlaylist.setOnClickListener(this);
