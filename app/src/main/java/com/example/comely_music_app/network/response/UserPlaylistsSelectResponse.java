@@ -13,5 +13,5 @@ import lombok.Data;
  */
 @Data
 public class UserPlaylistsSelectResponse {
-    List<PlaylistModel> playlistModelList;
+    List<PlaylistModel> playlistInfoList;
 }

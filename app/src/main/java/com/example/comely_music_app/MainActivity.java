@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    @SuppressLint({"UseCompatLoadingForDrawables", "ResourceAsColor"})
+    @SuppressLint({"UseCompatLoadingForDrawables", "ResourceAsColor", "NotifyDataSetChanged"})
     private void setObserveOnPlayingViewModel() {
         // 切换播放状态
         playingViewModel.getIsPlayingLiveData().observe(this, isPlaying -> {
@@ -251,8 +251,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playingViewModel.getMusicListLiveData().observe(this, musicModels -> {
             if (musicModels != null && musicModels.size() != 0) {
                 viewPagerAdapter.setMusicModelList(musicModels);
-                // todo 把封面、歌词和MP3下载下来
-                Toast.makeText(getApplicationContext(), "获取了" + musicModels.size() + "首音乐", Toast.LENGTH_SHORT).show();
+                viewPagerAdapter.notifyDataSetChanged();
+//                Toast.makeText(getApplicationContext(), "获取了" + musicModels.size() + "首音乐", Toast.LENGTH_SHORT).show();
             }
         });
 

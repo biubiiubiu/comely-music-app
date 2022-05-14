@@ -2,6 +2,7 @@ package com.example.comely_music_app.ui;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,10 +58,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
         View inflateView = inflater.inflate(R.layout.fragment_playlist_details, container, false);
         initIcons(inflateView);
 
-        if (playlistViewModel != null) {
-            PlaylistModel model = playlistViewModel.getCurrentShowingPlaylist().getValue();
-            initDatas(model);
-        }
+        initDatas();
         return inflateView;
     }
 
@@ -72,9 +70,11 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
     }
 
     @SuppressLint("SetTextI18n")
-    public void initDatas(PlaylistModel model) {
-        if (model != null) {
-            musicNum.setText(model.getMusicNum()+"");
+    public void initDatas() {
+        // 刷新歌单基本信息
+        if (playlistViewModel != null && playlistViewModel.getCurrentShowingPlaylist() != null) {
+            PlaylistModel model = playlistViewModel.getCurrentShowingPlaylist();
+            musicNum.setText(model.getMusicNum() + "");
             if (model.getName() != null) {
                 playlistName.setText(model.getName());
             }
@@ -84,6 +84,10 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
             if (model.getDescription() != null) {
                 description.setText(model.getDescription());
             }
+        }
+        // 刷新歌单歌曲列表
+        if (playlistViewModel != null && playlistViewModel.getCurrentShowingMusicList() != null) {
+            Log.d("TAG", "initDatas: 展示歌曲列表");
         }
     }
 
@@ -100,7 +104,6 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
         view.findViewById(R.id.playlist_details_play_all).setOnClickListener(this);
         view.findViewById(R.id.playlist_details_multi_check).setOnClickListener(this);
         view.findViewById(R.id.playlist_details_share).setOnClickListener(this);
-        collectBtn.setOnClickListener(this);
     }
 
     @Override
@@ -117,6 +120,18 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
         } else if (v.getId() == R.id.playlist_details_share) {
             // 分享歌单
             Toast.makeText(getContext(), "抱歉，该功能暂未开放~", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void setCollectNotAllowed() {
+        if (collectBtn != null) {
+            collectBtn.setOnClickListener(v -> Toast.makeText(getContext(), "不能收藏自己的歌单哦~", Toast.LENGTH_SHORT).show());
+        }
+    }
+
+    public void setCollectAllowed() {
+        if (collectBtn != null) {
+            collectBtn.setOnClickListener(v -> Toast.makeText(getContext(), "收藏成功！", Toast.LENGTH_SHORT).show());
         }
     }
 }

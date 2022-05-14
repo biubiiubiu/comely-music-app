@@ -40,7 +40,10 @@ public class PlaylistViewListAdapter extends RecyclerView.Adapter<PlaylistViewLi
 
     public interface AdapterClickListener {
         void onClick(View itemView, int position);
+
         void onLongClick(View v, int position);
+
+        void onClickEditableBtn(View v, int position);
     }
 
 
@@ -53,7 +56,9 @@ public class PlaylistViewListAdapter extends RecyclerView.Adapter<PlaylistViewLi
 
     @Override
     public void onBindViewHolder(@NonNull PlaylistViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        holder.setDataOnView(playlistData.get(position));
+        if (playlistData != null && playlistData.size() >= position) {
+            holder.setDataOnView(playlistData.get(position));
+        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,6 +75,22 @@ public class PlaylistViewListAdapter extends RecyclerView.Adapter<PlaylistViewLi
                     listener.onLongClick(v, position);
                 }
                 return true;
+            }
+        });
+        holder.itemView.findViewById(R.id.item_playlist_editableBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onClickEditableBtn(v, position);
+                }
+            }
+        });
+        holder.itemView.findViewById(R.id.item_playlist_name).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.onClickEditableBtn(v, position);
+                }
             }
         });
 

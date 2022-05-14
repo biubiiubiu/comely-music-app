@@ -35,10 +35,12 @@ import com.example.comely_music_app.R;
 import com.example.comely_music_app.config.ShpConfig;
 import com.example.comely_music_app.network.request.PlaylistCreateRequest;
 import com.example.comely_music_app.network.request.PlaylistSelectRequest;
+import com.example.comely_music_app.network.request.PlaylistUpdateRequest;
 import com.example.comely_music_app.network.response.UserInfo;
 import com.example.comely_music_app.network.service.PlaylistService;
 import com.example.comely_music_app.network.service.impl.PlaylistServiceImpl;
 import com.example.comely_music_app.ui.adapter.PlaylistViewListAdapter;
+import com.example.comely_music_app.ui.enums.PlaylistSelectScene;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
@@ -47,6 +49,7 @@ import com.example.comely_music_app.utils.ShpUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -82,7 +85,6 @@ public class MyFragment extends Fragment implements View.OnClickListener {
 
         playlistService = new PlaylistServiceImpl(playlistViewModel);
         initIcons(view);
-        initDatas();
 
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
         playlistRecycleView.setLayoutManager(manager);
@@ -93,18 +95,28 @@ public class MyFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onClick(View itemView, int position) {
                 // 进入歌单界面
-                PlaylistModel playlistModel = adapter.getPlaylistData().get(position);
-                playlistViewModel.setCurrentShowingPlaylist(playlistModel);
+                PlaylistModel clickPlaylistItem = adapter.getPlaylistData().get(position);
+                String username = Objects.requireNonNull(getCurrentUserinfoFromShp()).getUsername();
+                PlaylistSelectRequest request = new PlaylistSelectRequest();
+                request.setUsername(username).setPlaylistName(clickPlaylistItem.getName());
+                playlistService.selectPlaylistAndMusicsByScene(request, PlaylistSelectScene.MY_CREATE_PLAYLIST);
             }
 
             @Override
             public void onLongClick(View v, int position) {
-                Log.d("TAG", "onClick: 长按了" + position);
                 // 删除当前歌单
                 showDeleteDialog(adapter.getPlaylistData().get(position).getName());
             }
+
+            @Override
+            public void onClickEditableBtn(View v, int position) {
+                // 修改当前歌单
+                PlaylistModel model = adapter.getPlaylistData().get(position);
+                showUpdateDialog(model.getName(), model.getVisibility());
+            }
         });
 
+        initDatas();
 
         // Lazy加载
         FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
@@ -193,29 +205,13 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         }
 
         if (playlistViewModel != null) {
-            playlistViewModel.getCreateSuccessFlag().observe(Objects.requireNonNull(mActivity),
-                    integer -> Toast.makeText(mActivity, "创建成功！", Toast.LENGTH_SHORT).show());
-        }
-
-        if (playlistViewModel != null) {
-            playlistViewModel.getCreateFailedFlag().observe(Objects.requireNonNull(mActivity),
-                    integer -> Toast.makeText(mActivity, "创建失败，请检查网络", Toast.LENGTH_SHORT).show());
-        }
-
-        if (playlistViewModel != null) {
-            playlistViewModel.getCurrentShowingPlaylist().observe(Objects.requireNonNull(mActivity),
+            playlistViewModel.getShowCreated().observe(Objects.requireNonNull(mActivity),
                     model -> myFragmentViewsCtrlLiveData.setValue(2));
+            playlistViewModel.getShowCollect().observe(Objects.requireNonNull(mActivity),
+                    model -> myFragmentViewsCtrlLiveData.setValue(3));
         }
 
-        if (playlistViewModel != null) {
-            playlistViewModel.getDeleteSuccessFlag().observe(Objects.requireNonNull(mActivity),
-                    integer -> Toast.makeText(mActivity, "删除成功！", Toast.LENGTH_SHORT).show());
-        }
-
-        if (playlistViewModel != null) {
-            playlistViewModel.getDeleteFailedFlag().observe(Objects.requireNonNull(mActivity),
-                    integer -> Toast.makeText(mActivity, "删除失败，请检查网络", Toast.LENGTH_SHORT).show());
-        }
+        observeOnSuccessToShowToast();
 
         myFragmentViewsCtrlLiveData.observe(Objects.requireNonNull(mActivity), integer -> {
             if (integer == 0) {
@@ -236,8 +232,21 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                     settingOrDetailsFrameBlank.setVisibility(View.VISIBLE);
                 }
             } else if (integer == 2) {
-                playlistDetailsFragment.initDatas(playlistViewModel.getCurrentShowingPlaylist().getValue());
-                // 歌单界面
+                playlistDetailsFragment.initDatas();
+                // 不可收藏
+                playlistDetailsFragment.setCollectNotAllowed();
+                // 自建歌单界面
+                FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+                ft.show(playlistDetailsFragment);
+                ft.commit();
+                if (!settingFragment.isVisible()) {
+                    settingOrDetailsFrameBlank.setVisibility(View.VISIBLE);
+                }
+            } else if (integer == 3) {
+                playlistDetailsFragment.initDatas();
+                // 可收藏
+                Log.d("TAG", "setObserveOnViewModels: 设置为可收藏");
+                // 自建歌单界面
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.show(playlistDetailsFragment);
                 ft.commit();
@@ -246,6 +255,38 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                 }
             }
         });
+    }
+
+    private void observeOnSuccessToShowToast() {
+        if (playlistViewModel != null) {
+            playlistViewModel.getCreateSuccessFlag().observe(Objects.requireNonNull(mActivity),
+                    integer -> Toast.makeText(mActivity, "创建成功！", Toast.LENGTH_SHORT).show());
+        }
+
+        if (playlistViewModel != null) {
+            playlistViewModel.getCreateFailedFlag().observe(Objects.requireNonNull(mActivity),
+                    integer -> Toast.makeText(mActivity, "创建失败，请检查网络", Toast.LENGTH_SHORT).show());
+        }
+
+        if (playlistViewModel != null) {
+            playlistViewModel.getDeleteSuccessFlag().observe(Objects.requireNonNull(mActivity),
+                    integer -> Toast.makeText(mActivity, "删除成功！", Toast.LENGTH_SHORT).show());
+        }
+
+        if (playlistViewModel != null) {
+            playlistViewModel.getDeleteFailedFlag().observe(Objects.requireNonNull(mActivity),
+                    integer -> Toast.makeText(mActivity, "删除失败，请检查网络", Toast.LENGTH_SHORT).show());
+        }
+
+        if (playlistViewModel != null) {
+            playlistViewModel.getUpdateSuccessFlag().observe(Objects.requireNonNull(mActivity),
+                    integer -> Toast.makeText(mActivity, "修改成功！", Toast.LENGTH_SHORT).show());
+        }
+
+        if (playlistViewModel != null) {
+            playlistViewModel.getUpdateFailedFlag().observe(Objects.requireNonNull(mActivity),
+                    integer -> Toast.makeText(mActivity, "修改失败，请检查网络", Toast.LENGTH_SHORT).show());
+        }
     }
 
     @Override
@@ -265,7 +306,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         TextView cancel = view.findViewById(R.id.dialog_create_cancel);
         TextView complete = view.findViewById(R.id.dialog_create_complete);
         EditText editText = view.findViewById(R.id.dialog_create_playlist_name);
-        RadioButton rb = view.findViewById(R.id.dialog_playlist_visibility_rb);
+        RadioButton rb = view.findViewById(R.id.dialog_create_playlist_visibility_rb);
 
         cancel.setOnClickListener(v -> {
             dialog.dismiss();
@@ -280,11 +321,52 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                 if (rb.isChecked()) {
                     visibility = 0;
                 }
-                Log.d("创建歌单", "onClick: 完成" + playlistName + " 可见性" + visibility);
                 PlaylistCreateRequest request = new PlaylistCreateRequest();
                 String username = Objects.requireNonNull(getCurrentUserinfoFromShp()).getUsername();
                 request.setName(playlistName).setUsername(username).setVisibility(visibility).setMusicNum(0);
                 playlistService.createPlaylist(request);
+                //... To-do
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+        //此处设置位置窗体大小，我这里设置为了手机屏幕宽度的4/5  注意一定要在show方法调用后再写设置窗口大小的代码，否则不起效果会
+        dialog.getWindow().setBackgroundDrawable(Objects.requireNonNull(mActivity).getDrawable(R.color.ps_color_transparent));
+        dialog.getWindow().setLayout((ScreenUtils.getScreenWidth(Objects.requireNonNull(mActivity)) / 5 * 4),
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void showUpdateDialog(String playlistName, Integer visibility) {
+        View view = LayoutInflater.from(mActivity).inflate(R.layout.dialog_update_playlist, null, false);
+        final AlertDialog dialog = new AlertDialog.Builder(Objects.requireNonNull(mActivity)).setView(view).create();
+
+        TextView cancel = view.findViewById(R.id.dialog_update_cancel);
+        TextView complete = view.findViewById(R.id.dialog_update_complete);
+        EditText editText = view.findViewById(R.id.dialog_update_playlist_name);
+        RadioButton rb = view.findViewById(R.id.dialog_update_playlist_visibility_rb);
+
+        cancel.setOnClickListener(v -> {
+            dialog.dismiss();
+        });
+
+        complete.setOnClickListener(v -> {
+            String newPlaylistName = editText.getText().toString();
+            int newVisibility = 1;
+            if (rb.isChecked()) {
+                newVisibility = 0;
+            }
+            if (newPlaylistName.length() == 0) {
+                Toast.makeText(mActivity, "歌单名称不能为空！", Toast.LENGTH_SHORT).show();
+            } else if (newPlaylistName.equals(playlistName) && newVisibility == visibility) {
+                Toast.makeText(mActivity, "您还未做出任何修改~", Toast.LENGTH_SHORT).show();
+            } else {
+                PlaylistUpdateRequest request = new PlaylistUpdateRequest();
+                String username = Objects.requireNonNull(getCurrentUserinfoFromShp()).getUsername();
+                request.setOldName(playlistName).setOldUsername(username)
+                        .setNewName(newPlaylistName).setVisibility(newVisibility);
+                playlistService.updatePlaylist(request);
                 //... To-do
                 dialog.dismiss();
             }
@@ -353,8 +435,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         String myCreatePlaylistStr = shp.getString(ShpConfig.MY_CREATE_PLAYLIST, "");
         if (!myCreatePlaylistStr.equals("")) {
             Gson gson = new Gson();
-            return gson.fromJson(myCreatePlaylistStr, new TypeToken<List<PlaylistModel>>() {
-            }.getType());
+            return gson.fromJson(myCreatePlaylistStr, new TypeToken<List<PlaylistModel>>() {}.getType());
         }
         return null;
     }
