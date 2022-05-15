@@ -97,14 +97,14 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColorHint="#96ffffff"
+            android:textColorHint="@color/btn_gray"
             android:theme="@style/EditScreenTextInputLayoutStyle">
 
             <EditText
                 android:id="@+id/username_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:drawableEnd="@drawable/ic_email_white_24dp"
+                android:drawableEnd="@drawable/ic_account"
                 android:drawablePadding="16dp"
                 android:fontFamily="@font/calibri"
                 android:hint="@string/username"
@@ -118,7 +118,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColorHint="#96ffffff"
+            android:textColorHint="@color/btn_gray"
             android:theme="@style/EditScreenTextInputLayoutStyle">
 
             <EditText
@@ -153,7 +153,7 @@
                 android:fontFamily="@font/calibri"
                 android:text="@string/sign_in"
                 android:textAllCaps="false"
-                android:textColor="#96ffffff"
+                android:textColor="@color/btn_gray"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -169,7 +169,7 @@
             android:fontFamily="@font/calibri"
             android:text="@string/forgot_password"
             android:textAlignment="center"
-            android:textColor="#96ffffff"
+            android:textColor="@color/btn_gray"
             android:textSize="16sp" />
 
 

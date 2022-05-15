@@ -38,14 +38,6 @@ public class PlaylistViewListAdapter extends RecyclerView.Adapter<PlaylistViewLi
         this.listener = listener;
     }
 
-    public interface AdapterClickListener {
-        void onClick(View itemView, int position);
-
-        void onLongClick(View v, int position);
-
-        void onClickEditableBtn(View v, int position);
-    }
-
 
     @NonNull
     @Override
@@ -89,7 +81,7 @@ public class PlaylistViewListAdapter extends RecyclerView.Adapter<PlaylistViewLi
             @Override
             public void onClick(View v) {
                 if (listener != null) {
-                    listener.onClickEditableBtn(v, position);
+                    listener.onClick(v, position);
                 }
             }
         });
@@ -123,8 +115,7 @@ public class PlaylistViewListAdapter extends RecyclerView.Adapter<PlaylistViewLi
 
         @SuppressLint({"SetTextI18n", "UseCompatLoadingForDrawables"})
         private void setDataOnView(PlaylistModel playlistModel) {
-            // todo 设置封面
-            playlistCover.setImageDrawable(itemView.getResources().getDrawable(R.drawable.avatar_music));
+            playlistCover.setImageDrawable(itemView.getResources().getDrawable(R.drawable.bk_01));
             playlistName.setText(playlistModel.getName());
             int num = playlistModel.getMusicNum() == null ? 0 : playlistModel.getMusicNum();
             playlistMusicNum.setText(num + "首");

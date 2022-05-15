@@ -127,7 +127,7 @@
                         android:layout_width="200dp"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="5dp"
-                        android:textColorHint="#96ffffff"
+                        android:textColorHint="@color/btn_gray"
                         android:theme="@style/EditScreenTextInputLayoutStyle">
 
                         <EditText
@@ -188,7 +188,7 @@
                 android:fontFamily="@font/calibri"
                 android:text="@string/confirm_update"
                 android:textAllCaps="false"
-                android:textColor="#96ffffff"
+                android:textColor="@color/btn_gray"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 tools:ignore="TouchTargetSizeCheck" />
@@ -208,7 +208,7 @@
                 android:fontFamily="@font/calibri"
                 android:text="@string/sign_out"
                 android:textAllCaps="false"
-                android:textColor="#96ffffff"
+                android:textColor="@color/btn_gray"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 tools:ignore="TouchTargetSizeCheck" />

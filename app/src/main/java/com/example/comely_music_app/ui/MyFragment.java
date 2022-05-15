@@ -39,6 +39,7 @@ import com.example.comely_music_app.network.request.PlaylistUpdateRequest;
 import com.example.comely_music_app.network.response.UserInfo;
 import com.example.comely_music_app.network.service.PlaylistService;
 import com.example.comely_music_app.network.service.impl.PlaylistServiceImpl;
+import com.example.comely_music_app.ui.adapter.AdapterClickListener;
 import com.example.comely_music_app.ui.adapter.PlaylistViewListAdapter;
 import com.example.comely_music_app.ui.enums.PlaylistSelectScene;
 import com.example.comely_music_app.ui.models.PlaylistModel;
@@ -49,7 +50,6 @@ import com.example.comely_music_app.utils.ShpUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -90,8 +90,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         playlistRecycleView.setLayoutManager(manager);
         List<PlaylistModel> myCreatePlaylistFromShp = getMyCreatePlaylistFromShp();
         adapter = new PlaylistViewListAdapter(myCreatePlaylistFromShp);
-        playlistRecycleView.setAdapter(adapter);
-        adapter.setListener(new PlaylistViewListAdapter.AdapterClickListener() {
+        adapter.setListener(new AdapterClickListener() {
             @Override
             public void onClick(View itemView, int position) {
                 // 进入歌单界面
@@ -115,6 +114,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                 showUpdateDialog(model.getName(), model.getVisibility());
             }
         });
+        playlistRecycleView.setAdapter(adapter);
 
         initDatas();
 

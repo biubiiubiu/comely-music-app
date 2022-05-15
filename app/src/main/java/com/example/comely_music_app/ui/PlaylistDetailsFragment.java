@@ -13,9 +13,13 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
+import com.example.comely_music_app.network.response.MusicSelectResponse;
+import com.example.comely_music_app.ui.adapter.AdapterClickListener;
+import com.example.comely_music_app.ui.adapter.MusicListAdapter;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
 
@@ -25,27 +29,14 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
     private ImageView playlistAvatar;
     private TextView playlistName, description, createdUsername, musicNum;
     private ImageButton collectBtn;
-    private RecyclerView musicListRecycle;
+    private RecyclerView musicListRecycleView;
     private PlaylistViewModel playlistViewModel;
+    private MusicListAdapter adapter;
 
     public PlaylistDetailsFragment(MutableLiveData<Integer> liveData, PlaylistViewModel viewModel) {
         myFragmentViewsCtrlLiveData = liveData;
         playlistViewModel = viewModel;
     }
-
-//    public MutableLiveData<PlaylistModel> getCurrentShowingPlaylist() {
-//        if (currentShowingPlaylist == null) {
-//            currentShowingPlaylist = new MutableLiveData<>();
-//        }
-//        return currentShowingPlaylist;
-//    }
-//
-//    public void setCurrentShowingPlaylist(PlaylistModel playlistModel) {
-//        if (currentShowingPlaylist == null) {
-//            currentShowingPlaylist = getCurrentShowingPlaylist();
-//        }
-//        currentShowingPlaylist.setValue(playlistModel);
-//    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,6 +49,38 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
         View inflateView = inflater.inflate(R.layout.fragment_playlist_details, container, false);
         initIcons(inflateView);
 
+        RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
+        musicListRecycleView.setLayoutManager(manager);
+        adapter = new MusicListAdapter(playlistViewModel.getCurrentShowingMusicList());
+        adapter.setListener(new AdapterClickListener() {
+            @Override
+            public void onClick(View itemView, int position) {
+                // 进入歌单界面
+                String name = "", artistName = "";
+                if (adapter.getMusicList() != null && adapter.getMusicList().size() >= position) {
+                    MusicSelectResponse.MusicInfo musicInfo = adapter.getMusicList().get(position);
+                    if (musicInfo != null) {
+                        name = musicInfo.getName();
+                        artistName = musicInfo.getArtistName();
+                    }
+                }
+                Log.d("TAG", "onClick: 播放音乐" + name + " - " + artistName);
+            }
+
+            @Override
+            public void onLongClick(View v, int position) {
+                // 删除当前歌单
+                Log.d("TAG", "onClick: 删除音乐");
+            }
+
+            @Override
+            public void onClickEditableBtn(View v, int position) {
+                // 修改当前歌单
+                Log.d("TAG", "onClick: 展示音乐版权");
+            }
+        });
+        musicListRecycleView.setAdapter(adapter);
+
         initDatas();
         return inflateView;
     }
@@ -69,7 +92,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
         playlistViewModel = null;
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint({"SetTextI18n", "NotifyDataSetChanged"})
     public void initDatas() {
         // 刷新歌单基本信息
         if (playlistViewModel != null && playlistViewModel.getCurrentShowingPlaylist() != null) {
@@ -87,6 +110,8 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
         }
         // 刷新歌单歌曲列表
         if (playlistViewModel != null && playlistViewModel.getCurrentShowingMusicList() != null) {
+            adapter.setMusicList(playlistViewModel.getCurrentShowingMusicList());
+            adapter.notifyDataSetChanged();
             Log.d("TAG", "initDatas: 展示歌曲列表");
         }
     }
@@ -98,7 +123,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
         description = view.findViewById(R.id.playlist_details_description);
         musicNum = view.findViewById(R.id.playlist_details_music_num);
         collectBtn = view.findViewById(R.id.playlist_details_collect);
-        musicListRecycle = view.findViewById(R.id.playlist_details_music_list);
+        musicListRecycleView = view.findViewById(R.id.playlist_details_music_list);
 
         view.findViewById(R.id.playlist_details_back).setOnClickListener(this);
         view.findViewById(R.id.playlist_details_play_all).setOnClickListener(this);
