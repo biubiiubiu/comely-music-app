@@ -21,7 +21,6 @@ import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.utils.CoverBkUtils;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**

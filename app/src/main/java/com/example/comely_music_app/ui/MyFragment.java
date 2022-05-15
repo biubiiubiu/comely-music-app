@@ -83,7 +83,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         userInfoViewModel = ViewModelProviders.of(mActivity, savedState).get(UserInfoViewModel.class);
         playlistViewModel = ViewModelProviders.of(mActivity, savedState).get(PlaylistViewModel.class);
 
-        playlistService = new PlaylistServiceImpl(playlistViewModel);
+        playlistService = new PlaylistServiceImpl(playlistViewModel, getContext());
         initIcons(view);
 
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
@@ -435,7 +435,8 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         String myCreatePlaylistStr = shp.getString(ShpConfig.MY_CREATE_PLAYLIST, "");
         if (!myCreatePlaylistStr.equals("")) {
             Gson gson = new Gson();
-            return gson.fromJson(myCreatePlaylistStr, new TypeToken<List<PlaylistModel>>() {}.getType());
+            return gson.fromJson(myCreatePlaylistStr, new TypeToken<List<PlaylistModel>>() {
+            }.getType());
         }
         return null;
     }

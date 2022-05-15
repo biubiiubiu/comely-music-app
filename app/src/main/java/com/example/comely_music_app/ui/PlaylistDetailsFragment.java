@@ -17,9 +17,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
-import com.example.comely_music_app.network.response.MusicSelectResponse;
 import com.example.comely_music_app.ui.adapter.AdapterClickListener;
 import com.example.comely_music_app.ui.adapter.MusicListAdapter;
+import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
 
@@ -58,10 +58,10 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
                 // 进入歌单界面
                 String name = "", artistName = "";
                 if (adapter.getMusicList() != null && adapter.getMusicList().size() >= position) {
-                    MusicSelectResponse.MusicInfo musicInfo = adapter.getMusicList().get(position);
-                    if (musicInfo != null) {
-                        name = musicInfo.getName();
-                        artistName = musicInfo.getArtistName();
+                    MusicModel musicModel = adapter.getMusicList().get(position);
+                    if (musicModel != null) {
+                        name = musicModel.getName();
+                        artistName = musicModel.getArtistName();
                     }
                 }
                 Log.d("TAG", "onClick: 播放音乐" + name + " - " + artistName);

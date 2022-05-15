@@ -3,7 +3,7 @@ package com.example.comely_music_app.ui.viewmodels;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.comely_music_app.network.response.MusicSelectResponse;
+import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.List;
 public class PlaylistViewModel extends ViewModel {
     private MutableLiveData<List<PlaylistModel>> myCreatedPlaylists;
     private PlaylistModel currentShowingPlaylist;
-    private List<MusicSelectResponse.MusicInfo> currentShowingMusicList;
+    private List<MusicModel> currentShowingMusicList;
 
     /**
      * 点击自建歌单/收藏歌单时+1，触发回调，展示歌单详情页
@@ -107,11 +107,11 @@ public class PlaylistViewModel extends ViewModel {
         this.currentShowingPlaylist = currentShowingPlaylist;
     }
 
-    public List<MusicSelectResponse.MusicInfo> getCurrentShowingMusicList() {
+    public List<MusicModel> getCurrentShowingMusicList() {
         return currentShowingMusicList;
     }
 
-    public void setCurrentShowingMusicList(List<MusicSelectResponse.MusicInfo> currentShowingMusicList) {
+    public void setCurrentShowingMusicList(List<MusicModel> currentShowingMusicList) {
         this.currentShowingMusicList = currentShowingMusicList;
     }
 

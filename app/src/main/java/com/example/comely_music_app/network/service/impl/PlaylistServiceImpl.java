@@ -1,5 +1,6 @@
 package com.example.comely_music_app.network.service.impl;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.example.comely_music_app.network.apis.PlaylistApi;
@@ -11,10 +12,14 @@ import com.example.comely_music_app.network.request.PlaylistSelectRequest;
 import com.example.comely_music_app.network.request.PlaylistUpdateRequest;
 import com.example.comely_music_app.network.response.PlaylistInfoWithMusicListResponse;
 import com.example.comely_music_app.network.response.UserPlaylistsSelectResponse;
+import com.example.comely_music_app.network.service.MusicService;
 import com.example.comely_music_app.network.service.PlaylistService;
 import com.example.comely_music_app.ui.enums.PlaylistSelectScene;
+import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
+
+import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -23,10 +28,12 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class PlaylistServiceImpl implements PlaylistService {
     private final PlaylistApi playlistApi;
     private final PlaylistViewModel playlistViewModel;
+    private final MusicService musicService;
 
-    public PlaylistServiceImpl(PlaylistViewModel viewModel) {
+    public PlaylistServiceImpl(PlaylistViewModel viewModel, Context context) {
         playlistApi = ApiManager.getInstance().getApiService(PlaylistApi.class);
         playlistViewModel = viewModel;
+        musicService = new MusicServiceImpl(context);
     }
 
     @Override
@@ -162,7 +169,9 @@ public class PlaylistServiceImpl implements PlaylistService {
                         if (scene.equals(PlaylistSelectScene.MY_CREATE_PLAYLIST)) {
                             // 展示用户自建歌单详情页
                             playlistViewModel.setCurrentShowingPlaylist(response.getPlaylistInfo());
-                            playlistViewModel.setCurrentShowingMusicList(response.getMusicInfoList());
+
+                            List<MusicModel> musicModelList = musicService.transMusicInfo2Models(response.getMusicInfoList());
+                            playlistViewModel.setCurrentShowingMusicList(musicModelList);
                             playlistViewModel.setShowCreated();
                         } else if (scene.equals(PlaylistSelectScene.COLLECT_PLAYLIST)) {
                             // 展示用户收藏歌单详情页

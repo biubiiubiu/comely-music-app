@@ -1,6 +1,7 @@
 package com.example.comely_music_app.ui.adapter;
 
 import android.annotation.SuppressLint;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -10,23 +11,27 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
-import com.example.comely_music_app.network.response.MusicSelectResponse;
+import com.example.comely_music_app.ui.models.MusicModel;
+import com.example.comely_music_app.utils.CoverBkUtils;
 
+import java.io.IOException;
 import java.util.List;
 
+import lombok.SneakyThrows;
+
 public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.MusicListHolder> {
-    private List<MusicSelectResponse.MusicInfo> musicList;
+    private List<MusicModel> musicList;
     private AdapterClickListener listener;
 
-    public MusicListAdapter(List<MusicSelectResponse.MusicInfo> list) {
+    public MusicListAdapter(List<MusicModel> list) {
         musicList = list;
     }
 
-    public List<MusicSelectResponse.MusicInfo> getMusicList() {
+    public List<MusicModel> getMusicList() {
         return musicList;
     }
 
-    public void setMusicList(List<MusicSelectResponse.MusicInfo> musicList) {
+    public void setMusicList(List<MusicModel> musicList) {
         this.musicList = musicList;
     }
 
@@ -41,6 +46,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.Musi
         return new MusicListHolder(itemView);
     }
 
+    @SneakyThrows
     @Override
     public void onBindViewHolder(@NonNull MusicListHolder holder, @SuppressLint("RecyclerView") int position) {
         if (musicList != null && musicList.size() >= position) {
@@ -106,10 +112,11 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.Musi
         }
 
         @SuppressLint("UseCompatLoadingForDrawables")
-        public void setDataOnView(MusicSelectResponse.MusicInfo musicInfo) {
-            musicCover.setImageDrawable(itemView.getResources().getDrawable(R.drawable.bk_01));
-            musicName.setText(musicInfo.getName());
-            artistName.setText(musicInfo.getArtistName() != null ? musicInfo.getArtistName() : "未知歌手");
+        public void setDataOnView(MusicModel musicModel) throws IOException {
+            Drawable imageSource = CoverBkUtils.getImageSourceFromMusicModel(musicModel, itemView);
+            musicCover.setImageDrawable(imageSource);
+            musicName.setText(musicModel.getName());
+            artistName.setText(musicModel.getArtistName() != null ? musicModel.getArtistName() : "未知歌手");
 
             // 默认样式
             moreBtn.setImageDrawable(itemView.getResources().getDrawable(R.drawable.ic_menu_three_point));

@@ -64,14 +64,6 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
         return NUM;
     }
 
-
-    @Override
-    public void onViewRecycled(@NonNull PlayingViewHolder holder) {
-        super.onViewRecycled(holder);
-
-        Log.d("TAG", "=============== onViewRecycled...回收.."+holder.getItemId());
-    }
-
     @NonNull
     @Override
     public PlayingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -81,82 +73,6 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
         Log.d("TAG", "onCreateViewHolder: create.....");
         return new PlayingViewHolder(item, playingViewModel);
     }
-
-    @Override
-    public void onBindViewHolder(@NonNull PlayingViewHolder holder, int position, @NonNull List<Object> payloads) {
-        super.onBindViewHolder(holder, position, payloads);
-
-        Log.d("TAG", "=============== onBindViewHolder: create....."+position);
-    }
-
-    @Override
-    public int findRelativeAdapterPositionIn(@NonNull RecyclerView.Adapter<? extends RecyclerView.ViewHolder> adapter, @NonNull RecyclerView.ViewHolder viewHolder, int localPosition) {
-
-        Log.d("TAG", "=============== onCreateViewHolder: create....."+localPosition);
-        return super.findRelativeAdapterPositionIn(adapter, viewHolder, localPosition);
-
-    }
-
-    @Override
-    public void setHasStableIds(boolean hasStableIds) {
-        Log.d("TAG", "=============== setHasStableIds.....");
-        super.setHasStableIds(hasStableIds);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        Log.d("TAG", "=============== getItemId....."+position);
-        return super.getItemId(position);
-    }
-
-    @Override
-    public boolean onFailedToRecycleView(@NonNull PlayingViewHolder holder) {
-        Log.d("TAG", "=============== onFailedToRecycleView.."+holder.getItemId());
-        return super.onFailedToRecycleView(holder);
-    }
-
-    @Override
-    public void onViewAttachedToWindow(@NonNull PlayingViewHolder holder) {
-        Log.d("TAG", "=============== onViewAttachedToWindow..."+holder.getItemId());
-        super.onViewAttachedToWindow(holder);
-    }
-
-    @Override
-    public void onViewDetachedFromWindow(@NonNull PlayingViewHolder holder) {
-        Log.d("TAG", "=============== onViewDetachedFromWindow.."+holder.getItemId());
-        super.onViewDetachedFromWindow(holder);
-    }
-
-    @Override
-    public void registerAdapterDataObserver(@NonNull RecyclerView.AdapterDataObserver observer) {
-        Log.d("TAG", "=============== registerAdapterDataObserver...");
-        super.registerAdapterDataObserver(observer);
-    }
-
-    @Override
-    public void unregisterAdapterDataObserver(@NonNull RecyclerView.AdapterDataObserver observer) {
-        Log.d("TAG", "=============== unregisterAdapterDataObserver....");
-        super.unregisterAdapterDataObserver(observer);
-    }
-
-    @Override
-    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-        Log.d("TAG", "=============== onAttachedToRecyclerView.....");
-        super.onAttachedToRecyclerView(recyclerView);
-    }
-
-    @Override
-    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
-        Log.d("TAG", "=============== onDetachedFromRecyclerView....");
-        super.onDetachedFromRecyclerView(recyclerView);
-    }
-
-    @Override
-    public void setStateRestorationPolicy(@NonNull StateRestorationPolicy strategy) {
-        Log.d("TAG", "=============== setStateRestorationPolicy.....");
-        super.setStateRestorationPolicy(strategy);
-    }
-
 
     /**
      * Retrofit2 MusicService，初始化一次音乐信息，一次获取NUM首

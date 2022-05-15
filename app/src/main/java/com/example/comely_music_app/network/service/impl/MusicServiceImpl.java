@@ -3,6 +3,7 @@ package com.example.comely_music_app.network.service.impl;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.comely_music_app.config.FileConfig;
 import com.example.comely_music_app.network.apis.MusicApi;
 import com.example.comely_music_app.network.base.ApiManager;
 import com.example.comely_music_app.network.base.BaseObserver;
@@ -14,7 +15,6 @@ import com.example.comely_music_app.network.response.MusicBatchCreateResponse;
 import com.example.comely_music_app.network.response.MusicSelectResponse;
 import com.example.comely_music_app.network.service.FileService;
 import com.example.comely_music_app.network.service.MusicService;
-import com.example.comely_music_app.config.FileConfig;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.viewmodels.MusicServiceViewModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
@@ -31,6 +31,7 @@ public class MusicServiceImpl implements MusicService {
     MusicApi musicApi = ApiManager.getInstance().getApiService(MusicApi.class);
     private final FileService fileService;
     private final Context context;
+    private final static String USERNAME = "admin";
 
     public MusicServiceImpl(Context context) {
         this.fileService = new FileServiceImpl();
@@ -46,7 +47,7 @@ public class MusicServiceImpl implements MusicService {
                 .subscribe(new BaseObserver<MusicSelectResponse>(true) {
                     @Override
                     public void onSuccess(MusicSelectResponse response) {
-                        List<MusicModel> modelList = getListFromResponse(response);
+                        List<MusicModel> modelList = transMusicInfo2Models(response.getMusicList());
                         // 放到modelview中
                         playingViewModel.setMusicListLiveData(modelList);
                     }
@@ -71,7 +72,7 @@ public class MusicServiceImpl implements MusicService {
                 .subscribe(new BaseObserver<MusicSelectResponse>(false) {
             @Override
             public void onSuccess(MusicSelectResponse response) {
-                List<MusicModel> modelList = getListFromResponse(response);
+                List<MusicModel> modelList = transMusicInfo2Models(response.getMusicList());
                 // 放到modelview中
                 playingViewModel.setMusicListLiveData(modelList);
             }
@@ -115,9 +116,9 @@ public class MusicServiceImpl implements MusicService {
                 });
     }
 
-    private List<MusicModel> getListFromResponse(MusicSelectResponse response) {
+    public List<MusicModel> transMusicInfo2Models(List<MusicSelectResponse.MusicInfo> musicInfoList) {
         List<MusicModel> modelList = new ArrayList<>();
-        for (MusicSelectResponse.MusicInfo info : response.getMusicList()) {
+        for (MusicSelectResponse.MusicInfo info : musicInfoList) {
             MusicModel model = new MusicModel();
             model.setName(info.getName());
             model.setArtistName(info.getArtistName());
@@ -146,7 +147,7 @@ public class MusicServiceImpl implements MusicService {
         File file = new File(FileConfig.BASE_PATH + storagePath);
         if (!file.exists()) {
             // 本地不存在就下载
-            fileService.downloadFile(context, "admin", storagePath);
+            fileService.downloadFile(context, USERNAME, storagePath);
         }
         return FileConfig.BASE_PATH + storagePath;
     }
