@@ -83,7 +83,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     }
 
     private void initNickname() {
-        UserInfo info = ShpUtils.getUserInfoFromShp(getActivity());
+        UserInfo info = ShpUtils.getCurrentUserinfoFromShp(getActivity());
         if (info != null) {
             // 加载用户名
             String nickname = info.getNickname();
@@ -117,22 +117,9 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         // 清除当前登录用户的username
         FragmentActivity activity = getActivity();
         if (activity != null) {
-            SharedPreferences shp = activity.getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
-
-            String userInfoStr = shp.getString(ShpConfig.CURRENT_USER, "");
-            SharedPreferences.Editor editor = shp.edit();
-            editor.putString(ShpConfig.CURRENT_USER, "");
-            editor.apply();
-
-//            // 清除本地用户自建歌单缓存
-            SharedPreferences.Editor editor1 = shp.edit();
-            editor1.putString(ShpConfig.MY_CREATE_PLAYLIST, "");
-            editor1.apply();
-
-            if (!userInfoStr.equals("")) {
-                Gson gson = new Gson();
-                UserInfo info = gson.fromJson(userInfoStr, UserInfo.class);
-                String username = info.getUsername();
+            UserInfo userInfo = ShpUtils.getCurrentUserinfoFromShp(activity);
+            if(userInfo!=null){
+                String username = userInfo.getUsername();
                 if (username != null && username.length() > 0) {
                     userService.logout(username);
                 }
@@ -147,7 +134,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
 
     private void updateUserInfo() {
         String nickname = nicknameEdit.getText().toString();
-        UserInfo oldInfo = ShpUtils.getUserInfoFromShp(getActivity());
+        UserInfo oldInfo = ShpUtils.getCurrentUserinfoFromShp(getActivity());
         if (oldInfo != null) {
             // todo 这里可以修改其它内容
             if (!nickname.equals(oldInfo.getNickname())) {
@@ -161,13 +148,4 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-//    private UserInfo getUserInfoFromShp() {
-//        SharedPreferences shp = Objects.requireNonNull(getActivity()).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
-//        String userInfoStr = shp.getString(ShpConfig.CURRENT_USER, "");
-//        if (!userInfoStr.equals("")) {
-//            Gson gson = new Gson();
-//            return gson.fromJson(userInfoStr, UserInfo.class);
-//        }
-//        return null;
-//    }
 }

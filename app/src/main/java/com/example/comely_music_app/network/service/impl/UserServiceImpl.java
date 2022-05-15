@@ -98,6 +98,7 @@ public class UserServiceImpl implements UserService {
         logout.subscribe(new BaseObserver<Void>(false) {
             @Override
             public void onSuccess(Void o) {
+                userInfoViewModel.setIsLogin(false);
                 Log.d("Logout", "onSuccess: 退出登录");
             }
 

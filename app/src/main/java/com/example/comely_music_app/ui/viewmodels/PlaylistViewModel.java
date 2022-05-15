@@ -3,7 +3,9 @@ package com.example.comely_music_app.ui.viewmodels;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.comely_music_app.network.request.PlaylistMusicAddRequest;
 import com.example.comely_music_app.ui.models.MusicModel;
+import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 
 import java.util.ArrayList;
@@ -12,8 +14,7 @@ import java.util.List;
 
 public class PlaylistViewModel extends ViewModel {
     private MutableLiveData<List<PlaylistModel>> myCreatedPlaylists;
-    private PlaylistModel currentShowingPlaylist;
-    private List<MusicModel> currentShowingMusicList;
+    private MutableLiveData<PlaylistDetailsModel> currentPlaylistDetails;
 
     /**
      * 点击自建歌单/收藏歌单时+1，触发回调，展示歌单详情页
@@ -71,6 +72,22 @@ public class PlaylistViewModel extends ViewModel {
         myCreatedPlaylists.setValue(values);
     }
 
+    public void deleteMusicInCurrentMusic(List<PlaylistMusicAddRequest.MusicAddInfo> musicAddInfoList) {
+        List<MusicModel> newMusicModelList = new ArrayList<>();
+        PlaylistDetailsModel currentDetails = getCurrentPlaylistDetails().getValue();
+        if (currentDetails != null && currentDetails.getMusicModelList() != null) {
+            for (MusicModel model : currentDetails.getMusicModelList()) {
+                PlaylistMusicAddRequest.MusicAddInfo info = new PlaylistMusicAddRequest.MusicAddInfo(model.getName(),
+                        model.getArtistName());
+                if (!musicAddInfoList.contains(info)) {
+                    newMusicModelList.add(model);
+                }
+            }
+            currentDetails.setMusicModelList(newMusicModelList);
+            setCurrentPlaylistDetails(currentDetails);
+        }
+    }
+
     public void updateCreatedPlaylistByName(String oldName, PlaylistModel model) {
         if (myCreatedPlaylists == null) {
             myCreatedPlaylists = getMyCreatedPlaylists();
@@ -98,21 +115,18 @@ public class PlaylistViewModel extends ViewModel {
     }
 
     // ===================================== 歌单详情界面数据 =============================================
-
-    public PlaylistModel getCurrentShowingPlaylist() {
-        return currentShowingPlaylist;
+    public MutableLiveData<PlaylistDetailsModel> getCurrentPlaylistDetails() {
+        if (currentPlaylistDetails == null) {
+            currentPlaylistDetails = new MutableLiveData<>();
+        }
+        return currentPlaylistDetails;
     }
 
-    public void setCurrentShowingPlaylist(PlaylistModel currentShowingPlaylist) {
-        this.currentShowingPlaylist = currentShowingPlaylist;
-    }
-
-    public List<MusicModel> getCurrentShowingMusicList() {
-        return currentShowingMusicList;
-    }
-
-    public void setCurrentShowingMusicList(List<MusicModel> currentShowingMusicList) {
-        this.currentShowingMusicList = currentShowingMusicList;
+    public void setCurrentPlaylistDetails(PlaylistDetailsModel detailsModel) {
+        if (currentPlaylistDetails == null) {
+            currentPlaylistDetails = getCurrentPlaylistDetails();
+        }
+        currentPlaylistDetails.setValue(detailsModel);
     }
 
 
@@ -242,22 +256,22 @@ public class PlaylistViewModel extends ViewModel {
 
 
     public void setShowCreated() {
-        if(showCreated == null ){
+        if (showCreated == null) {
             showCreated = getShowCreated();
         }
-        if(showCreated.getValue()==null){
+        if (showCreated.getValue() == null) {
             showCreated.setValue(0);
         }
-        showCreated.setValue(showCreated.getValue()+1);
+        showCreated.setValue(showCreated.getValue() + 1);
     }
 
     public void setShowCollect() {
-        if(showCollect ==null){
+        if (showCollect == null) {
             showCollect = getShowCollect();
         }
-        if(showCollect.getValue()==null){
+        if (showCollect.getValue() == null) {
             showCollect.setValue(0);
         }
-        showCollect.setValue(showCollect.getValue()+1);
+        showCollect.setValue(showCollect.getValue() + 1);
     }
 }

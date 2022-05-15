@@ -33,6 +33,7 @@ import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
 import com.example.comely_music_app.ui.enums.PageStatus;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
+import com.example.comely_music_app.utils.ShpUtils;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -146,7 +147,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ft.add(R.id.frame_blank, findingFragment);
         ft.commit();
 
-
         setObserveOnPlayingViewModel();
         setObserveOnUserInfoViewModel();
     }
@@ -191,10 +191,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void setObserveOnUserInfoViewModel() {
         userInfoViewModel.getIsLogin().observe(this, isLogin -> {
             if (isLogin != null && !isLogin) {
-                SharedPreferences shp = getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
-                @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = shp.edit();
-                editor.putString(ShpConfig.CURRENT_USER, "");
-                editor.apply();
+                // 退出登录 (注：登录成功动作在loginActivity里触发，这里只能触发settingFragment的退出登录)
+                // 清除当前用户信息缓存
+                ShpUtils.clearCurrentUserInfo(this);
+                // 清除用户所有自建歌单详情信息（包括音乐列表）
+                ShpUtils.clearAllCreatedPlaylistDetails(this);
+                // 清除用户自建歌单缓存,注意先后顺序
+                ShpUtils.clearCreatedPlaylist(this);
             }
         });
     }

@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.ui.models.MusicModel;
+import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.utils.CoverBkUtils;
 
 import java.io.IOException;
@@ -21,19 +22,23 @@ import java.util.List;
 import lombok.SneakyThrows;
 
 public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.MusicListHolder> {
-    private List<MusicModel> musicList;
+    private PlaylistDetailsModel playlistDetails;
     private AdapterClickListener listener;
 
-    public MusicListAdapter(List<MusicModel> list) {
-        musicList = list;
+    public MusicListAdapter(PlaylistDetailsModel details) {
+        playlistDetails = details;
     }
 
     public List<MusicModel> getMusicList() {
-        return musicList;
+        return playlistDetails.getMusicModelList();
+    }
+
+    public void setPlaylistDetails(PlaylistDetailsModel details) {
+        playlistDetails = details;
     }
 
     public void setMusicList(List<MusicModel> musicList) {
-        this.musicList = musicList;
+        playlistDetails.setMusicModelList(musicList);
     }
 
     public void setListener(AdapterClickListener listener) {
@@ -50,8 +55,9 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.Musi
     @SneakyThrows
     @Override
     public void onBindViewHolder(@NonNull MusicListHolder holder, @SuppressLint("RecyclerView") int position) {
-        if (musicList != null && musicList.size() >= position) {
-            holder.setDataOnView(musicList.get(position));
+        if (playlistDetails != null && playlistDetails.getMusicModelList() != null
+                && playlistDetails.getMusicModelList().size() >= position) {
+            holder.setDataOnView(playlistDetails.getMusicModelList().get(position));
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -91,7 +97,10 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.Musi
 
     @Override
     public int getItemCount() {
-        return musicList == null ? 0 : musicList.size();
+        if (playlistDetails != null) {
+            return playlistDetails.getMusicModelList() == null ? 0 : playlistDetails.getMusicModelList().size();
+        }
+        return 0;
     }
 
     public static class MusicListHolder extends RecyclerView.ViewHolder {

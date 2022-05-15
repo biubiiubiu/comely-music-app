@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,11 +18,20 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.example.comely_music_app.network.request.LoginRequest;
 import com.example.comely_music_app.network.response.UserInfo;
+import com.example.comely_music_app.network.service.PlaylistService;
 import com.example.comely_music_app.network.service.UserService;
+import com.example.comely_music_app.network.service.impl.PlaylistServiceImpl;
 import com.example.comely_music_app.network.service.impl.UserServiceImpl;
 import com.example.comely_music_app.config.ShpConfig;
+import com.example.comely_music_app.ui.models.PlaylistModel;
+import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
+import com.example.comely_music_app.utils.ShpUtils;
 import com.google.gson.Gson;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
     private TextView usernameText, passwordText, forget_password;
@@ -29,14 +39,18 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private String username, password;
 
     private UserService userService;
+    private PlaylistService playlistService;
     private UserInfoViewModel userInfoViewModel;
+    private PlaylistViewModel playlistViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         userInfoViewModel = ViewModelProviders.of(this).get(UserInfoViewModel.class);
+        playlistViewModel = ViewModelProviders.of(this).get(PlaylistViewModel.class);
         userService = new UserServiceImpl(userInfoViewModel);
+        playlistService = new PlaylistServiceImpl(playlistViewModel);
         initIcons();
         setObserveOnUserInfoLivedata();
     }
@@ -81,28 +95,37 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
         });
 
-        userInfoViewModel.getUserInfo().observe(this, new Observer<UserInfo>() {
-            @Override
-            public void onChanged(UserInfo userInfo) {
-                if (userInfo != null) {
-                    if (userInfo.getUsername() == null) {
-                        Toast.makeText(getApplicationContext(), "密码错误！", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getApplicationContext(), "登录成功！", Toast.LENGTH_SHORT).show();
+        userInfoViewModel.getUserInfo().observe(this, userInfo -> {
+            if (userInfo != null) {
+                if (userInfo.getUsername() == null) {
+                    Toast.makeText(getApplicationContext(), "密码错误！", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "登录成功！", Toast.LENGTH_SHORT).show();
 
-                        SharedPreferences shp = getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
-                        SharedPreferences.Editor editor = shp.edit();
-                        Gson gson = new Gson();
-                        String userInfoStr = gson.toJson(userInfo);
-                        editor.putString(ShpConfig.CURRENT_USER, userInfoStr);
-                        editor.apply();
-
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(intent);
-                    }
+                    ShpUtils.writeCurrentUserinfoToShp(this, userInfo);
+                    playlistService.selectAllCreatedPlaylistByUsername(userInfo.getUsername());
                 }
             }
         });
+
+        if (playlistViewModel != null) {
+            playlistViewModel.getMyCreatedPlaylists().observe(this, playlistModels -> {
+                // 写入shp，下次直接打开应用不需要联网就可以加载
+                ShpUtils.writeMyCreatePlaylistToShp(this, playlistModels);
+                userInfoViewModel.setIsLogin(true);
+            });
+        }
+
+        if (userInfoViewModel != null) {
+            userInfoViewModel.getIsLogin().observe(this, isLogin -> {
+                if (isLogin != null && isLogin) {
+                    // 登录成功 (注：退出登录动作在settingFragment里触发，loginActivity里面只有登录成功)
+                    // 跳转到main
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
     }
 
     private void checkUsernameAndPassword() {

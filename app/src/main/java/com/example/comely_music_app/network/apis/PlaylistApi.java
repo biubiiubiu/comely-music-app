@@ -2,6 +2,7 @@ package com.example.comely_music_app.network.apis;
 
 import com.example.comely_music_app.network.base.BaseResult;
 import com.example.comely_music_app.network.request.PlaylistCreateRequest;
+import com.example.comely_music_app.network.request.PlaylistMusicAddRequest;
 import com.example.comely_music_app.network.request.PlaylistSelectRequest;
 import com.example.comely_music_app.network.request.PlaylistUpdateRequest;
 import com.example.comely_music_app.network.response.PlaylistInfoWithMusicListResponse;
@@ -29,6 +30,9 @@ public interface PlaylistApi {
     @POST("generate/playlist/select-playlist-with-music-list")
     Observable<BaseResult<PlaylistInfoWithMusicListResponse>> selectPlaylistWithMusicList(@Body PlaylistSelectRequest request);
 
-//    @POST("generate/playlist/add-music-into-playlist")
-//    Observable<BaseResult<Void>> addMusicToPlaylist(@Body PlaylistMusicAddRequest request);
+    @POST("generate/playlist/add-music-into-playlist")
+    Observable<BaseResult<Void>> addMusicToPlaylist(@Body PlaylistMusicAddRequest request);
+
+    @POST("generate/playlist/delete-music-from-playlist")
+    Observable<BaseResult<Void>> deleteMusicFromPlaylist(@Body PlaylistMusicAddRequest request);
 }
