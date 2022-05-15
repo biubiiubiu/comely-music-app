@@ -124,6 +124,9 @@ public class MusicServiceImpl implements MusicService {
     }
 
     public List<MusicModel> transMusicInfo2Models(List<MusicSelectResponse.MusicInfo> musicInfoList) {
+        if (musicInfoList == null) {
+            return null;
+        }
         List<MusicModel> modelList = new ArrayList<>();
         for (MusicSelectResponse.MusicInfo info : musicInfoList) {
             MusicModel model = new MusicModel();

@@ -57,6 +57,7 @@ import java.util.Objects;
 public class MyFragment extends Fragment implements View.OnClickListener {
     private TextView nicknameTxt;
     private View settingOrDetailsFrameBlank;
+    private View appbar, scrollView;
     /**
      * 用于控制界面
      */
@@ -185,6 +186,8 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         ImageView avatarImg = view.findViewById(R.id.avatar_image);
         nicknameTxt = view.findViewById(R.id.nickname);
         settingOrDetailsFrameBlank = view.findViewById(R.id.frame_blank_for_setting);
+        appbar = view.findViewById(R.id.appbar);
+        scrollView = view.findViewById(R.id.my_nested_scroll_view);
         ImageButton addPlaylist = view.findViewById(R.id.add_playlist);
         playlistRecycleView = view.findViewById(R.id.created_playlist_list);
 
@@ -239,17 +242,13 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                 ft.hide(settingFragment);
                 ft.hide(playlistDetailsFragment);
                 ft.commit();
-                if (settingFragment.isVisible()) {
-                    settingOrDetailsFrameBlank.setVisibility(View.INVISIBLE);
-                }
+                hideSettingOrDetailsFrameBlank();
             } else if (integer == 1) {
                 // settings界面
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.show(settingFragment);
                 ft.commit();
-                if (!settingFragment.isVisible()) {
-                    settingOrDetailsFrameBlank.setVisibility(View.VISIBLE);
-                }
+                showSettingOrDetailsFrameBlank();
             } else if (integer == 2) {
                 playlistDetailsFragment.initDatas();
                 // 不可收藏
@@ -258,9 +257,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.show(playlistDetailsFragment);
                 ft.commit();
-                if (!settingFragment.isVisible()) {
-                    settingOrDetailsFrameBlank.setVisibility(View.VISIBLE);
-                }
+                showSettingOrDetailsFrameBlank();
             } else if (integer == 3) {
                 playlistDetailsFragment.initDatas();
                 // 可收藏
@@ -269,11 +266,34 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.show(playlistDetailsFragment);
                 ft.commit();
-                if (!settingFragment.isVisible()) {
-                    settingOrDetailsFrameBlank.setVisibility(View.VISIBLE);
-                }
+                showSettingOrDetailsFrameBlank();
             }
         });
+    }
+
+    private void showSettingOrDetailsFrameBlank() {
+
+        if (appbar.getVisibility() == View.VISIBLE) {
+            appbar.setVisibility(View.INVISIBLE);
+        }
+        if (scrollView.getVisibility() == View.VISIBLE) {
+            scrollView.setVisibility(View.INVISIBLE);
+        }
+        if (settingOrDetailsFrameBlank.getVisibility() == View.INVISIBLE) {
+            settingOrDetailsFrameBlank.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideSettingOrDetailsFrameBlank() {
+        if (appbar.getVisibility() == View.INVISIBLE) {
+            appbar.setVisibility(View.VISIBLE);
+        }
+        if (scrollView.getVisibility() == View.INVISIBLE) {
+            scrollView.setVisibility(View.VISIBLE);
+        }
+        if (settingOrDetailsFrameBlank.getVisibility() == View.VISIBLE) {
+            settingOrDetailsFrameBlank.setVisibility(View.INVISIBLE);
+        }
     }
 
     private void observeOnSuccessToShowToast() {

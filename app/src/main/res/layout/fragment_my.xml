@@ -141,6 +141,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/my_nested_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
@@ -177,9 +178,9 @@
                             android:layout_width="48dp"
                             android:layout_height="48dp"
                             android:layout_gravity="center"
-                            android:scaleType="centerCrop"
                             android:layout_weight="1"
                             android:background="@android:color/transparent"
+                            android:scaleType="centerCrop"
                             android:src="@drawable/ic_my_like" />
 
                         <de.hdodenhof.circleimageview.CircleImageView
@@ -187,9 +188,9 @@
                             android:layout_width="48dp"
                             android:layout_height="42dp"
                             android:layout_gravity="center"
-                            android:scaleType="centerCrop"
                             android:layout_weight="1"
                             android:background="@android:color/transparent"
+                            android:scaleType="centerCrop"
                             android:src="@drawable/ic_latest_played" />
 
                         <de.hdodenhof.circleimageview.CircleImageView
@@ -280,7 +281,7 @@
 
                     </LinearLayout>
 
-<!--                    歌单-->
+                    <!--                    歌单-->
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/created_playlist_list"
                         android:layout_width="match_parent"
@@ -298,7 +299,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="10dp"
-                android:layout_marginBottom="30dp"
+                android:layout_marginBottom="130dp"
                 app:cardBackgroundColor="@color/card_bk_color"
                 app:cardCornerRadius="10dp">
 
@@ -306,10 +307,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="20dp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -320,6 +317,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="40dp"
+                            android:layout_marginTop="20dp"
+                            android:layout_marginBottom="20dp"
                             android:layout_weight="12"
                             android:text="收藏歌单"
                             android:textColor="@color/white"
