@@ -13,11 +13,15 @@ import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
  */
 public class MusicModelProvider {
     private final MusicService musicService;
-    private final Context context;
 
     public MusicModelProvider(Context context) {
-        this.context = context;
+        // 用于oss不可用的情况
         musicService = new MusicServiceImpl(context);
+    }
+
+    public MusicModelProvider() {
+        // 用于oss可用的情况
+        musicService = new MusicServiceImpl();
     }
 
     /**

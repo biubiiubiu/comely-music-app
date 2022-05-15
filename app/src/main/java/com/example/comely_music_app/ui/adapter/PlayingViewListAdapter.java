@@ -35,6 +35,13 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
 
     private final PlayingViewModel playingViewModel;
 
+    public PlayingViewListAdapter(PlayingViewModel playingViewModel) {
+        this.playingViewModel = playingViewModel;
+        // 初始化各个item list的数据
+        modelProvider = new MusicModelProvider();
+        initMusicModelList();
+    }
+
     public PlayingViewListAdapter(Context applicationContext, PlayingViewModel playingViewModel) {
         this.playingViewModel = playingViewModel;
         // 初始化各个item list的数据

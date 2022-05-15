@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initIcon();
 
         viewPager.setOrientation(ORIENTATION_VERTICAL);
-        viewPagerAdapter = new PlayingViewListAdapter(getApplicationContext(), playingViewModel);
+        viewPagerAdapter = new PlayingViewListAdapter(playingViewModel);
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setPageTransformer(new ZoomOutPageTransformer());
         // 滑动页面时更改当前音乐

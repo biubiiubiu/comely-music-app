@@ -30,6 +30,12 @@ public class PlaylistServiceImpl implements PlaylistService {
     private final PlaylistViewModel playlistViewModel;
     private final MusicService musicService;
 
+    public PlaylistServiceImpl(PlaylistViewModel viewModel) {
+        playlistApi = ApiManager.getInstance().getApiService(PlaylistApi.class);
+        playlistViewModel = viewModel;
+        musicService = new MusicServiceImpl();
+    }
+
     public PlaylistServiceImpl(PlaylistViewModel viewModel, Context context) {
         playlistApi = ApiManager.getInstance().getApiService(PlaylistApi.class);
         playlistViewModel = viewModel;
@@ -167,15 +173,14 @@ public class PlaylistServiceImpl implements PlaylistService {
                     @Override
                     public void onSuccess(PlaylistInfoWithMusicListResponse response) {
                         if (scene.equals(PlaylistSelectScene.MY_CREATE_PLAYLIST)) {
-                            // 展示用户自建歌单详情页
                             playlistViewModel.setCurrentShowingPlaylist(response.getPlaylistInfo());
-
                             List<MusicModel> musicModelList = musicService.transMusicInfo2Models(response.getMusicInfoList());
                             playlistViewModel.setCurrentShowingMusicList(musicModelList);
+
+                            // 触发展示用户自建歌单详情页
                             playlistViewModel.setShowCreated();
                         } else if (scene.equals(PlaylistSelectScene.COLLECT_PLAYLIST)) {
-                            // 展示用户收藏歌单详情页
-
+                            // todo 展示用户收藏歌单详情页
                         }
                     }
 

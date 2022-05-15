@@ -16,12 +16,17 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.ui.adapter.AdapterClickListener;
 import com.example.comely_music_app.ui.adapter.MusicListAdapter;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
+import com.example.comely_music_app.utils.CoverBkUtils;
+
+import java.util.List;
+import java.util.Objects;
 
 public class PlaylistDetailsFragment extends Fragment implements View.OnClickListener {
     //    private MutableLiveData<PlaylistModel> currentShowingPlaylist;
@@ -110,7 +115,15 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
         }
         // 刷新歌单歌曲列表
         if (playlistViewModel != null && playlistViewModel.getCurrentShowingMusicList() != null) {
-            adapter.setMusicList(playlistViewModel.getCurrentShowingMusicList());
+            List<MusicModel> currentShowingMusicList = playlistViewModel.getCurrentShowingMusicList();
+
+//            MusicModel model = currentShowingMusicList.get(currentShowingMusicList.size() - 1);
+//            String lastMusicCoverPath = model.getCoverLocalPath();
+//            Glide.with(Objects.requireNonNull(getContext()))
+//                    .load(lastMusicCoverPath)
+//                    .into(playlistAvatar);
+
+            adapter.setMusicList(currentShowingMusicList);
             adapter.notifyDataSetChanged();
             Log.d("TAG", "initDatas: 展示歌曲列表");
         }

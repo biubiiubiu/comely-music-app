@@ -34,8 +34,15 @@ public class MusicServiceImpl implements MusicService {
     private final static String USERNAME = "admin";
 
     public MusicServiceImpl(Context context) {
+        // 用于oss可用的情况
         this.fileService = new FileServiceImpl();
         this.context = context;
+    }
+
+    public MusicServiceImpl() {
+        // 用于oss不可用的情况
+        this.fileService = new FileServiceImpl();
+        this.context = null;
     }
 
 
@@ -70,23 +77,23 @@ public class MusicServiceImpl implements MusicService {
         musicListByTags.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new BaseObserver<MusicSelectResponse>(false) {
-            @Override
-            public void onSuccess(MusicSelectResponse response) {
-                List<MusicModel> modelList = transMusicInfo2Models(response.getMusicList());
-                // 放到modelview中
-                playingViewModel.setMusicListLiveData(modelList);
-            }
+                    @Override
+                    public void onSuccess(MusicSelectResponse response) {
+                        List<MusicModel> modelList = transMusicInfo2Models(response.getMusicList());
+                        // 放到modelview中
+                        playingViewModel.setMusicListLiveData(modelList);
+                    }
 
-            @Override
-            public void onFail(int errorCode, String errorMsg, MusicSelectResponse response) {
+                    @Override
+                    public void onFail(int errorCode, String errorMsg, MusicSelectResponse response) {
 
-            }
+                    }
 
-            @Override
-            public void onError(String msg) {
+                    @Override
+                    public void onError(String msg) {
 
-            }
-        });
+                    }
+                });
     }
 
 
@@ -147,7 +154,11 @@ public class MusicServiceImpl implements MusicService {
         File file = new File(FileConfig.BASE_PATH + storagePath);
         if (!file.exists()) {
             // 本地不存在就下载
-            fileService.downloadFile(context, USERNAME, storagePath);
+            if (context != null) {
+                fileService.downloadFile(context, USERNAME, storagePath);
+            } else {
+                return null;
+            }
         }
         return FileConfig.BASE_PATH + storagePath;
     }

@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.utils.CoverBkUtils;
@@ -114,7 +115,9 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.Musi
         @SuppressLint("UseCompatLoadingForDrawables")
         public void setDataOnView(MusicModel musicModel) throws IOException {
             Drawable imageSource = CoverBkUtils.getImageSourceFromMusicModel(musicModel, itemView);
-            musicCover.setImageDrawable(imageSource);
+            Glide.with(itemView.getContext())
+                    .load(imageSource)
+                    .into(musicCover);
             musicName.setText(musicModel.getName());
             artistName.setText(musicModel.getArtistName() != null ? musicModel.getArtistName() : "未知歌手");
 
