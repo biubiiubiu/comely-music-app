@@ -2,7 +2,6 @@ package com.example.comely_music_app.ui.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.media.MediaMetadataRetriever;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,9 +15,7 @@ import com.example.comely_music_app.network.request.MusicSelectByTagsRequest;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.provider.MusicModelProvider;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
-import com.example.comely_music_app.utils.FileOperationUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -188,30 +185,7 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
         if (musicModelList != null) {
             MusicModel currentModel = musicModelList.get(position);
             holder.setTitle(currentModel.getName());
-            String coverPath = currentModel.getCoverLocalPath();
-            if (coverPath == null) {
-                String audioPath = currentModel.getAudioLocalPath();
-                coverPath = audioPath.substring(0, audioPath.lastIndexOf(".")) + ".jpg";
-            }
-            File file = new File(coverPath);
-            if (!file.exists()) {
-                // 如果没有指定封面，就从mp3内嵌图片中获取图片
-                String audioLocalPath = musicModelList.get(position).getAudioLocalPath();
-                MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-                mmr.setDataSource(audioLocalPath);
-                byte[] embedCover = mmr.getEmbeddedPicture();
-                if (embedCover != null && embedCover.length > 0) {
-                    FileOperationUtils.writeBytesToFile(embedCover, coverPath);
-                } else {
-                    // 使用默认图片作为封面
-                    int index = (int) (Math.random() * 7) + 1;
-                    holder.setDefaultCoverAndBk(index);
-//                    holder.setDefaultBk(index);
-//                    holder.setDefaultCover(index);
-                    return;
-                }
-            }
-            holder.setCoverAndBkFromPath(coverPath);
+            holder.setCoverAndBk(currentModel);
         }
     }
 }
