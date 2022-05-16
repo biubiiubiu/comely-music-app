@@ -179,10 +179,11 @@ public class PlaylistServiceImpl implements PlaylistService {
                         if (scene.equals(PlaylistSelectScene.MY_CREATE_PLAYLIST)) {
                             List<MusicModel> musicModelList = musicService.transMusicInfo2Models(response.getMusicInfoList());
                             PlaylistDetailsModel currentDetails = playlistViewModel.getCurrentPlaylistDetails().getValue();
-                            if (currentDetails != null) {
-                                currentDetails.setPlaylistInfo(response.getPlaylistInfo());
-                                currentDetails.setMusicModelList(musicModelList);
+                            if (currentDetails == null) {
+                                currentDetails = new PlaylistDetailsModel();
                             }
+                            currentDetails.setPlaylistInfo(response.getPlaylistInfo());
+                            currentDetails.setMusicModelList(musicModelList);
                             playlistViewModel.setCurrentPlaylistDetails(currentDetails);
                         } else if (scene.equals(PlaylistSelectScene.COLLECT_PLAYLIST)) {
                             // todo 展示用户收藏歌单详情页

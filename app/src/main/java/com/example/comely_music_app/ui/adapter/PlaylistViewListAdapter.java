@@ -38,7 +38,6 @@ public class PlaylistViewListAdapter extends RecyclerView.Adapter<PlaylistViewLi
         this.listener = listener;
     }
 
-
     @NonNull
     @Override
     public PlaylistViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

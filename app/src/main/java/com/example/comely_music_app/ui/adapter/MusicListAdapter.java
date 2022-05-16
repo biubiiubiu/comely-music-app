@@ -37,6 +37,10 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.Musi
         playlistDetails = details;
     }
 
+    public PlaylistDetailsModel getPlaylistDetails() {
+        return playlistDetails;
+    }
+
     public void setMusicList(List<MusicModel> musicList) {
         playlistDetails.setMusicModelList(musicList);
     }

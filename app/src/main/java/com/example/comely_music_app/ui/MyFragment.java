@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -237,6 +238,16 @@ public class MyFragment extends Fragment implements View.OnClickListener {
             });
             playlistViewModel.getShowCollect().observe(Objects.requireNonNull(mActivity),
                     model -> myFragmentViewsCtrlLiveData.setValue(3));
+        }
+
+        if (playlistViewModel != null) {
+            playlistViewModel.getCurrentPlaylistDetails().observe(Objects.requireNonNull(mActivity), new Observer<PlaylistDetailsModel>() {
+                @Override
+                public void onChanged(PlaylistDetailsModel detailsModel) {
+                    PlaylistModel playlistInfo = detailsModel.getPlaylistInfo();
+                    playlistViewModel.updateCreatedPlaylistByName(playlistInfo.getName(), playlistInfo);
+                }
+            });
         }
 
         observeOnSuccessToShowToast();

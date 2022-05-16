@@ -143,18 +143,9 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
             playlistViewModel.getCurrentPlaylistDetails().observe(mActivity, detailsModel -> {
                 adapter.setPlaylistDetails(detailsModel);
                 ShpUtils.writePlaylistDetailsIntoShp(mActivity, detailsModel);
-                adapter.notifyDataSetChanged();
+                // initDatas()包含adapter.notifyDataSetChanged();
+                initDatas();
             });
-//            playlistViewModel.getCurrentShowingMusicList().observe(mActivity, musicModels -> {
-//                adapter.setMusicList(musicModels);
-//                // 写入Shp
-//                PlaylistDetailsModel detailsModel = new PlaylistDetailsModel();
-//                PlaylistModel currentShowingPlaylist = playlistViewModel.getCurrentShowingPlaylist();
-//                detailsModel.setPlaylistInfo(currentShowingPlaylist);
-//                detailsModel.setMusicModelList(musicModels);
-//                ShpUtils.writePlaylistDetailsIntoShp(mActivity, detailsModel);
-//                adapter.notifyDataSetChanged();
-//            });
         }
     }
 
@@ -183,6 +174,9 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
             request.setMusicAddInfoList(infos);
             // 删除数据库歌曲
             playlistService.deleteMusicFromPlaylist(request);
+
+            // 触发删除shp
+            playlistViewModel.deleteMusicInCurrentMusic(infos);
             //... To-do
             dialog.dismiss();
         });

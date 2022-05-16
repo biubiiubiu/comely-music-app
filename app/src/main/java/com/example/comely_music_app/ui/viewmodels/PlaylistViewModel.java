@@ -84,6 +84,7 @@ public class PlaylistViewModel extends ViewModel {
                 }
             }
             currentDetails.setMusicModelList(newMusicModelList);
+            currentDetails.getPlaylistInfo().setMusicNum(newMusicModelList.size());
             setCurrentPlaylistDetails(currentDetails);
         }
     }
