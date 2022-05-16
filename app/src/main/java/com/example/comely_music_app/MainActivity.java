@@ -19,7 +19,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
@@ -35,7 +34,6 @@ import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
 import com.example.comely_music_app.ui.animation.DepthPageTransformer;
 import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
 import com.example.comely_music_app.ui.enums.PageStatus;
-import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
 import com.example.comely_music_app.utils.ShpUtils;
@@ -51,11 +49,11 @@ import lombok.SneakyThrows;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private FragmentManager manager;
 
+    private TextView playerModuleTxt;
+    private ImageButton checkModuleBtn;
+
     private View frameBlank;
     private ImageButton playPauseBtn;
-
-    // 进度条
-    SeekBar seekBar;
 
     private ViewPager2 viewPagerEndlessModule, viewPagerPlaylistModule;
     private PlayingViewListAdapter viewPagerAdapterEndlessModule, viewPagerAdapterPlaylistModule;
@@ -307,6 +305,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (viewPagerPlaylistModule != null) {
                     viewPagerPlaylistModule.setVisibility(View.INVISIBLE);
                 }
+                checkModuleBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_endless_module));
+                playerModuleTxt.setText("随机推荐");
             }
             if (module.equals(PlayerModule.PLAYLIST)) {
                 // 显示歌单播放的viewpager
@@ -316,6 +316,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (viewPagerPlaylistModule != null) {
                     viewPagerPlaylistModule.setVisibility(View.VISIBLE);
                 }
+                checkModuleBtn.setImageDrawable(getResources().getDrawable(R.drawable.ps_ic_normal_back));
+                playerModuleTxt.setText("歌单模式");
             }
         });
     }
@@ -347,29 +349,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         viewPagerPlaylistModule.setPageTransformer(new ZoomOutPageTransformer());
         viewPagerPlaylistModule.setVisibility(View.INVISIBLE);
 
-        seekBar = findViewById(R.id.process_sb);
+        playerModuleTxt = findViewById(R.id.player_module_txt);
+        checkModuleBtn = findViewById(R.id.check_module_btn);
 
         playPauseBtn.setOnClickListener(this);
         findBtn.setOnClickListener(this);
         myBtn.setOnClickListener(this);
 
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // 进度变化回调
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                // 触碰
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // 放开
-                playingViewModel.setCurrentPointFromUser(seekBar.getProgress());
-            }
-        });
     }
 
 
@@ -382,6 +368,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             playingViewModel.changePageStatusLiveData(PageStatus.FINDING);
         } else if (v.getId() == R.id.my_btn) {
             playingViewModel.changePageStatusLiveData(PageStatus.MY);
+        } else if (v.getId() == R.id.check_module_btn) {
+            if (playingViewModel != null && PlayerModule.PLAYLIST.equals(playingViewModel.getPlayerModule().getValue())) {
+                playingViewModel.setPlayerModule(PlayerModule.ENDLESS);
+            }
         }
     }
 

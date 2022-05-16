@@ -23,6 +23,7 @@
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/drawable/ic_download_btn.xml" value="0.38229166666666664" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/drawable/ic_editable.xml" value="0.3764102564102564" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/drawable/ic_email_white_24dp.xml" value="0.3764102564102564" />
+        <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/drawable/ic_endless_module.xml" value="0.3764102564102564" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/drawable/ic_find_down.xml" value="0.38229166666666664" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/drawable/ic_find_up.xml" value="0.38229166666666664" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/drawable/ic_finding_down.xml" value="0.38229166666666664" />
@@ -48,6 +49,7 @@
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/drawable/ic_notifications_black_24dp.xml" value="0.36770833333333336" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/drawable/ic_pause.xml" value="0.38229166666666664" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/drawable/ic_play.xml" value="0.38229166666666664" />
+        <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/drawable/ic_playlist_module.xml" value="0.3764102564102564" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/drawable/ic_process_sb.xml" value="0.20260416666666667" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/drawable/ic_search.xml" value="0.1" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/drawable/ic_set.xml" value="0.38229166666666664" />
@@ -61,6 +63,7 @@
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/layout/activity_main2.xml" value="0.536" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/layout/content_layout.xml" value="0.11070110701107011" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/layout/content_navigation.xml" value="0.171875" />
+        <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/layout/dialog_check_module.xml" value="0.264" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/layout/dialog_create_playlist.xml" value="0.25" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/layout/dialog_delete_playlist.xml" value="0.4" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/layout/dialog_update_playlist.xml" value="0.17806484295845998" />
@@ -75,7 +78,7 @@
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/layout/fragment_playlist_details.xml" value="0.264" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/layout/fragment_setting.xml" value="0.264" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/layout/fragment_text.xml" value="0.25679347826086957" />
-        <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/layout/item_playing_view.xml" value="0.2" />
+        <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/layout/item_playing_view.xml" value="0.264" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/layout/item_playlist.xml" value="0.2" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/layout/item_playlist_or_music.xml" value="0.536" />
         <entry key="..\:/comely-music-project/comely-music-app/app/src/main/res/layout/item_playlist_view.xml" value="0.20572916666666666" />

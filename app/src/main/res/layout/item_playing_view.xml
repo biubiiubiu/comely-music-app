@@ -12,8 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:cardBackgroundColor="@color/ps_color_transparent"
-        app:cardElevation="2dp"
-        app:cardCornerRadius="20dp">
+        app:cardCornerRadius="20dp"
+        app:cardElevation="2dp">
 
         <LinearLayout
             android:id="@+id/item_plying_bk"
@@ -22,35 +22,10 @@
             android:background="@drawable/bk_01"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center">
-
-                <ImageButton
-                    android:id="@+id/check_module"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_weight="1"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/ic_check_module"
-                    tools:ignore="SpeakableTextPresentCheck" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="5" />
-
-                <ImageButton
-                    android:id="@+id/search_btn"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_weight="1"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/ic_search"
-                    tools:ignore="SpeakableTextPresentCheck" />
-            </LinearLayout>
+                android:layout_weight="1" />
 
             <TextView
                 android:id="@+id/music_title_text"
@@ -163,6 +138,41 @@
                 <!--                android:thumb="@drawable/sb_thumb" />-->
                 <!--        </LinearLayout>-->
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_weight="1"
+                    android:text="00:00"
+                    android:textColor="@color/gray" />
+
+                <TextView
+                    android:id="@+id/playing_total_duration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="25dp"
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:text="00:00"
+                    android:textColor="@color/gray" />
+
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/process_sb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:maxHeight="5.0dp"
+                android:minHeight="5.0dp"
+                android:progressDrawable="@drawable/sb_bar"
+                android:thumb="@drawable/sb_thumb" />
 
             <LinearLayout
                 android:layout_width="match_parent"

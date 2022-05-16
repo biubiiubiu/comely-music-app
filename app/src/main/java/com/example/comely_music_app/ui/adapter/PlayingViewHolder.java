@@ -9,10 +9,12 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
@@ -30,13 +32,14 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
     Context TAG;
     View itemView;
     // 这里按照界面布局从上往下写，代码可读性好
-    ImageButton checkModuleBtn, searchBtn;
-
     FrameLayout blankFrame;
     TextView titleText, lyrics;
     ImageView coverImage;
 
     ImageButton likeBtn, commentBtn, downloadBtn, moreBtn;
+
+    // 进度条
+    SeekBar seekBar;
 
     private final PlayingViewModel playingViewModel;
     private boolean showCover;
@@ -58,8 +61,6 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
 
     @SuppressLint("ResourceType")
     private void initViewBind(View itemView) {
-        checkModuleBtn = itemView.findViewById(R.id.check_module);
-        searchBtn = itemView.findViewById(R.id.search_btn);
         titleText = itemView.findViewById(R.id.music_title_text);
         coverImage = itemView.findViewById(R.id.music_cover_img);
         likeBtn = itemView.findViewById(R.id.like_btn);
@@ -69,12 +70,12 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
 
         blankFrame = itemView.findViewById(R.id.frame_blank_for_cover_lyrics);
         lyrics = itemView.findViewById(R.id.lyrics);
+
+        seekBar = itemView.findViewById(R.id.process_sb);
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private void setOnClick() {
-        checkModuleBtn.setOnClickListener(v -> Toast.makeText(TAG, "切换模式", Toast.LENGTH_SHORT).show());
-        searchBtn.setOnClickListener(v -> search());
         blankFrame.setOnTouchListener(new MyClickListener(new MyClickListener.MyClickCallBack() {
             @Override
             public void oneClick() {
@@ -90,6 +91,24 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
         commentBtn.setOnClickListener(v -> comment());
         downloadBtn.setOnClickListener(v -> download());
         moreBtn.setOnClickListener(v -> getMore());
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // 进度变化回调
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // 触碰
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // 放开
+                playingViewModel.setCurrentPointFromUser(seekBar.getProgress());
+            }
+        });
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
