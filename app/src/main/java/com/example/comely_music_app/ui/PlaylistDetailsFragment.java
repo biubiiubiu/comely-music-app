@@ -22,7 +22,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -54,7 +53,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
     private ImageButton collectBtn;
     private RecyclerView musicListRecycleView;
     private PlaylistViewModel playlistViewModel;
-    private MusicListAdapter adapter;
+    private MusicListAdapter musicListAdapter;
     private FragmentActivity mActivity;
     private final PlaylistService playlistService;
 
@@ -96,14 +95,14 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
 
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
         musicListRecycleView.setLayoutManager(manager);
-        adapter = new MusicListAdapter(playlistViewModel.getCurrentPlaylistDetails().getValue());
-        adapter.setListener(new AdapterClickListener() {
+        musicListAdapter = new MusicListAdapter(playlistViewModel.getCurrentPlaylistDetails().getValue());
+        musicListAdapter.setListener(new AdapterClickListener() {
             @Override
             public void onClick(View itemView, int position) {
                 // 进入歌单界面
                 String name = "", artistName = "";
-                if (adapter.getMusicList() != null && adapter.getMusicList().size() >= position) {
-                    MusicModel musicModel = adapter.getMusicList().get(position);
+                if (musicListAdapter.getMusicList() != null && musicListAdapter.getMusicList().size() >= position) {
+                    MusicModel musicModel = musicListAdapter.getMusicList().get(position);
                     if (musicModel != null) {
                         name = musicModel.getName();
                         artistName = musicModel.getArtistName();
@@ -118,7 +117,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
                 PlaylistDetailsModel detailsModel = playlistViewModel.getCurrentPlaylistDetails().getValue();
                 if (detailsModel != null && detailsModel.getPlaylistInfo() != null) {
                     String playlistName = detailsModel.getPlaylistInfo().getName();
-                    showDeleteDialog(playlistName, adapter.getMusicList().get(position));
+                    showDeleteDialog(playlistName, musicListAdapter.getMusicList().get(position));
                     Log.d("TAG", "onClick: 删除音乐");
                 }
             }
@@ -129,7 +128,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
                 Log.d("TAG", "onClick: 展示音乐版权");
             }
         });
-        musicListRecycleView.setAdapter(adapter);
+        musicListRecycleView.setAdapter(musicListAdapter);
 
         initDatas();
 
@@ -141,7 +140,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
     private void setObserveOnViewModels() {
         if (playlistViewModel != null) {
             playlistViewModel.getCurrentPlaylistDetails().observe(mActivity, detailsModel -> {
-                adapter.setPlaylistDetails(detailsModel);
+                musicListAdapter.setPlaylistDetails(detailsModel);
                 ShpUtils.writePlaylistDetailsIntoShp(mActivity, detailsModel);
                 // initDatas()包含adapter.notifyDataSetChanged();
                 initDatas();
@@ -210,7 +209,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
 
             if (currentShowingMusicList != null) {
                 musicNum.setText(currentShowingMusicList.size() + "首");
-                adapter.setMusicList(currentShowingMusicList);
+                musicListAdapter.setMusicList(currentShowingMusicList);
             }
 //            MusicModel model = currentShowingMusicList.get(currentShowingMusicList.size() - 1);
 //            String lastMusicCoverPath = model.getCoverLocalPath();
@@ -218,7 +217,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
 //                    .load(lastMusicCoverPath)
 //                    .into(playlistAvatar);
 
-            adapter.notifyDataSetChanged();
+            musicListAdapter.notifyDataSetChanged();
             Log.d("TAG", "initDatas: 展示歌曲列表");
         }
     }

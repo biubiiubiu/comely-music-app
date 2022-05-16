@@ -10,7 +10,12 @@
 
 
     <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewpage_playing"
+        android:id="@+id/viewpage_playing_endless_module"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewpage_playing_playlist_module"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

@@ -5,8 +5,8 @@ import android.app.Application;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.SavedStateHandle;
 
+import com.example.comely_music_app.enums.PlayerModule;
 import com.example.comely_music_app.ui.enums.PageStatus;
 import com.example.comely_music_app.ui.models.MusicModel;
 
@@ -24,21 +24,18 @@ public class PlayingViewModel extends AndroidViewModel {
     private MutableLiveData<Boolean> isLikeLiveData;
 
     //=========== 读取数据库 ================
-    private MutableLiveData<List<MusicModel>> musicListLiveData;
+    private MutableLiveData<List<MusicModel>> musicListLiveData_endlessModule, musicListLiveData_playlistModule;
     private MutableLiveData<MusicModel> currentMusic;
-//    private final SavedStateHandle handle;
 
-    public PlayingViewModel(@Nullable Application application, SavedStateHandle handle) {
+    private MutableLiveData<PlayerModule> playerModule;
+
+    public PlayingViewModel(@Nullable Application application) {
         super(Objects.requireNonNull(application));
     }
 
     // ============================ getter ===============================================
 
     public MutableLiveData<PageStatus> getPageStatusLiveData() {
-//        if (!handle.contains(MainActivity.KEY_PAGE_STATUS)) {
-//            handle.set(MainActivity.KEY_PAGE_STATUS, PageStatus.PLAYING);
-//        }
-//        return handle.getLiveData(MainActivity.KEY_PAGE_STATUS);
         if (pageStatusLiveData == null) {
             pageStatusLiveData = new MutableLiveData<>(PageStatus.PLAYING);
         }
@@ -48,10 +45,6 @@ public class PlayingViewModel extends AndroidViewModel {
 
     public MutableLiveData<Boolean> getIsPlayingLiveData() {
         // 如果没有就初始化为isPlaying=true
-//        if (!handle.contains(MainActivity.KEY_IS_PLAYING)) {
-//            handle.set(MainActivity.KEY_IS_PLAYING, true);
-//        }
-//        return handle.getLiveData(MainActivity.KEY_IS_PLAYING);
         if (isPlayingLiveData == null) {
             isPlayingLiveData = new MutableLiveData<>(true);
         }
@@ -66,11 +59,18 @@ public class PlayingViewModel extends AndroidViewModel {
         return isLikeLiveData;
     }
 
-    public MutableLiveData<List<MusicModel>> getMusicListLiveData() {
-        if (musicListLiveData == null) {
-            musicListLiveData = new MutableLiveData<>(new ArrayList<>());
+    public MutableLiveData<List<MusicModel>> getMusicListLiveData_endlessModule() {
+        if (musicListLiveData_endlessModule == null) {
+            musicListLiveData_endlessModule = new MutableLiveData<>(new ArrayList<>());
         }
-        return musicListLiveData;
+        return musicListLiveData_endlessModule;
+    }
+
+    public MutableLiveData<List<MusicModel>> getMusicListLiveData_playlistModule() {
+        if (musicListLiveData_playlistModule == null) {
+            musicListLiveData_playlistModule = new MutableLiveData<>(new ArrayList<>());
+        }
+        return musicListLiveData_playlistModule;
     }
 
     public MutableLiveData<MusicModel> getCurrentMusic() {
@@ -85,6 +85,13 @@ public class PlayingViewModel extends AndroidViewModel {
             currentPointFromUser = new MutableLiveData<>(0);
         }
         return currentPointFromUser;
+    }
+
+    public MutableLiveData<PlayerModule> getPlayerModule() {
+        if (playerModule == null) {
+            playerModule = new MutableLiveData<>(PlayerModule.ENDLESS);
+        }
+        return playerModule;
     }
 
     // ================================= setter ==============================================
@@ -137,21 +144,28 @@ public class PlayingViewModel extends AndroidViewModel {
      * 追加list
      */
     public void addMusicListLiveData(List<MusicModel> list) {
-        List<MusicModel> value = getMusicListLiveData().getValue();
+        List<MusicModel> value = getMusicListLiveData_endlessModule().getValue();
         if (value != null) {
             value.addAll(list);
         }
-        musicListLiveData.setValue(value);
+        musicListLiveData_endlessModule.setValue(value);
     }
 
     /**
      * 重置list
      */
-    public void setMusicListLiveData(List<MusicModel> list) {
-        if (musicListLiveData == null) {
-            musicListLiveData = getMusicListLiveData();
+    public void setMusicListLiveData_endlessModule(List<MusicModel> list) {
+        if (musicListLiveData_endlessModule == null) {
+            musicListLiveData_endlessModule = getMusicListLiveData_endlessModule();
         }
-        musicListLiveData.setValue(list);
+        musicListLiveData_endlessModule.setValue(list);
+    }
+
+    public void setMusicListLiveData_playlistModule(List<MusicModel> list) {
+        if (musicListLiveData_playlistModule == null) {
+            musicListLiveData_playlistModule = getMusicListLiveData_playlistModule();
+        }
+        musicListLiveData_playlistModule.setValue(list);
     }
 
     /**
@@ -171,11 +185,13 @@ public class PlayingViewModel extends AndroidViewModel {
         currentPointFromUser.setValue(point);
     }
 
-    //    private void load(){
-//
-//    }
-//
-//    public void save(){
-//
-//    }
+    /**
+     * 设置播放模式，用于控制显示哪个viewpage2
+     */
+    public void setPlayerModule(PlayerModule module) {
+        if (playerModule == null) {
+            playerModule = getPlayerModule();
+        }
+        playerModule.setValue(module);
+    }
 }

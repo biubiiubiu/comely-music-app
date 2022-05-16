@@ -2,11 +2,11 @@ package com.example.comely_music_app.enums;
 
 public enum PlayerModule {
     /**
-     * 随机模式
+     * 无限模式
      */
-    RANDOM,
+    ENDLESS,
     /**
-     * 学习模式，只听轻音乐
+     * 歌单模式，不会无限滑动
      */
-    STUDY
+    PLAYLIST
 }

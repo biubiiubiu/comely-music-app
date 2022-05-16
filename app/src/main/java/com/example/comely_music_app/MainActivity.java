@@ -19,19 +19,23 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.comely_music_app.config.ShpConfig;
+import com.example.comely_music_app.enums.PlayerModule;
 import com.example.comely_music_app.network.response.UserInfo;
 import com.example.comely_music_app.network.service.UserService;
 import com.example.comely_music_app.network.service.impl.UserServiceImpl;
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
 import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
+import com.example.comely_music_app.ui.animation.DepthPageTransformer;
 import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
 import com.example.comely_music_app.ui.enums.PageStatus;
+import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
 import com.example.comely_music_app.utils.ShpUtils;
@@ -49,52 +53,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private View frameBlank;
     private ImageButton playPauseBtn;
-    private ViewPager2 viewPager;
 
     // 进度条
     SeekBar seekBar;
 
+    private ViewPager2 viewPagerEndlessModule, viewPagerPlaylistModule;
+    private PlayingViewListAdapter viewPagerAdapterEndlessModule, viewPagerAdapterPlaylistModule;
+
     private PlayingViewModel playingViewModel;
-    private PlayingViewListAdapter viewPagerAdapter;
-
     private UserInfoViewModel userInfoViewModel;
-    private UserService userService;
 
+    private UserService userService;
     private MediaPlayer mediaPlayer;
 
     private MyFragment myFragment;
     private FindingFragment findingFragment;
-
-//    public static class SeekBarThread extends Thread {
-//        private final PlayingViewModel playingViewModel;
-//        private final SeekBar seekBar;
-//        private final MediaPlayer mediaPlayer;
-//
-//        public SeekBarThread(PlayingViewModel vm, SeekBar sb, MediaPlayer mp) {
-//            playingViewModel = vm;
-//            seekBar = sb;
-//            mediaPlayer = mp;
-//        }
-//
-//        @Override
-//        public void run() {
-//            if (playingViewModel != null && mediaPlayer != null && seekBar != null) {
-//                while (playingViewModel.getIsPlayingLiveData().getValue() != null
-//                        && playingViewModel.getIsPlayingLiveData().getValue()) {
-//                    try {
-//                        Thread.sleep(300);
-//                        seekBar.setProgress(mediaPlayer.getCurrentPosition() * 100 / mediaPlayer.getDuration());
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//        }
-//    }
-
-
-//    public final static String KEY_IS_PLAYING = "KEY_IS_PLAYING";
-//    public final static String KEY_PAGE_STATUS = "KEY_PAGE_STATUS";
 
     @SneakyThrows
     @Override
@@ -119,12 +92,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         initIcon();
 
-        viewPager.setOrientation(ORIENTATION_VERTICAL);
-        viewPagerAdapter = new PlayingViewListAdapter(playingViewModel);
-        viewPager.setAdapter(viewPagerAdapter);
-        viewPager.setPageTransformer(new ZoomOutPageTransformer());
+        viewPagerAdapterEndlessModule = new PlayingViewListAdapter(playingViewModel, PlayerModule.ENDLESS);
+        viewPagerEndlessModule.setAdapter(viewPagerAdapterEndlessModule);
         // 滑动页面时更改当前音乐
-        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+        viewPagerEndlessModule.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
@@ -132,16 +103,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (mediaPlayer.isPlaying()) {
                     mediaPlayer.stop();
                 }
-                if (Objects.requireNonNull(playingViewModel.getMusicListLiveData().getValue()).size() > position) {
-                    playingViewModel.setCurrentMusic(playingViewModel.getMusicListLiveData().getValue().get(position));
+                if (Objects.requireNonNull(playingViewModel.getMusicListLiveData_endlessModule().getValue()).size() > position) {
+                    playingViewModel.setCurrentMusic(playingViewModel.getMusicListLiveData_endlessModule().getValue().get(position));
                     Log.d("TAG", "onPageSelected: 当前选择position:" + position + " "
-                            + playingViewModel.getMusicListLiveData().getValue().get(position).getName());
+                            + playingViewModel.getMusicListLiveData_endlessModule().getValue().get(position).getName());
                 }
                 // 最后一个item的时候再次获取一批
-                if (position == viewPagerAdapter.getItemCount() - 1) {
+                if (playingViewModel.getPlayerModule().getValue() == PlayerModule.ENDLESS &&
+                        position == viewPagerAdapterEndlessModule.getItemCount() - 1) {
                     List<String> tags = new ArrayList<>();
                     tags.add("古风");
-                    viewPagerAdapter.addMusicListByTags(tags);
+                    viewPagerAdapterEndlessModule.addMusicListByTags(tags);
+                }
+            }
+        });
+
+        viewPagerAdapterPlaylistModule = new PlayingViewListAdapter(playingViewModel, PlayerModule.PLAYLIST);
+        viewPagerPlaylistModule.setAdapter(viewPagerAdapterPlaylistModule);
+        viewPagerPlaylistModule.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                // 停止当前音乐播放
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.stop();
+                }
+                if (Objects.requireNonNull(playingViewModel.getMusicListLiveData_playlistModule().getValue()).size() > position) {
+                    playingViewModel.setCurrentMusic(playingViewModel.getMusicListLiveData_playlistModule().getValue().get(position));
+                    Log.d("TAG", "onPageSelected: 当前选择position:" + position + " "
+                            + playingViewModel.getMusicListLiveData_playlistModule().getValue().get(position).getName());
                 }
             }
         });
@@ -263,12 +253,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playingViewModel.getIsLikeLiveData().observe(this, isLike -> {
         });
 
-        // 获取musicModelList信息，存储到本地，并生成界面可使用的list
-        playingViewModel.getMusicListLiveData().observe(this, musicModels -> {
+        // 从后端获取musicModelList信息，刷新给adapter-endless，并生成界面可使用的list，并且notify一下
+        playingViewModel.getMusicListLiveData_endlessModule().observe(this, musicModels -> {
             if (musicModels != null && musicModels.size() != 0) {
-                viewPagerAdapter.setMusicModelList(musicModels);
-                viewPagerAdapter.notifyDataSetChanged();
+                viewPagerAdapterEndlessModule.setMusicList_endlessModule(musicModels);
+                viewPagerAdapterEndlessModule.notifyDataSetChanged();
 //                Toast.makeText(getApplicationContext(), "获取了" + musicModels.size() + "首音乐", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        playingViewModel.getMusicListLiveData_playlistModule().observe(this, musicModels -> {
+            if (musicModels != null && musicModels.size() != 0) {
+                viewPagerAdapterPlaylistModule.setMusicList_playlistModule(musicModels);
+                viewPagerAdapterPlaylistModule.notifyDataSetChanged();
             }
         });
 
@@ -300,6 +297,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mediaPlayer.seekTo(progress);
             }
         });
+
+        playingViewModel.getPlayerModule().observe(this, module -> {
+            if (module.equals(PlayerModule.ENDLESS)) {
+                // 显示无限播放的viewpager
+                if (viewPagerEndlessModule != null) {
+                    viewPagerEndlessModule.setVisibility(View.VISIBLE);
+                }
+                if (viewPagerPlaylistModule != null) {
+                    viewPagerPlaylistModule.setVisibility(View.INVISIBLE);
+                }
+            }
+            if (module.equals(PlayerModule.PLAYLIST)) {
+                // 显示歌单播放的viewpager
+                if (viewPagerEndlessModule != null) {
+                    viewPagerEndlessModule.setVisibility(View.INVISIBLE);
+                }
+                if (viewPagerPlaylistModule != null) {
+                    viewPagerPlaylistModule.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
     @SuppressLint("DefaultLocale")
@@ -319,7 +337,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         View myBtn = findViewById(R.id.my_btn);
         frameBlank = findViewById(R.id.frame_blank);
         playPauseBtn = findViewById(R.id.play_pause_btn);
-        viewPager = findViewById(R.id.viewpage_playing);
+
+        viewPagerEndlessModule = findViewById(R.id.viewpage_playing_endless_module);
+        viewPagerEndlessModule.setOrientation(ORIENTATION_VERTICAL);
+        viewPagerEndlessModule.setPageTransformer(new DepthPageTransformer());
+
+        viewPagerPlaylistModule = findViewById(R.id.viewpage_playing_playlist_module);
+        viewPagerPlaylistModule.setOrientation(ORIENTATION_VERTICAL);
+        viewPagerPlaylistModule.setPageTransformer(new ZoomOutPageTransformer());
+        viewPagerPlaylistModule.setVisibility(View.INVISIBLE);
 
         seekBar = findViewById(R.id.process_sb);
 
@@ -375,16 +401,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void checkoutOffPlaying() {
         frameBlank.setVisibility(View.VISIBLE);
-        viewPager.setVisibility(View.INVISIBLE);
+        viewPagerEndlessModule.setVisibility(View.INVISIBLE);
     }
 
     private void checkoutIntoPlaying() {
         frameBlank.setVisibility(View.INVISIBLE);
-        viewPager.setVisibility(View.VISIBLE);
+        viewPagerEndlessModule.setVisibility(View.VISIBLE);
     }
 
 
-//    // 临时上传文件测试
+//    public static class SeekBarThread extends Thread {
+//        private final PlayingViewModel playingViewModel;
+//        private final SeekBar seekBar;
+//        private final MediaPlayer mediaPlayer;
+//
+//        public SeekBarThread(PlayingViewModel vm, SeekBar sb, MediaPlayer mp) {
+//            playingViewModel = vm;
+//            seekBar = sb;
+//            mediaPlayer = mp;
+//        }
+//
+//        @Override
+//        public void run() {
+//            if (playingViewModel != null && mediaPlayer != null && seekBar != null) {
+//                while (playingViewModel.getIsPlayingLiveData().getValue() != null
+//                        && playingViewModel.getIsPlayingLiveData().getValue()) {
+//                    try {
+//                        Thread.sleep(300);
+//                        seekBar.setProgress(mediaPlayer.getCurrentPosition() * 100 / mediaPlayer.getDuration());
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+
+//    // 临时上传文件测试脚本
 //    private void uploadFileTest() {
 //        FileService fileService = new FileServiceImpl();
 //        FileUploadRequest request = new FileUploadRequest();
