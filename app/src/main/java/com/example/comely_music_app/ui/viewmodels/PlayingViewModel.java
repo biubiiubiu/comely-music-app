@@ -103,6 +103,9 @@ public class PlayingViewModel extends AndroidViewModel {
     }
 
     public void setIsPlayingLiveData(Boolean isPlaying) {
+        if (isPlayingLiveData == null) {
+            isPlayingLiveData = getIsPlayingLiveData();
+        }
         this.isPlayingLiveData.setValue(isPlaying);
     }
 

@@ -81,7 +81,8 @@ public class MusicServiceImpl implements MusicService {
                     public void onSuccess(MusicSelectResponse response) {
                         List<MusicModel> modelList = transMusicInfo2Models(response.getMusicList());
                         // 放到modelview中
-                        playingViewModel.setMusicListLiveData(modelList);
+                        playingViewModel.addMusicListLiveData(modelList);
+//                        playingViewModel.setMusicListLiveData(modelList);
                     }
 
                     @Override

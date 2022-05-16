@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -37,6 +38,8 @@ import com.example.comely_music_app.utils.ShpUtils;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import lombok.SneakyThrows;
@@ -126,9 +129,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 // 停止当前音乐播放
-                mediaPlayer.stop();
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.stop();
+                }
                 if (Objects.requireNonNull(playingViewModel.getMusicListLiveData().getValue()).size() > position) {
                     playingViewModel.setCurrentMusic(playingViewModel.getMusicListLiveData().getValue().get(position));
+                    Log.d("TAG", "onPageSelected: 当前选择position:" + position + " "
+                            + playingViewModel.getMusicListLiveData().getValue().get(position).getName());
+                }
+                // 最后一个item的时候再次获取一批
+                if (position == viewPagerAdapter.getItemCount() - 1) {
+                    List<String> tags = new ArrayList<>();
+                    tags.add("古风");
+                    viewPagerAdapter.addMusicListByTags(tags);
                 }
             }
         });
@@ -264,6 +277,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (currentMusic != null) {
                 String path = currentMusic.getAudioLocalPath();
                 try {
+                    if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                        mediaPlayer.stop();
+                        mediaPlayer.release();
+                    }
                     mediaPlayer = new MediaPlayer();
                     mediaPlayer.setDataSource(path);
                     mediaPlayer.prepare();

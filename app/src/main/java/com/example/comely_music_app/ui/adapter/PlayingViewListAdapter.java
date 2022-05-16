@@ -1,7 +1,6 @@
 package com.example.comely_music_app.ui.adapter;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +27,8 @@ import lombok.SneakyThrows;
 public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHolder> {
     private final MusicModelProvider modelProvider;
 
-    private final static int NUM = 6;
+    private final static int INIT_NUM = 6;
+    private final static int ADD_NUM = 3;
     private List<MusicModel> musicModelList;
 
     private int position;
@@ -39,15 +39,20 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
         this.playingViewModel = playingViewModel;
         // 初始化各个item list的数据
         modelProvider = new MusicModelProvider();
-        initMusicModelList();
+
+        List<String> tags = new ArrayList<>();
+        tags.add("古风");
+        initMusicModelListByTags(tags);
     }
 
-    public PlayingViewListAdapter(Context applicationContext, PlayingViewModel playingViewModel) {
-        this.playingViewModel = playingViewModel;
-        // 初始化各个item list的数据
-        modelProvider = new MusicModelProvider(applicationContext);
-        initMusicModelList();
-    }
+//    public PlayingViewListAdapter(Context applicationContext, PlayingViewModel playingViewModel) {
+//        this.playingViewModel = playingViewModel;
+//        // 初始化各个item list的数据
+//        modelProvider = new MusicModelProvider(applicationContext);
+//        List<String> tags = new ArrayList<>();
+//        tags.add("古风");
+//        initMusicModelListByTags(tags);
+//    }
 
     /**
      * 每次切换当前item调用
@@ -68,7 +73,7 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
         if (musicModelList != null) {
             return musicModelList.size();
         }
-        return NUM;
+        return INIT_NUM;
     }
 
     @NonNull
@@ -84,14 +89,20 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
     /**
      * Retrofit2 MusicService，初始化一次音乐信息，一次获取NUM首
      */
-    private void initMusicModelList() {
-//        MusicSelectByModuleRequest request = new MusicSelectByModuleRequest(PlayerModule.RANDOM, NUM);
-//        modelProvider.getPatchMusicModelByModule(request, playingViewModel);
-
-        List<String> tags = new ArrayList<>();
-        tags.add("古风");
+    private void initMusicModelListByTags(List<String> tags) {
         MusicSelectByTagsRequest request = new MusicSelectByTagsRequest();
-        request.setNum(NUM).setTags(tags);
+        request.setNum(INIT_NUM).setTags(tags);
+        modelProvider.getPatchMusicModelByTag(request, playingViewModel);
+    }
+
+//    private void initMusicModelListByModule(PlayerModule module) {
+//        MusicSelectByModuleRequest request = new MusicSelectByModuleRequest(module, NUM);
+//        modelProvider.getPatchMusicModelByModule(request, playingViewModel);
+//    }
+
+    public void addMusicListByTags(List<String> tags) {
+        MusicSelectByTagsRequest request = new MusicSelectByTagsRequest();
+        request.setNum(ADD_NUM).setTags(tags);
         modelProvider.getPatchMusicModelByTag(request, playingViewModel);
     }
 
