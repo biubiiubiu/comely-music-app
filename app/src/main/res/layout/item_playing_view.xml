@@ -49,6 +49,7 @@
                     android:layout_width="320dp"
                     android:layout_height="320dp"
                     android:layout_gravity="center"
+                    android:scaleType="centerCrop"
                     android:src="@drawable/bk_01" />
 
                 <TextView
@@ -138,6 +139,7 @@
                 <!--                android:thumb="@drawable/sb_thumb" />-->
                 <!--        </LinearLayout>-->
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -127,7 +127,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.Musi
 
         @SuppressLint("UseCompatLoadingForDrawables")
         public void setDataOnView(MusicModel musicModel) throws IOException {
-            Drawable imageSource = CoverBkUtils.getImageSourceFromMusicModel(musicModel, itemView);
+            Drawable imageSource = CoverBkUtils.getImageSourceFromMusicModel(musicModel, itemView, true);
             Glide.with(itemView.getContext())
                     .load(imageSource)
                     .into(musicCover);
