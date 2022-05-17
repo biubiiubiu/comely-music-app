@@ -14,7 +14,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
@@ -28,8 +27,8 @@ import java.io.IOException;
 /**
  * 用来解析item_playing_view界面，变量绑定绑定控件
  */
-public class PlayingViewHolder extends RecyclerView.ViewHolder {
-    Context TAG;
+public class MainPlayingViewHolder extends RecyclerView.ViewHolder {
+    Context context;
     View itemView;
     // 这里按照界面布局从上往下写，代码可读性好
     FrameLayout blankFrame;
@@ -44,10 +43,10 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
     private final PlayingViewModel playingViewModel;
     private boolean showCover;
 
-    public PlayingViewHolder(@NonNull View itemView, PlayingViewModel playingViewModel) {
+    public MainPlayingViewHolder(@NonNull View itemView, PlayingViewModel playingViewModel) {
         super(itemView);
 
-        TAG = itemView.getContext();
+        context = itemView.getContext();
         this.itemView = itemView;
         this.playingViewModel = playingViewModel;
         initViewBind(itemView);
@@ -137,19 +136,15 @@ public class PlayingViewHolder extends RecyclerView.ViewHolder {
     }
 
     private void getMore() {
-        Toast.makeText(TAG, "更多", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "更多", Toast.LENGTH_SHORT).show();
     }
 
     private void download() {
-        Toast.makeText(TAG, "下载", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "下载", Toast.LENGTH_SHORT).show();
     }
 
     private void comment() {
-        Toast.makeText(TAG, "评论", Toast.LENGTH_SHORT).show();
-    }
-
-    private void search() {
-        Toast.makeText(TAG, "搜索", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "评论", Toast.LENGTH_SHORT).show();
     }
 
     public void setTitle(String title) {

@@ -12,13 +12,13 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
@@ -30,7 +30,7 @@ import com.example.comely_music_app.network.service.UserService;
 import com.example.comely_music_app.network.service.impl.UserServiceImpl;
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
-import com.example.comely_music_app.ui.adapter.PlayingViewListAdapter;
+import com.example.comely_music_app.ui.adapter.MainPlayingViewAdapter1;
 import com.example.comely_music_app.ui.animation.DepthPageTransformer;
 import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
 import com.example.comely_music_app.ui.enums.PageStatus;
@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton playPauseBtn;
 
     private ViewPager2 viewPagerEndlessModule, viewPagerPlaylistModule;
-    private PlayingViewListAdapter viewPagerAdapterEndlessModule, viewPagerAdapterPlaylistModule;
+    private MainPlayingViewAdapter1 viewPagerAdapterEndlessModule, viewPagerAdapterPlaylistModule;
 
     private PlayingViewModel playingViewModel;
     private UserInfoViewModel userInfoViewModel;
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         initIcon();
 
-        viewPagerAdapterEndlessModule = new PlayingViewListAdapter(playingViewModel, PlayerModule.ENDLESS);
+        viewPagerAdapterEndlessModule = new MainPlayingViewAdapter1(playingViewModel, PlayerModule.ENDLESS);
         viewPagerEndlessModule.setAdapter(viewPagerAdapterEndlessModule);
         // 滑动页面时更改当前音乐
         viewPagerEndlessModule.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        viewPagerAdapterPlaylistModule = new PlayingViewListAdapter(playingViewModel, PlayerModule.PLAYLIST);
+        viewPagerAdapterPlaylistModule = new MainPlayingViewAdapter1(playingViewModel, PlayerModule.PLAYLIST);
         viewPagerPlaylistModule.setAdapter(viewPagerAdapterPlaylistModule);
         viewPagerPlaylistModule.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         FragmentTransaction ft = manager.beginTransaction();
-        myFragment = new MyFragment();
+        myFragment = new MyFragment(playingViewModel);
         findingFragment = new FindingFragment();
         ft.add(R.id.frame_blank, myFragment);
         ft.add(R.id.frame_blank, findingFragment);
@@ -320,6 +320,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 playerModuleTxt.setText("歌单模式");
             }
         });
+
+        playingViewModel.getShowBottomNevBar().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isShow) {
+                if (isShow) {
+                    findViewById(R.id.bottom_nev_bar).setVisibility(View.VISIBLE);
+                } else {
+                    findViewById(R.id.bottom_nev_bar).setVisibility(View.INVISIBLE);
+                }
+            }
+        });
     }
 
     @SuppressLint("DefaultLocale")
@@ -342,11 +353,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         viewPagerEndlessModule = findViewById(R.id.viewpage_playing_endless_module);
         viewPagerEndlessModule.setOrientation(ORIENTATION_VERTICAL);
-        viewPagerEndlessModule.setPageTransformer(new DepthPageTransformer());
+        viewPagerEndlessModule.setPageTransformer(DepthPageTransformer.getDepthPageTransformer());
 
         viewPagerPlaylistModule = findViewById(R.id.viewpage_playing_playlist_module);
         viewPagerPlaylistModule.setOrientation(ORIENTATION_VERTICAL);
-        viewPagerPlaylistModule.setPageTransformer(new ZoomOutPageTransformer());
+        viewPagerPlaylistModule.setPageTransformer(ZoomOutPageTransformer.getZoomOutPageTransformer());
         viewPagerPlaylistModule.setVisibility(View.INVISIBLE);
 
         playerModuleTxt = findViewById(R.id.player_module_txt);
@@ -391,11 +402,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void checkoutOffPlaying() {
         frameBlank.setVisibility(View.VISIBLE);
+        findViewById(R.id.main_top_bar).setVisibility(View.INVISIBLE);
         viewPagerEndlessModule.setVisibility(View.INVISIBLE);
     }
 
     private void checkoutIntoPlaying() {
         frameBlank.setVisibility(View.INVISIBLE);
+        findViewById(R.id.main_top_bar).setVisibility(View.VISIBLE);
         viewPagerEndlessModule.setVisibility(View.VISIBLE);
     }
 

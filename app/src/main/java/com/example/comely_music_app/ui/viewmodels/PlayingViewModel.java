@@ -23,11 +23,12 @@ public class PlayingViewModel extends AndroidViewModel {
     private MutableLiveData<Boolean> isPlayingLiveData;
     private MutableLiveData<Boolean> isLikeLiveData;
 
-    //=========== 读取数据库 ================
     private MutableLiveData<List<MusicModel>> musicListLiveData_endlessModule, musicListLiveData_playlistModule;
     private MutableLiveData<MusicModel> currentMusic;
 
     private MutableLiveData<PlayerModule> playerModule;
+
+    private MutableLiveData<Boolean> showBottomNevBar;
 
     public PlayingViewModel(@Nullable Application application) {
         super(Objects.requireNonNull(application));
@@ -193,5 +194,19 @@ public class PlayingViewModel extends AndroidViewModel {
             playerModule = getPlayerModule();
         }
         playerModule.setValue(module);
+    }
+
+    public MutableLiveData<Boolean> getShowBottomNevBar() {
+        if (showBottomNevBar == null) {
+            showBottomNevBar = new MutableLiveData<>(true);
+        }
+        return showBottomNevBar;
+    }
+
+    public void setShowBottomNevBar(Boolean isShow) {
+        if (showBottomNevBar == null) {
+            showBottomNevBar = getShowBottomNevBar();
+        }
+        showBottomNevBar.setValue(isShow);
     }
 }

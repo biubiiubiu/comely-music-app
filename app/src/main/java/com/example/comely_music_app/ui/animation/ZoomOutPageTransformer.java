@@ -12,6 +12,22 @@ public class ZoomOutPageTransformer implements ViewPager2.PageTransformer {
     private static final float MIN_SCALE = 0.9f;
     private static final float MIN_ALPHA = 0.5f;
 
+    private volatile static ZoomOutPageTransformer singleton;
+
+    private ZoomOutPageTransformer() {
+    }
+
+    public static ZoomOutPageTransformer getZoomOutPageTransformer() {
+        if (singleton == null) {
+            synchronized (ZoomOutPageTransformer.class) {
+                if (singleton == null) {
+                    singleton = new ZoomOutPageTransformer();
+                }
+            }
+        }
+        return singleton;
+    }
+
     public void transformPage(View view, float position) {
         int pageWidth = view.getWidth();
         int pageHeight = view.getHeight();

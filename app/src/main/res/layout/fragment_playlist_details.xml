@@ -9,7 +9,9 @@
     tools:context=".ui.PlaylistDetailsFragment">
 
 
+    <!--    返回时展示这个-->
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/playlist_details_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#D2051212"
@@ -243,9 +245,15 @@
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="20dp"
-                android:layout_marginBottom="120dp"/>
+                android:layout_marginBottom="120dp" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+
+    <FrameLayout
+        android:id="@+id/frame_blank_for_playing_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

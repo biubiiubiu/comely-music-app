@@ -1,4 +1,5 @@
 package com.example.comely_music_app.ui.animation;
+
 import android.view.View;
 
 import androidx.annotation.RequiresApi;
@@ -10,6 +11,22 @@ import androidx.viewpager2.widget.ViewPager2;
 @RequiresApi(21)
 public class DepthPageTransformer implements ViewPager2.PageTransformer {
     private static final float MIN_SCALE = 0.75f;
+
+    private volatile static DepthPageTransformer singleton;
+
+    private DepthPageTransformer() {
+    }
+
+    public static DepthPageTransformer getDepthPageTransformer() {
+        if (singleton == null) {
+            synchronized (DepthPageTransformer.class) {
+                if (singleton == null) {
+                    singleton = new DepthPageTransformer();
+                }
+            }
+        }
+        return singleton;
+    }
 
     public void transformPage(View view, float position) {
         int pageWidth = view.getWidth();

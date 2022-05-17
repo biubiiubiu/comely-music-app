@@ -25,7 +25,7 @@ import lombok.SneakyThrows;
 /**
  * 用于修改PlayingViewPager界面数据
  */
-public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHolder> {
+public class MainPlayingViewAdapter1 extends RecyclerView.Adapter<MainPlayingViewHolder> {
     private final MusicModelProvider modelProvider;
 
     private final static int INIT_NUM = 6;
@@ -37,7 +37,7 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
 
     private final PlayingViewModel playingViewModel;
 
-    public PlayingViewListAdapter(PlayingViewModel playingViewModel, PlayerModule module) {
+    public MainPlayingViewAdapter1(PlayingViewModel playingViewModel, PlayerModule module) {
         this.playingViewModel = playingViewModel;
         this.playerModule = module;
         // 初始化各个item list的数据
@@ -65,7 +65,7 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
      */
     @SneakyThrows
     @Override
-    public void onBindViewHolder(@NonNull PlayingViewHolder holder, @SuppressLint("RecyclerView") int position) {
+    public void onBindViewHolder(@NonNull MainPlayingViewHolder holder, @SuppressLint("RecyclerView") int position) {
         // 重新获取item位置、当前位置的holder
         this.position = position;
 
@@ -86,12 +86,12 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
 
     @NonNull
     @Override
-    public PlayingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MainPlayingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View item = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_playing_view,
                 parent, false);
 
         Log.d("TAG", "onCreateViewHolder: create.....");
-        return new PlayingViewHolder(item, playingViewModel);
+        return new MainPlayingViewHolder(item, playingViewModel);
     }
 
     /**
@@ -130,7 +130,7 @@ public class PlayingViewListAdapter extends RecyclerView.Adapter<PlayingViewHold
     /**
      * 解析数据到界面上
      */
-    private void initCurrentViewContents(PlayingViewHolder holder) throws IOException {
+    private void initCurrentViewContents(MainPlayingViewHolder holder) throws IOException {
         if (playerModule.equals(PlayerModule.ENDLESS) && musicList_endlessModule != null) {
             MusicModel currentModel = musicList_endlessModule.get(position);
             holder.setTitle(currentModel.getName());

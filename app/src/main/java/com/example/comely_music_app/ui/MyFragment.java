@@ -41,6 +41,7 @@ import com.example.comely_music_app.ui.adapter.PlaylistViewListAdapter;
 import com.example.comely_music_app.ui.enums.PlaylistSelectScene;
 import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
+import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
 import com.example.comely_music_app.utils.ScreenUtils;
@@ -68,6 +69,11 @@ public class MyFragment extends Fragment implements View.OnClickListener {
     private FragmentActivity mActivity;
     private SettingFragment settingFragment;
     private PlaylistDetailsFragment playlistDetailsFragment;
+    private PlayingViewModel playingViewModel;
+
+    public MyFragment(PlayingViewModel playingViewModel) {
+        this.playingViewModel = playingViewModel;
+    }
 
     @Nullable
     @Override
@@ -137,7 +143,8 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         ft.commit();
 
         FragmentTransaction ft1 = mActivity.getSupportFragmentManager().beginTransaction();
-        playlistDetailsFragment = new PlaylistDetailsFragment(myFragmentViewsCtrlLiveData, playlistViewModel);
+        playlistDetailsFragment = new PlaylistDetailsFragment(myFragmentViewsCtrlLiveData, playlistViewModel,
+                playingViewModel);
         ft1.add(R.id.frame_blank_for_setting, playlistDetailsFragment);
         ft1.commit();
 
@@ -163,6 +170,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
 
         //销毁引用
         mActivity = null;
+        playingViewModel = null;
     }
 
     private void initDatas() {
