@@ -7,5 +7,7 @@ public interface AdapterClickListener {
 
     void onLongClick(View v, int position);
 
-    void onClickEditableBtn(View v, int position);
+    void onClickBtnBehindTitle(View v, int position);
+
+    void onClickRightBtn(View v, int position);
 }

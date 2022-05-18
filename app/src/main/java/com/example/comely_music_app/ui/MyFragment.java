@@ -126,10 +126,14 @@ public class MyFragment extends Fragment implements View.OnClickListener {
             }
 
             @Override
-            public void onClickEditableBtn(View v, int position) {
+            public void onClickBtnBehindTitle(View v, int position) {
                 // 修改当前歌单
                 PlaylistModel model = adapter.getPlaylistData().get(position);
                 showUpdateDialog(model.getName(), model.getVisibility());
+            }
+
+            @Override
+            public void onClickRightBtn(View v, int position) {
             }
         });
         playlistRecycleView.setAdapter(adapter);

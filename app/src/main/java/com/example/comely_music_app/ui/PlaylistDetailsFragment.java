@@ -41,6 +41,7 @@ import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
 import com.example.comely_music_app.utils.ScreenUtils;
 import com.example.comely_music_app.utils.ShpUtils;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -108,7 +109,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
 
             @Override
             public void onLongClick(View v, int position) {
-                // 删除当前歌单
+                // 删除当前歌曲
                 PlaylistDetailsModel detailsModel = playlistViewModel.getCurrentPlaylistDetails().getValue();
                 if (detailsModel != null && detailsModel.getPlaylistInfo() != null) {
                     String playlistName = detailsModel.getPlaylistInfo().getName();
@@ -118,9 +119,21 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
             }
 
             @Override
-            public void onClickEditableBtn(View v, int position) {
-                // 修改当前歌单
-                Log.d("TAG", "onClick: 支持正版音乐哦~");
+            public void onClickBtnBehindTitle(View v, int position) {
+                Toast.makeText(getContext(), "支持正版音乐~", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onClickRightBtn(View v, int position) {
+                // 修改当前歌曲
+                BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(mActivity);
+                bottomSheetDialog.setContentView(R.layout.dialog_bottom_layout_music);
+                //给布局设置透明背景色，让图片突出来
+                View viewById = bottomSheetDialog.getDelegate().findViewById(R.id.design_bottom_sheet);
+                if (viewById != null) {
+                    viewById.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+                }
+                bottomSheetDialog.show();
             }
         });
         musicListRecycleView.setAdapter(musicListAdapter);
