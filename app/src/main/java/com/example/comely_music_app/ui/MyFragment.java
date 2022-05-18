@@ -389,7 +389,8 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                 }
                 PlaylistCreateRequest request = new PlaylistCreateRequest();
                 String username = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(mActivity)).getUsername();
-                request.setName(playlistName).setUsername(username).setVisibility(visibility).setMusicNum(0);
+                // relation=0是我喜欢，1-自建歌单，2-收藏歌单
+                request.setName(playlistName).setUsername(username).setVisibility(visibility).setMusicNum(0).setRelation(1);
                 playlistService.createPlaylist(request);
                 //... To-do
                 dialog.dismiss();

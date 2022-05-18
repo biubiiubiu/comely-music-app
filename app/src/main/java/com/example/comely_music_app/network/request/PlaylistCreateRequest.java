@@ -16,6 +16,9 @@ public class PlaylistCreateRequest {
     private String description;
     private Integer visibility;
 
+    // 用户与歌单的关系，0-我喜欢（不对外开放接口），1-创建歌单，2-收藏歌单
+    private Integer relation;
+
     public PlaylistCreateRequest setName(String name) {
         this.name = name;
         return this;
@@ -37,6 +40,11 @@ public class PlaylistCreateRequest {
 
     public PlaylistCreateRequest setVisibility(Integer visibility) {
         this.visibility = visibility;
+        return this;
+    }
+
+    public PlaylistCreateRequest setRelation(Integer relation) {
+        this.relation = relation;
         return this;
     }
 }
