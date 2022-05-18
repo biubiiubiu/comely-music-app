@@ -31,7 +31,7 @@ public class ApiManager {
         //okhttp默认的10秒
         OkHttpClient client = new OkHttpClient.Builder()
                 //添加log拦截器
-                .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS)) //okhttp默认的
+//                .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS)) //okhttp默认的
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .readTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(10, TimeUnit.SECONDS)

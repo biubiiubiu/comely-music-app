@@ -373,8 +373,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.play_pause_btn) {
-            playingViewModel.changeIsPlayingLiveData();
-            playingViewModel.changePageStatusLiveData(PageStatus.PLAYING);
+            if (PageStatus.PLAYING.equals(playingViewModel.getPageStatusLiveData().getValue())) {
+                playingViewModel.changeIsPlayingLiveData();
+            } else {
+                playingViewModel.changePageStatusLiveData(PageStatus.PLAYING);
+            }
         } else if (v.getId() == R.id.find_btn) {
             playingViewModel.changePageStatusLiveData(PageStatus.FINDING);
         } else if (v.getId() == R.id.my_btn) {
