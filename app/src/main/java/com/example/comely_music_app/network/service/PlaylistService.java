@@ -18,4 +18,9 @@ public interface PlaylistService {
     void selectPlaylistDetailsByScene(PlaylistSelectRequest request, PlaylistSelectScene scene);
 
     void deleteMusicFromPlaylist(PlaylistMusicAddRequest request);
+
+    /**
+     * 音乐批量添加到我喜欢
+     */
+    void addMusicIntoMyLike(PlaylistMusicAddRequest request);
 }

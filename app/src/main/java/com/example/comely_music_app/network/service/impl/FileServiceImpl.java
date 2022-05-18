@@ -216,7 +216,8 @@ public class FileServiceImpl implements FileService {
                     }
                     // 将下载后的文件存放在指定的本地路径downloadPath
                     try {
-                        FileOperationUtils.writeBytesToFile(buffer, downloadPath);
+                        FileOperationUtils fileOperationUtils = new FileOperationUtils();
+                        fileOperationUtils.writeBytesToFile(buffer, downloadPath);
 //                        File file = new File(downloadPath);
 //                        FileOutputStream outputStream = new FileOutputStream(file);
 //                        outputStream.write(buffer);

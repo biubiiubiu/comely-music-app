@@ -20,7 +20,7 @@ public class CoverBkUtils {
      * @return 图片资源drawable
      * @throws IOException 文件异常
      */
-    public static Drawable getImageSourceFromMusicModel(MusicModel musicModel, View itemView, boolean iscover) throws IOException {
+    public Drawable getImageSourceFromMusicModel(MusicModel musicModel, View itemView, boolean iscover) throws IOException {
         if (musicModel == null) {
             return null;
         }
@@ -36,7 +36,8 @@ public class CoverBkUtils {
             mmr.setDataSource(audioPath);
             byte[] embedCover = mmr.getEmbeddedPicture();
             if (embedCover != null && embedCover.length > 0) {
-                FileOperationUtils.writeBytesToFile(embedCover, coverPath);
+                FileOperationUtils fileOperationUtils = new FileOperationUtils();
+                fileOperationUtils.writeBytesToFile(embedCover, coverPath);
             } else {
                 // 使用默认图片作为封面
                 return getDefaultCoverImage(itemView, iscover);
@@ -52,7 +53,7 @@ public class CoverBkUtils {
      * @param isCover
      */
     @SuppressLint("UseCompatLoadingForDrawables")
-    private static Drawable getDefaultCoverImage(View itemView, boolean isCover) {
+    private Drawable getDefaultCoverImage(View itemView, boolean isCover) {
         int index = (int) (Math.random() * 7) + 1;
         int drawableId = isCover ? R.drawable.bk_01 : R.drawable.player_bk_01;
         switch (index) {

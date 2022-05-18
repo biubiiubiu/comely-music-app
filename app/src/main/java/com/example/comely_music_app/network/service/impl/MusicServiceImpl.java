@@ -28,7 +28,7 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class MusicServiceImpl implements MusicService {
-    MusicApi musicApi = ApiManager.getInstance().getApiService(MusicApi.class);
+    MusicApi musicApi;
     private final FileService fileService;
     private final Context context;
     private final static String USERNAME = "admin";
@@ -43,6 +43,7 @@ public class MusicServiceImpl implements MusicService {
         // 用于oss不可用的情况
         this.fileService = new FileServiceImpl();
         this.context = null;
+        musicApi = ApiManager.getInstance().getApiService(MusicApi.class);
     }
 
 

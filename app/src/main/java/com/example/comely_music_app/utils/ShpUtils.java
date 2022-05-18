@@ -5,10 +5,8 @@ import static android.content.Context.MODE_PRIVATE;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
-import androidx.fragment.app.FragmentActivity;
-
-import com.example.comely_music_app.network.response.UserInfo;
 import com.example.comely_music_app.config.ShpConfig;
+import com.example.comely_music_app.network.response.UserInfo;
 import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.google.gson.Gson;
@@ -18,8 +16,21 @@ import java.util.List;
 import java.util.Objects;
 
 public class ShpUtils {
+    private Activity mActivity;
 
-    public static UserInfo getCurrentUserinfoFromShp(Activity mActivity) {
+    public ShpUtils(Activity mActivity) {
+        this.mActivity = mActivity;
+    }
+
+    public void release() {
+        // 释放引用
+        this.mActivity = null;
+    }
+
+    public UserInfo getCurrentUserinfoFromShp() {
+        if (mActivity == null) {
+            return null;
+        }
         SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
         String userInfoStr = shp.getString(ShpConfig.CURRENT_USER, "");
         if (!userInfoStr.equals("")) {
@@ -29,7 +40,10 @@ public class ShpUtils {
         return null;
     }
 
-    public static void writeCurrentUserinfoToShp(Activity mActivity, UserInfo userInfo) {
+    public void writeCurrentUserinfoToShp(UserInfo userInfo) {
+        if (mActivity == null) {
+            return;
+        }
         SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = shp.edit();
         Gson gson = new Gson();
@@ -38,7 +52,10 @@ public class ShpUtils {
         editor.apply();
     }
 
-    public static List<PlaylistModel> getMyCreatePlaylistFromShp(Activity mActivity) {
+    public List<PlaylistModel> getMyCreatePlaylistFromShp() {
+        if (mActivity == null) {
+            return null;
+        }
         SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
         String myCreatePlaylistStr = shp.getString(ShpConfig.MY_CREATE_PLAYLIST, "");
         if (!myCreatePlaylistStr.equals("")) {
@@ -49,7 +66,10 @@ public class ShpUtils {
         return null;
     }
 
-    public static void writeMyCreatePlaylistToShp(Activity mActivity, List<PlaylistModel> list) {
+    public void writeMyCreatePlaylistToShp(List<PlaylistModel> list) {
+        if (mActivity == null) {
+            return;
+        }
         SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = shp.edit();
         Gson gson = new Gson();
@@ -59,7 +79,10 @@ public class ShpUtils {
     }
 
 
-    public static PlaylistDetailsModel getPlaylistDetailsFromShpByPlaylistName(Activity mActivity, String playlistName) {
+    public PlaylistDetailsModel getPlaylistDetailsFromShpByPlaylistName(String playlistName) {
+        if (mActivity == null) {
+            return null;
+        }
         SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
         String playlistDetailsStr = shp.getString(ShpConfig.PLAYLIST_DETAILS + playlistName, "");
         if (!playlistDetailsStr.equals("")) {
@@ -70,7 +93,10 @@ public class ShpUtils {
         return null;
     }
 
-    public static void writePlaylistDetailsIntoShp(Activity mActivity, PlaylistDetailsModel detailsModel) {
+    public void writePlaylistDetailsIntoShp(PlaylistDetailsModel detailsModel) {
+        if (mActivity == null) {
+            return;
+        }
         if (detailsModel != null && detailsModel.getPlaylistInfo() != null) {
             SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
             SharedPreferences.Editor editor = shp.edit();
@@ -83,24 +109,33 @@ public class ShpUtils {
 
     // ============================= clear =================================
 
-    public static void clearCurrentUserInfo(Activity mActivity) {
+    public void clearCurrentUserInfo() {
+        if (mActivity == null) {
+            return;
+        }
         SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = shp.edit();
         editor.putString(ShpConfig.CURRENT_USER, "");
         editor.apply();
     }
 
-    public static void clearCreatedPlaylist(Activity mActivity) {
+    public void clearCreatedPlaylist() {
+        if (mActivity == null) {
+            return;
+        }
         SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = shp.edit();
         editor.putString(ShpConfig.MY_CREATE_PLAYLIST, "");
         editor.apply();
     }
 
-    public static void clearAllCreatedPlaylistDetails(Activity mActivity) {
+    public void clearAllCreatedPlaylistDetails() {
+        if (mActivity == null) {
+            return;
+        }
         SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = shp.edit();
-        List<PlaylistModel> playlistModels = getMyCreatePlaylistFromShp(mActivity);
+        List<PlaylistModel> playlistModels = getMyCreatePlaylistFromShp();
         if (playlistModels != null) {
             for (PlaylistModel model : playlistModels) {
                 editor.putString(ShpConfig.PLAYLIST_DETAILS + model.getName(), "");

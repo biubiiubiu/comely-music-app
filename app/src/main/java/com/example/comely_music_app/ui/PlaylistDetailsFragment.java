@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,7 +38,6 @@ import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
-import com.example.comely_music_app.utils.CoverBkUtils;
 import com.example.comely_music_app.utils.ScreenUtils;
 import com.example.comely_music_app.utils.ShpUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -51,15 +49,14 @@ import java.util.Objects;
 
 public class PlaylistDetailsFragment extends Fragment implements View.OnClickListener {
     //    private MutableLiveData<PlaylistModel> currentShowingPlaylist;
-    private final MutableLiveData<Integer> myFragmentViewsCtrlLiveData;
-    private ImageView playlistAvatar;
+    private MutableLiveData<Integer> myFragmentViewsCtrlLiveData;
     private TextView playlistName, description, createdUsername, musicNum;
     private ImageButton collectBtn;
     private RecyclerView musicListRecycleView;
     private PlaylistViewModel playlistViewModel;
     private MusicListAdapter musicListAdapter;
     private FragmentActivity mActivity;
-    private final PlaylistService playlistService;
+    private PlaylistService playlistService;
 
     private PlayingViewModel playingViewModel;
 
@@ -67,6 +64,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
 
     private final MutableLiveData<Integer> detailsViewCtrlLiveData = new MutableLiveData<>(0);
     private PlaylistPlayingFragment playlistPlayingFragment;
+    private ShpUtils shpUtils;
 
     public PlaylistDetailsFragment(MutableLiveData<Integer> liveData, PlaylistViewModel playlistViewModel, PlayingViewModel playingViewModel) {
         myFragmentViewsCtrlLiveData = liveData;
@@ -78,6 +76,8 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        shpUtils = new ShpUtils(getActivity());
     }
 
     @Override
@@ -124,6 +124,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
                 Toast.makeText(getContext(), "支持正版音乐~", Toast.LENGTH_SHORT).show();
             }
 
+            @SuppressLint("UseCompatLoadingForDrawables")
             @Override
             public void onClickRightBtn(View v, int position) {
                 // 修改当前歌曲
@@ -150,13 +151,9 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
                 View delete = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_delete_music);
                 View add2Playlist = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_add_to_playlist);
                 if (likeBtn != null) {
-                    likeBtn.setOnClickListener(new View.OnClickListener() {
-                        @SuppressLint("UseCompatLoadingForDrawables")
-                        @Override
-                        public void onClick(View v) {
-                            Log.d("TAG", "onClick: 点赞");
-                            likeBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_liked));
-                        }
+                    likeBtn.setOnClickListener(v13 -> {
+                        Log.d("TAG", "onClick: 点赞");
+                        likeBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_liked));
                     });
                 }
                 if (delete != null) {
@@ -209,6 +206,8 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
         mActivity = null;
         playlistViewModel = null;
         playingViewModel = null;
+        myFragmentViewsCtrlLiveData = null;
+        playlistService = null;
     }
 
 
@@ -217,7 +216,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
         if (playlistViewModel != null) {
             playlistViewModel.getCurrentPlaylistDetails().observe(mActivity, detailsModel -> {
                 musicListAdapter.setPlaylistDetails(detailsModel);
-                ShpUtils.writePlaylistDetailsIntoShp(mActivity, detailsModel);
+                shpUtils.writePlaylistDetailsIntoShp(detailsModel);
                 // initDatas()包含adapter.notifyDataSetChanged();
                 initDatas();
             });
@@ -338,7 +337,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
 
     private void initIcons(View view) {
         playlistName = view.findViewById(R.id.playlist_details_playlistName);
-        playlistAvatar = view.findViewById(R.id.playlist_details_avatar);
+//        ImageView playlistAvatar = view.findViewById(R.id.playlist_details_avatar);
         createdUsername = view.findViewById(R.id.playlist_details_createdUsername);
         description = view.findViewById(R.id.playlist_details_description);
         musicNum = view.findViewById(R.id.playlist_details_music_num);

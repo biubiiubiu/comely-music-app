@@ -231,4 +231,28 @@ public class PlaylistServiceImpl implements PlaylistService {
                 });
     }
 
+    @Override
+    public void addMusicIntoMyLike(PlaylistMusicAddRequest request) {
+        Observable<BaseResult<Void>> baseResultObservable = playlistApi.addMusicToMylike(request);
+        baseResultObservable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BaseObserver<Void>(false) {
+                    @Override
+                    public void onSuccess(Void o) {
+//                        添加成功
+
+                    }
+
+                    @Override
+                    public void onFail(int errorCode, String errorMsg, Void response) {
+
+                    }
+
+                    @Override
+                    public void onError(String msg) {
+
+                    }
+                });
+    }
+
 }

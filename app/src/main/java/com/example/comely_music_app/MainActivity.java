@@ -18,7 +18,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
@@ -66,11 +65,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private MyFragment myFragment;
     private FindingFragment findingFragment;
+    private ShpUtils shpUtils;
 
     @SneakyThrows
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        shpUtils = new ShpUtils(this);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -194,11 +196,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (isLogin != null && !isLogin) {
                 // 退出登录 (注：登录成功动作在loginActivity里触发，这里只能触发settingFragment的退出登录)
                 // 清除当前用户信息缓存
-                ShpUtils.clearCurrentUserInfo(this);
+                shpUtils.clearCurrentUserInfo();
                 // 清除用户所有自建歌单详情信息（包括音乐列表）
-                ShpUtils.clearAllCreatedPlaylistDetails(this);
+                shpUtils.clearAllCreatedPlaylistDetails();
                 // 清除用户自建歌单缓存,注意先后顺序
-                ShpUtils.clearCreatedPlaylist(this);
+                shpUtils.clearCreatedPlaylist();
             }
         });
     }
@@ -321,14 +323,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        playingViewModel.getShowBottomNevBar().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean isShow) {
-                if (isShow) {
-                    findViewById(R.id.bottom_nev_bar).setVisibility(View.VISIBLE);
-                } else {
-                    findViewById(R.id.bottom_nev_bar).setVisibility(View.INVISIBLE);
-                }
+        playingViewModel.getShowBottomNevBar().observe(this, isShow -> {
+            if (isShow) {
+                findViewById(R.id.bottom_nev_bar).setVisibility(View.VISIBLE);
+            } else {
+                findViewById(R.id.bottom_nev_bar).setVisibility(View.INVISIBLE);
             }
         });
     }
@@ -373,8 +372,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.play_pause_btn) {
-            playingViewModel.changeIsPlayingLiveData();
-            playingViewModel.changePageStatusLiveData(PageStatus.PLAYING);
+            if (PageStatus.PLAYING.equals(playingViewModel.getPageStatusLiveData().getValue())) {
+                playingViewModel.changeIsPlayingLiveData();
+            } else {
+                playingViewModel.changePageStatusLiveData(PageStatus.PLAYING);
+            }
         } else if (v.getId() == R.id.find_btn) {
             playingViewModel.changePageStatusLiveData(PageStatus.FINDING);
         } else if (v.getId() == R.id.my_btn) {

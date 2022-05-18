@@ -21,7 +21,7 @@ public class FileOperationUtils {
 //    List musicNames = null;
 //    List<Map<String, Object>> musicListItems;
 
-    public static void verifyStoragePermissions(Activity activity) {
+    public void verifyStoragePermissions(Activity activity) {
         try {
             //检测是否有写的权限
             int permission = ActivityCompat.checkSelfPermission(activity, "android.permission.WRITE_EXTERNAL_STORAGE");
@@ -34,7 +34,7 @@ public class FileOperationUtils {
         }
     }
 
-    public static void writeBytesToFile(byte[] buffer, String filePath) throws IOException {
+    public void writeBytesToFile(byte[] buffer, String filePath) throws IOException {
         File file = new File(filePath);
         if (!file.exists()) {
             String directory = getDirectory(filePath);
@@ -104,14 +104,14 @@ public class FileOperationUtils {
 
     /*** ============================================================================================== ***/
 
-    private static String getDirectory(String filePath) {
+    private String getDirectory(String filePath) {
         if (filePath.contains("/")) {
             return filePath.substring(0, filePath.lastIndexOf("/"));
         }
         return "/";
     }
 
-    private static String getFilename(String filePath) {
+    private String getFilename(String filePath) {
         if (filePath.contains("/")) {
             return filePath.substring(filePath.lastIndexOf("/") + 1);
         }
@@ -120,7 +120,7 @@ public class FileOperationUtils {
 
 
     //生成文件
-    private static File makeFile(String filePath, String fileName) {
+    private File makeFile(String filePath, String fileName) {
         File file = null;
         boolean isCreated = true;
         if (makeRootDirectory(filePath)) {
@@ -137,7 +137,7 @@ public class FileOperationUtils {
         return isCreated ? file : null;
     }
 
-    private static boolean makeRootDirectory(String filePath) {
+    private boolean makeRootDirectory(String filePath) {
         File file;
         try {
             file = new File(filePath);

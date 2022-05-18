@@ -219,8 +219,9 @@ public class OtherPlayingViewAdapter extends RecyclerView.Adapter<OtherPlayingVi
         }
 
         public void setCoverAndBk(MusicModel currentModel) throws IOException {
-            Drawable coverSource = CoverBkUtils.getImageSourceFromMusicModel(currentModel, itemView, true);
-            Drawable bkSource = CoverBkUtils.getImageSourceFromMusicModel(currentModel, itemView, false);
+            CoverBkUtils coverBkUtils = new CoverBkUtils();
+            Drawable coverSource = coverBkUtils.getImageSourceFromMusicModel(currentModel, itemView, true);
+            Drawable bkSource = coverBkUtils.getImageSourceFromMusicModel(currentModel, itemView, false);
             if (coverSource != null) {
                 coverImage.setImageDrawable(coverSource);
             }

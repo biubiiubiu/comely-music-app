@@ -22,7 +22,7 @@ public class ImageTransformUtils {
     /**
      * 获取毛玻璃drawable
      */
-    public static Drawable getBlurDrawableFromBmp(View view, Bitmap bitmap) {
+    public Drawable getBlurDrawableFromBmp(View view, Bitmap bitmap) {
         Bitmap blurBmp = doBlur(bitmap, REDIS, false);
         return new BitmapDrawable(view.getResources(), blurBmp);
     }
@@ -30,7 +30,7 @@ public class ImageTransformUtils {
     /**
      * 获取圆角drawable
      */
-    public static Drawable getRoundedDrawableFromBitmap(View view, Bitmap bitmap) {
+    public Drawable getRoundedDrawableFromBitmap(View view, Bitmap bitmap) {
         Bitmap roundedCornerBitmap = getRoundedCornerBitmap(bitmap, ROUND_PX);
         return new BitmapDrawable(view.getResources(), roundedCornerBitmap);
     }
@@ -38,7 +38,7 @@ public class ImageTransformUtils {
     /**
      * 从路径获取bitmap
      */
-    public static Bitmap getBitmapFromPath(String path) {
+    public Bitmap getBitmapFromPath(String path) {
         BitmapDrawable bd = (BitmapDrawable) Drawable.createFromPath(path);
         return bd.getBitmap();
     }
@@ -51,7 +51,7 @@ public class ImageTransformUtils {
      * @param canReuseInBitmap 是否直接修改原图
      * @return 模糊后的bitmap
      */
-    public static Bitmap doBlur(Bitmap sentBitmap, int radius, boolean canReuseInBitmap) {
+    public Bitmap doBlur(Bitmap sentBitmap, int radius, boolean canReuseInBitmap) {
 
         // Stack Blur v1.0 from
         // http://www.quasimondo.com/StackBlurForCanvas/StackBlurDemo.html
@@ -296,7 +296,7 @@ public class ImageTransformUtils {
      * @param roundPx 圆角率
      * @return 圆角图片
      */
-    private static Bitmap getRoundedCornerBitmap(Bitmap bitmap, float roundPx) {
+    private Bitmap getRoundedCornerBitmap(Bitmap bitmap, float roundPx) {
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
         Bitmap output = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);

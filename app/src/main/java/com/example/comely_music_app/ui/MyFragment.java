@@ -23,7 +23,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -71,6 +70,8 @@ public class MyFragment extends Fragment implements View.OnClickListener {
     private PlaylistDetailsFragment playlistDetailsFragment;
     private PlayingViewModel playingViewModel;
 
+    private ShpUtils shpUtils;
+
     public MyFragment(PlayingViewModel playingViewModel) {
         this.playingViewModel = playingViewModel;
     }
@@ -92,19 +93,23 @@ public class MyFragment extends Fragment implements View.OnClickListener {
 
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
         playlistRecycleView.setLayoutManager(manager);
-        List<PlaylistModel> myCreatePlaylistFromShp = ShpUtils.getMyCreatePlaylistFromShp(mActivity);
+        shpUtils = new ShpUtils(mActivity);
+
+        List<PlaylistModel> myCreatePlaylistFromShp = shpUtils.getMyCreatePlaylistFromShp();
+        shpUtils.release();
         adapter = new PlaylistViewListAdapter(myCreatePlaylistFromShp);
         adapter.setListener(new AdapterClickListener() {
             @Override
             public void onClick(View itemView, int position) {
                 // 进入歌单界面
                 PlaylistModel clickPlaylistItem = adapter.getPlaylistData().get(position);
-                String username = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(mActivity)).getUsername();
+                String username = Objects.requireNonNull(shpUtils.getCurrentUserinfoFromShp()).getUsername();
                 PlaylistSelectRequest request = new PlaylistSelectRequest();
                 request.setUsername(username).setPlaylistName(clickPlaylistItem.getName());
                 // 先查本地shp缓存
                 PlaylistDetailsModel detailsModel =
-                        ShpUtils.getPlaylistDetailsFromShpByPlaylistName(mActivity, clickPlaylistItem.getName());
+                        shpUtils.getPlaylistDetailsFromShpByPlaylistName(clickPlaylistItem.getName());
+                shpUtils.release();
                 if (detailsModel != null && detailsModel.getPlaylistInfo() != null
                         && detailsModel.getMusicModelList() != null) {
                     // 本地缓存有就直接使用
@@ -175,10 +180,11 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         //销毁引用
         mActivity = null;
         playingViewModel = null;
+        playlistService = null;
     }
 
     private void initDatas() {
-        UserInfo info = ShpUtils.getCurrentUserinfoFromShp(mActivity);
+        UserInfo info = shpUtils.getCurrentUserinfoFromShp();
         if (info != null) {
             // 用户昵称
             String nickname = info.getNickname();
@@ -213,21 +219,22 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                     // 刷界面
                     nicknameTxt.setText(userInfo.getNickname());
                     // 写入shp
-                    UserInfo currentUserinfoFromShp = ShpUtils.getCurrentUserinfoFromShp(mActivity);
-                    List<PlaylistModel> myCreatePlaylist = ShpUtils.getMyCreatePlaylistFromShp(mActivity);
+                    UserInfo currentUserinfoFromShp = shpUtils.getCurrentUserinfoFromShp();
+                    List<PlaylistModel> myCreatePlaylist = shpUtils.getMyCreatePlaylistFromShp();
                     if (myCreatePlaylist != null) {
                         for (PlaylistModel model : myCreatePlaylist) {
                             // 修改自建歌单的创建者用户名
-                            PlaylistDetailsModel details = ShpUtils.getPlaylistDetailsFromShpByPlaylistName(mActivity, model.getName());
+                            PlaylistDetailsModel details = shpUtils.getPlaylistDetailsFromShpByPlaylistName(model.getName());
                             if (details != null) {
                                 details.getPlaylistInfo().setCreatedUserNickname(userInfo.getNickname());
-                                ShpUtils.writePlaylistDetailsIntoShp(mActivity, details);
+                                shpUtils.writePlaylistDetailsIntoShp(details);
                             }
                         }
                     }
                     if (!userInfo.equals(currentUserinfoFromShp)) {
-                        ShpUtils.writeCurrentUserinfoToShp(mActivity, userInfo);
+                        shpUtils.writeCurrentUserinfoToShp(userInfo);
                     }
+                    shpUtils.release();
                 }
             });
         }
@@ -236,7 +243,8 @@ public class MyFragment extends Fragment implements View.OnClickListener {
             playlistViewModel.getMyCreatedPlaylists().observe(Objects.requireNonNull(mActivity), playlistModels -> {
                 adapter.setPlaylistData(playlistModels);
                 // 写入shp，下次直接打开应用不需要联网就可以加载
-                ShpUtils.writeMyCreatePlaylistToShp(mActivity, playlistModels);
+                shpUtils.writeMyCreatePlaylistToShp(playlistModels);
+                shpUtils.release();
                 adapter.notifyDataSetChanged();
                 Log.d("TAG", "writeMyCreatePlaylistToShp: 写入shp");
             });
@@ -245,7 +253,8 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         if (playlistViewModel != null) {
             playlistViewModel.getShowCreated().observe(Objects.requireNonNull(mActivity), model -> {
                 PlaylistDetailsModel detailsModel = playlistViewModel.getCurrentPlaylistDetails().getValue();
-                ShpUtils.writePlaylistDetailsIntoShp(mActivity, detailsModel);
+                shpUtils.writePlaylistDetailsIntoShp(detailsModel);
+                shpUtils.release();
                 myFragmentViewsCtrlLiveData.setValue(2);
             });
             playlistViewModel.getShowCollect().observe(Objects.requireNonNull(mActivity),
@@ -253,12 +262,9 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         }
 
         if (playlistViewModel != null) {
-            playlistViewModel.getCurrentPlaylistDetails().observe(Objects.requireNonNull(mActivity), new Observer<PlaylistDetailsModel>() {
-                @Override
-                public void onChanged(PlaylistDetailsModel detailsModel) {
-                    PlaylistModel playlistInfo = detailsModel.getPlaylistInfo();
-                    playlistViewModel.updateCreatedPlaylistByName(playlistInfo.getName(), playlistInfo);
-                }
+            playlistViewModel.getCurrentPlaylistDetails().observe(Objects.requireNonNull(mActivity), detailsModel -> {
+                PlaylistModel playlistInfo = detailsModel.getPlaylistInfo();
+                playlistViewModel.updateCreatedPlaylistByName(playlistInfo.getName(), playlistInfo);
             });
         }
 
@@ -388,7 +394,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                     visibility = 0;
                 }
                 PlaylistCreateRequest request = new PlaylistCreateRequest();
-                String username = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(mActivity)).getUsername();
+                String username = Objects.requireNonNull(shpUtils.getCurrentUserinfoFromShp()).getUsername();
                 // relation=0是我喜欢，1-自建歌单，2-收藏歌单
                 request.setName(playlistName).setUsername(username).setVisibility(visibility).setMusicNum(0).setRelation(1);
                 playlistService.createPlaylist(request);
@@ -428,7 +434,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                 Toast.makeText(mActivity, "您还未做出任何修改~", Toast.LENGTH_SHORT).show();
             } else {
                 PlaylistUpdateRequest request = new PlaylistUpdateRequest();
-                String username = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(mActivity)).getUsername();
+                String username = Objects.requireNonNull(shpUtils.getCurrentUserinfoFromShp()).getUsername();
                 request.setOldName(playlistName).setOldUsername(username)
                         .setNewName(newPlaylistName).setVisibility(newVisibility);
                 playlistService.updatePlaylist(request);
@@ -462,7 +468,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
 
             // 删除数据库歌单
             PlaylistSelectRequest request = new PlaylistSelectRequest();
-            String username = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(mActivity)).getUsername();
+            String username = Objects.requireNonNull(shpUtils.getCurrentUserinfoFromShp()).getUsername();
             request.setPlaylistName(playlistName).setUsername(username);
             playlistService.deletePlaylist(request);
             //... To-do
