@@ -64,36 +64,30 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.Musi
             holder.setDataOnView(playlistDetails.getMusicModelList().get(position));
         }
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onClick(v, position);
+            }
+        });
+        holder.itemView.setOnLongClickListener(v -> {
+            if (listener != null) {
+                listener.onLongClick(v, position);
+            }
+            return true;
+        });
+        holder.itemView.findViewById(R.id.item_playlist_behind_title_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (listener != null) {
-                    listener.onClick(v, position);
+                    listener.onClickBtnBehindTitle(v, position);
                 }
             }
         });
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                if (listener != null) {
-                    listener.onLongClick(v, position);
-                }
-                return true;
-            }
-        });
-        holder.itemView.findViewById(R.id.item_playlist_editableBtn).setOnClickListener(new View.OnClickListener() {
+        holder.itemView.findViewById(R.id.item_playlist_ormusic_right_image).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (listener != null) {
-                    listener.onClickEditableBtn(v, position);
-                }
-            }
-        });
-        holder.itemView.findViewById(R.id.item_playlist_name).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null) {
-                    listener.onClickEditableBtn(v, position);
+                    listener.onClickRightBtn(v, position);
                 }
             }
         });
@@ -117,11 +111,11 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.Musi
         }
 
         private void initIcons(View itemView) {
-            musicCover = itemView.findViewById(R.id.item_playlist_cover);
-            musicName = itemView.findViewById(R.id.item_playlist_name);
+            musicCover = itemView.findViewById(R.id.item_playlist_ormusic_cover);
+            musicName = itemView.findViewById(R.id.item_playlist_ormusic_name);
             artistName = itemView.findViewById(R.id.item_playlist_music_num);
-            moreBtn = itemView.findViewById(R.id.item_playlist_visibility_image);
-            copyright = itemView.findViewById(R.id.item_playlist_editableBtn);
+            moreBtn = itemView.findViewById(R.id.item_playlist_ormusic_right_image);
+            copyright = itemView.findViewById(R.id.item_playlist_behind_title_btn);
 
         }
 

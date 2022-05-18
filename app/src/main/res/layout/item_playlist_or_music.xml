@@ -12,7 +12,7 @@
         android:orientation="horizontal">
 
         <com.github.xiaofeidev.round.RoundImageView
-            android:id="@+id/item_playlist_cover"
+            android:id="@+id/item_playlist_ormusic_cover"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:scaleType="centerCrop"
@@ -33,7 +33,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/item_playlist_name"
+                    android:id="@+id/item_playlist_ormusic_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -42,7 +42,7 @@
                     android:textSize="16sp" />
 
                 <ImageButton
-                    android:id="@+id/item_playlist_editableBtn"
+                    android:id="@+id/item_playlist_behind_title_btn"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
                     android:layout_gravity="bottom"
@@ -66,7 +66,7 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/item_playlist_visibility_image"
+            android:id="@+id/item_playlist_ormusic_right_image"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_gravity="center"

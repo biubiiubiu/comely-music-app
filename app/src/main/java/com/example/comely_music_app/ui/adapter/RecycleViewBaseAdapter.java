@@ -52,14 +52,14 @@ public abstract class RecycleViewBaseAdapter<T> extends RecyclerView.Adapter<Rec
             }
             return true;
         });
-        holder.itemView.findViewById(R.id.item_playlist_editableBtn).setOnClickListener(v -> {
+        holder.itemView.findViewById(R.id.item_playlist_behind_title_btn).setOnClickListener(v -> {
             if (listener != null) {
-                listener.onClickEditableBtn(v, position);
+                listener.onClickBtnBehindTitle(v, position);
             }
         });
-        holder.itemView.findViewById(R.id.item_playlist_name).setOnClickListener(v -> {
+        holder.itemView.findViewById(R.id.item_playlist_ormusic_name).setOnClickListener(v -> {
             if (listener != null) {
-                listener.onClickEditableBtn(v, position);
+                listener.onClickBtnBehindTitle(v, position);
             }
         });
     }
