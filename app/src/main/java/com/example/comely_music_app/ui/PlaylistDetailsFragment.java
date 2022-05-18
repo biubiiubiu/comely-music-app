@@ -39,6 +39,7 @@ import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
+import com.example.comely_music_app.utils.CoverBkUtils;
 import com.example.comely_music_app.utils.ScreenUtils;
 import com.example.comely_music_app.utils.ShpUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -132,6 +133,44 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
                 View viewById = bottomSheetDialog.getDelegate().findViewById(R.id.design_bottom_sheet);
                 if (viewById != null) {
                     viewById.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+                }
+//                封面暂不显示
+//                ImageView cover = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_item_cover);
+                TextView musicNameText = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_music_name);
+                TextView artistNameText = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_artist_name);
+                List<MusicModel> musicModels = musicListAdapter.getMusicList();
+                if (musicModels != null && musicModels.size() >= position) {
+                    MusicModel model = musicModels.get(position);
+                    if (model != null && musicNameText != null && artistNameText != null) {
+                        musicNameText.setText(model.getName());
+                        artistNameText.setText(model.getArtistName());
+                    }
+                }
+                ImageButton likeBtn = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_like_btn);
+                View delete = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_delete_music);
+                View add2Playlist = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_add_to_playlist);
+                if (likeBtn != null) {
+                    likeBtn.setOnClickListener(new View.OnClickListener() {
+                        @SuppressLint("UseCompatLoadingForDrawables")
+                        @Override
+                        public void onClick(View v) {
+                            Log.d("TAG", "onClick: 点赞");
+                            likeBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_liked));
+                        }
+                    });
+                }
+                if (delete != null) {
+                    delete.setOnClickListener(v1 -> {
+                        // 删除当前歌曲
+                        PlaylistDetailsModel detailsModel = playlistViewModel.getCurrentPlaylistDetails().getValue();
+                        if (detailsModel != null && detailsModel.getPlaylistInfo() != null) {
+                            String playlistName = detailsModel.getPlaylistInfo().getName();
+                            showDeleteDialog(playlistName, musicListAdapter.getMusicList().get(position));
+                        }
+                    });
+                }
+                if (add2Playlist != null) {
+                    add2Playlist.setOnClickListener(v12 -> Toast.makeText(getContext(), "抱歉，该功能暂未开放哦~", Toast.LENGTH_SHORT).show());
                 }
                 bottomSheetDialog.show();
             }
