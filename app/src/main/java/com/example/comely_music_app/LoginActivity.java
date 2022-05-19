@@ -13,16 +13,20 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.example.comely_music_app.network.request.LoginRequest;
+import com.example.comely_music_app.network.request.PlaylistSelectRequest;
 import com.example.comely_music_app.network.response.UserInfo;
 import com.example.comely_music_app.network.service.PlaylistService;
 import com.example.comely_music_app.network.service.UserService;
 import com.example.comely_music_app.network.service.impl.PlaylistServiceImpl;
 import com.example.comely_music_app.network.service.impl.UserServiceImpl;
 import com.example.comely_music_app.config.ShpConfig;
+import com.example.comely_music_app.ui.enums.PlaylistSelectScene;
+import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
@@ -32,6 +36,8 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import lombok.Data;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
     private TextView usernameText, passwordText, forget_password;
@@ -43,10 +49,25 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private UserInfoViewModel userInfoViewModel;
     private PlaylistViewModel playlistViewModel;
 
+    private MutableLiveData<LoadDataSuccessFlag> flagMutableLiveData;
+
+    @Data
+    static class LoadDataSuccessFlag {
+        boolean loadMyCreatedSuccess = false;
+        boolean loadMyLikeSuccess = false;
+        boolean loadCollectSuccess = false;
+
+        boolean isReady() {
+            return loadMyCreatedSuccess && loadMyLikeSuccess && loadCollectSuccess;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        flagMutableLiveData = new MutableLiveData<>();
+
         userInfoViewModel = ViewModelProviders.of(this).get(UserInfoViewModel.class);
         playlistViewModel = ViewModelProviders.of(this).get(PlaylistViewModel.class);
         userService = new UserServiceImpl(userInfoViewModel);
@@ -103,8 +124,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     Toast.makeText(getApplicationContext(), "登录成功！", Toast.LENGTH_SHORT).show();
 
                     ShpUtils.writeCurrentUserinfoToShp(this, userInfo);
+                    // 获取用户创建歌单
                     playlistService.selectAllCreatedPlaylistByUsername(userInfo.getUsername());
+                    // 获取我喜欢歌单
+                    PlaylistSelectRequest request = new PlaylistSelectRequest();
+                    request.setUsername(userInfo.getUsername()).setPlaylistName(userInfo.getUsername() + "的喜欢歌单");
+                    playlistService.selectPlaylistDetailsByScene(request, PlaylistSelectScene.MY_LIKE);
                 }
+            }
+        });
+
+        // 控制所有数据都加载完成才能进入主界面
+        flagMutableLiveData.observe(this, loadDataSuccessFlag -> {
+            if (Objects.requireNonNull(flagMutableLiveData.getValue()).isReady()) {
+                userInfoViewModel.setIsLogin(true);
             }
         });
 
@@ -112,7 +145,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             playlistViewModel.getMyCreatedPlaylists().observe(this, playlistModels -> {
                 // 写入shp，下次直接打开应用不需要联网就可以加载
                 ShpUtils.writeMyCreatePlaylistToShp(this, playlistModels);
-                userInfoViewModel.setIsLogin(true);
+                Objects.requireNonNull(flagMutableLiveData.getValue()).setLoadMyCreatedSuccess(true);
+            });
+
+            playlistViewModel.getMyLikePlaylistDetails().observe(this, mylikePlaylistDetails -> {
+                ShpUtils.writeMyLikePlaylistDetailsIntoShp(this, mylikePlaylistDetails);
+                Objects.requireNonNull(flagMutableLiveData.getValue()).setLoadMyLikeSuccess(true);
+
+                Objects.requireNonNull(flagMutableLiveData.getValue()).setLoadMyCreatedSuccess(true);
             });
         }
 

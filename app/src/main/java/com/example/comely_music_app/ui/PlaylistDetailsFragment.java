@@ -176,8 +176,6 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
         });
         musicListRecycleView.setAdapter(musicListAdapter);
 
-        initDatas();
-
         if (playlistPlayingFragment == null) {
             playlistPlayingFragment = new PlaylistPlayingFragment(detailsViewCtrlLiveData, playingViewModel, playlistViewModel);
         }
@@ -216,7 +214,12 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
         if (playlistViewModel != null) {
             playlistViewModel.getCurrentPlaylistDetails().observe(mActivity, detailsModel -> {
                 musicListAdapter.setPlaylistDetails(detailsModel);
-                ShpUtils.writePlaylistDetailsIntoShp(mActivity, detailsModel);
+                String username = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(mActivity)).getUsername();
+                if (detailsModel.getPlaylistInfo() != null && detailsModel.getPlaylistInfo().getName() != null &&
+                        detailsModel.getPlaylistInfo().getName().equals(username + "的喜欢歌单")) {
+                    // 不是喜欢歌单
+                    ShpUtils.writePlaylistDetailsIntoShp(mActivity, detailsModel);
+                }
                 // initDatas()包含adapter.notifyDataSetChanged();
                 initDatas();
             });

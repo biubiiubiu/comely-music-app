@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 
 import androidx.fragment.app.FragmentActivity;
 
+import com.example.comely_music_app.MainActivity;
 import com.example.comely_music_app.network.response.UserInfo;
 import com.example.comely_music_app.config.ShpConfig;
 import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
@@ -81,6 +82,38 @@ public class ShpUtils {
         }
     }
 
+    public static PlaylistDetailsModel getMyLikePlaylistDetailsFromShp(Activity mActivity) {
+        SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
+        String playlistDetailsStr = shp.getString(ShpConfig.MY_LIKE_PLAYLIST, "");
+        if (!playlistDetailsStr.equals("")) {
+            Gson gson = new Gson();
+            return gson.fromJson(playlistDetailsStr, new TypeToken<PlaylistDetailsModel>() {
+            }.getType());
+        }
+        return null;
+    }
+
+    public static void writeMyLikePlaylistDetailsIntoShp(Activity mActivity, PlaylistDetailsModel myLikeDetails) {
+        if (myLikeDetails == null) {
+            return;
+        }
+        SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = shp.edit();
+        Gson gson = new Gson();
+        if (myLikeDetails.getPlaylistInfo() == null) {
+            PlaylistModel playlistInfo = new PlaylistModel();
+            UserInfo userinfo = getCurrentUserinfoFromShp(mActivity);
+            if (userinfo != null) {
+                playlistInfo.setName(userinfo.getUsername() + "的喜欢歌单");
+                playlistInfo.setCreatedUserNickname(userinfo.getNickname());
+            }
+            myLikeDetails.setPlaylistInfo(playlistInfo);
+        }
+        String str = gson.toJson(myLikeDetails);
+        editor.putString(ShpConfig.MY_LIKE_PLAYLIST, str);
+        editor.apply();
+    }
+
     // ============================= clear =================================
 
     public static void clearCurrentUserInfo(Activity mActivity) {
@@ -106,6 +139,13 @@ public class ShpUtils {
                 editor.putString(ShpConfig.PLAYLIST_DETAILS + model.getName(), "");
             }
         }
+        editor.apply();
+    }
+
+    public static void clearMylikePlaylist(Activity mActivity) {
+        SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = shp.edit();
+        editor.putString(ShpConfig.MY_LIKE_PLAYLIST, "");
         editor.apply();
     }
 }

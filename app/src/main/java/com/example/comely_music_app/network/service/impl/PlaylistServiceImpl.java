@@ -24,6 +24,7 @@ import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -169,6 +170,9 @@ public class PlaylistServiceImpl implements PlaylistService {
                 });
     }
 
+    /**
+     * 只有在点击歌单item的时候 并且shp没有缓存的时候 才会触发
+     */
     @Override
     public void selectPlaylistDetailsByScene(PlaylistSelectRequest request, PlaylistSelectScene scene) {
         Observable<BaseResult<PlaylistInfoWithMusicListResponse>> result = playlistApi.selectPlaylistWithMusicList(request);
@@ -185,9 +189,23 @@ public class PlaylistServiceImpl implements PlaylistService {
                             }
                             currentDetails.setPlaylistInfo(response.getPlaylistInfo());
                             currentDetails.setMusicModelList(musicModelList);
+                            // 触发歌单详情页展示
                             playlistViewModel.setCurrentPlaylistDetails(currentDetails);
                         } else if (scene.equals(PlaylistSelectScene.COLLECT_PLAYLIST)) {
                             // todo 展示用户收藏歌单详情页
+                        } else if (scene.equals(PlaylistSelectScene.MY_LIKE)) {
+                            // 展示用户喜欢歌单详情页
+                            List<MusicModel> musicModelList = musicService.transMusicInfo2Models(response.getMusicInfoList());
+                            PlaylistDetailsModel mylikeDetails = playlistViewModel.getMyLikePlaylistDetails().getValue();
+                            if (mylikeDetails == null) {
+                                mylikeDetails = new PlaylistDetailsModel();
+                            }
+                            mylikeDetails.setPlaylistInfo(response.getPlaylistInfo());
+                            mylikeDetails.setMusicModelList(musicModelList);
+                            // 用于存储数据
+                            playlistViewModel.setMyLikePlaylistDetails(mylikeDetails);
+                            // 触发歌单详情页展示
+                            playlistViewModel.setCurrentPlaylistDetails(mylikeDetails);
                         }
                     }
 
@@ -242,8 +260,8 @@ public class PlaylistServiceImpl implements PlaylistService {
                     public void onSuccess(MusicSelectResponse response) {
                         // 添加成功
                         List<MusicSelectResponse.MusicInfo> infoList = response.getMusicList();
-                        for (MusicSelectResponse.MusicInfo info:infoList){
-                            Log.d("TAG", "addMusicIntoMyLike: 成功加入喜欢歌单："+info.getName()+info.getArtistName());
+                        for (MusicSelectResponse.MusicInfo info : infoList) {
+                            Log.d("TAG", "addMusicIntoMyLike: 成功加入喜欢歌单：" + info.getName() + info.getArtistName());
                         }
 //                        List<MusicModel> modelList = musicService.transMusicInfo2Models(infoList);
 //                        playlistViewModel.addIntoMyLikePlaylist(modelList);
@@ -260,6 +278,54 @@ public class PlaylistServiceImpl implements PlaylistService {
 
                     }
                 });
+    }
+
+    @Override
+    public void removeMusicFromMyLike(PlaylistMusicAddRequest request) {
+        Observable<BaseResult<MusicSelectResponse>> baseResultObservable = playlistApi.removeMusicFromMylike(request);
+        baseResultObservable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BaseObserver<MusicSelectResponse>(false) {
+                    @Override
+                    public void onSuccess(MusicSelectResponse response) {
+                        // 添加成功
+                        List<MusicSelectResponse.MusicInfo> infoList = response.getMusicList();
+                        for (MusicSelectResponse.MusicInfo info : infoList) {
+                            Log.d("TAG", "removeMusicFromMyLike: 成功删除喜欢歌单：" + info.getName() + info.getArtistName());
+                        }
+//                        List<MusicModel> modelList = musicService.transMusicInfo2Models(infoList);
+//                        playlistViewModel.addIntoMyLikePlaylist(modelList);
+                    }
+
+                    @Override
+                    public void onFail(int errorCode, String errorMsg, MusicSelectResponse response) {
+                        Log.e("TAG", "removeMusicFromMyLike: 删除喜欢歌单失败", null);
+                    }
+
+
+                    @Override
+                    public void onError(String msg) {
+
+                    }
+                });
+    }
+
+    @Override
+    public List<PlaylistMusicAddRequest.MusicAddInfo> transMusicModel2AddInfos(List<MusicModel> musicModels) {
+        if (musicModels == null || musicModels.size() == 0) {
+            return null;
+        }
+        List<PlaylistMusicAddRequest.MusicAddInfo> addInfos = new ArrayList<>();
+        for (MusicModel model : musicModels) {
+            if (model == null) {
+                continue;
+            }
+            PlaylistMusicAddRequest.MusicAddInfo info = new PlaylistMusicAddRequest.MusicAddInfo();
+            info.setTitle(model.getName());
+            info.setArtistName(model.getArtistName());
+            addInfos.add(info);
+        }
+        return addInfos;
     }
 
 

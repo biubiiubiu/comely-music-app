@@ -184,24 +184,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void storeAndUploadMyLikeList() {
-        // 把”我喜欢“存入本地缓存
-        PlaylistDetailsModel myLikeDetails = playlistViewModel.getMyLikePlaylistDetails().getValue();
-        if (myLikeDetails != null && myLikeDetails.getMusicModelList() != null) {
-            // 上传“我喜欢”歌单只需要用户名，不需要歌单名
-            PlaylistMusicAddRequest request = new PlaylistMusicAddRequest();
-            String username = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(this)).getUsername();
-            request.setUsername(username);
-            List<PlaylistMusicAddRequest.MusicAddInfo> infos = new ArrayList<>();
-            for (MusicModel likedMusic : myLikeDetails.getMusicModelList()) {
-                PlaylistMusicAddRequest.MusicAddInfo info = new PlaylistMusicAddRequest.MusicAddInfo(likedMusic.getName(), likedMusic.getArtistName());
-                infos.add(info);
-            }
-            request.setMusicAddInfoList(infos);
-            playlistService.addMusicIntoMyLike(request);
+        // 上传到数据库
+        // 在mysql里：把toadd添加到我喜欢，把toremove从我喜欢里删除
+        List<MusicModel> toAddIntoMyLike = playlistViewModel.getToAddIntoMyLike();
+        List<MusicModel> toRemoveFromMyLike = playlistViewModel.getToRemoveFromMyLike();
 
-            // 存储shp
-            ShpUtils.writePlaylistDetailsIntoShp(this, myLikeDetails);
-        }
+        List<PlaylistMusicAddRequest.MusicAddInfo> toAddInfos = playlistService.transMusicModel2AddInfos(toAddIntoMyLike);
+        List<PlaylistMusicAddRequest.MusicAddInfo> toRemoveInfos = playlistService.transMusicModel2AddInfos(toRemoveFromMyLike);
+
+        String username = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(this)).getUsername();
+
+        PlaylistMusicAddRequest addRequest = new PlaylistMusicAddRequest();
+        addRequest.setUsername(username).setMusicAddInfoList(toAddInfos);
+        playlistService.addMusicIntoMyLike(addRequest);
+
+        PlaylistMusicAddRequest removeRequest = new PlaylistMusicAddRequest();
+        removeRequest.setUsername(username).setMusicAddInfoList(toRemoveInfos);
+        playlistService.addMusicIntoMyLike(removeRequest);
     }
 
     /**
@@ -235,6 +234,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ShpUtils.clearAllCreatedPlaylistDetails(this);
                 // 清除用户自建歌单缓存,注意先后顺序
                 ShpUtils.clearCreatedPlaylist(this);
+                // 清除用户喜欢歌单
+                ShpUtils.clearMylikePlaylist(this);
             }
         });
     }
@@ -291,10 +292,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (isLike) {
                 // 加入viewmodel
                 playlistViewModel.addIntoMyLikePlaylist(list);
+                playlistViewModel.like(list);
             } else {
                 // 从viewmodel删除
                 playlistViewModel.removeFromMyLikePlaylist(list);
+                playlistViewModel.dislike(list);
             }
+        });
+
+        playlistViewModel.getMyLikePlaylistDetails().observe(this, detailsModel -> {
+            // 把”我喜欢“存入本地缓存
+            PlaylistDetailsModel myLikeDetails = playlistViewModel.getMyLikePlaylistDetails().getValue();
+            playlistViewModel.setCurrentPlaylistDetails(myLikeDetails);
+            ShpUtils.writeMyLikePlaylistDetailsIntoShp(this, myLikeDetails);
         });
 
         // 从后端获取musicModelList信息，刷新给adapter-endless，并生成界面可使用的list，并且notify一下

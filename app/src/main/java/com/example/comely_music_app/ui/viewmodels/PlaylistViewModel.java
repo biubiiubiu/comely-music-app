@@ -18,10 +18,90 @@ public class PlaylistViewModel extends ViewModel {
     private MutableLiveData<PlaylistDetailsModel> currentPlaylistDetails;
     private MutableLiveData<PlaylistDetailsModel> myLikePlaylistDetails;
 
+    // (因为点赞和取消点赞是频繁的，不能每次都请求数据库，所以在关闭activity时刷新到数据库)
+    // 于是分别存放需要在数据库“我喜欢”歌单中 添加与删除 的音乐，用于增量刷新数据库中我喜欢歌单
+    private List<MusicModel> toAddIntoMyLike = new ArrayList<>();
+    private List<MusicModel> toRemoveFromMyLike = new ArrayList<>();
+
+    public List<MusicModel> getToAddIntoMyLike() {
+        return toAddIntoMyLike;
+    }
+
+    public List<MusicModel> getToRemoveFromMyLike() {
+        return toRemoveFromMyLike;
+    }
+
+    public void like(List<MusicModel> musicModels) {
+        // 添加到toadd
+        for (MusicModel next : musicModels) {
+            if (!toAddIntoMyLike.contains(next)) {
+                toAddIntoMyLike.add(next);
+            }
+        }
+        // 从toremove中删除
+        Iterator<MusicModel> iterator = toRemoveFromMyLike.iterator();
+        while (iterator.hasNext()) {
+            MusicModel next = iterator.next();
+            if (musicModels.contains(next)) {
+                iterator.remove();
+            }
+        }
+    }
+
+    public void dislike(List<MusicModel> musicModels) {
+        // 添加到toremove
+        for (MusicModel next : musicModels) {
+            if (!toRemoveFromMyLike.contains(next)) {
+                toRemoveFromMyLike.add(next);
+            }
+        }
+        // 从toadd中删除
+        Iterator<MusicModel> iterator = toAddIntoMyLike.iterator();
+        while (iterator.hasNext()) {
+            MusicModel next = iterator.next();
+            if (musicModels.contains(next)) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private void addInMylikeAddList(List<MusicModel> musicModels) {
+        for (MusicModel next : musicModels) {
+            if (!toAddIntoMyLike.contains(next)) {
+                toAddIntoMyLike.add(next);
+            }
+        }
+    }
+
+    private void removeFromMylikeAddList(List<MusicModel> musicModels) {
+        Iterator<MusicModel> iterator = toAddIntoMyLike.iterator();
+        while (iterator.hasNext()) {
+            MusicModel next = iterator.next();
+            if (musicModels.contains(next)) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private void addInMylikeRemoveList(MusicModel musicModel) {
+        toRemoveFromMyLike.add(musicModel);
+    }
+
+    private void removeFromMylikeRemoveList(MusicModel musicModel) {
+        Iterator<MusicModel> iterator = toRemoveFromMyLike.iterator();
+        while (iterator.hasNext()) {
+            MusicModel next = iterator.next();
+            if (next.equals(musicModel)) {
+                iterator.remove();
+            }
+        }
+    }
+
+
     /**
      * 点击自建歌单/收藏歌单时+1，触发回调，展示歌单详情页
      */
-    private MutableLiveData<Integer> showCreated, showCollect;
+    private MutableLiveData<Integer> showCreated, showCollect, showMylike;
 
     /**
      * 创建/删除歌单 成功/失败时设置+1，触发回调
@@ -29,7 +109,7 @@ public class PlaylistViewModel extends ViewModel {
     private MutableLiveData<Integer> createSuccessFlag, deleteSuccessFlag, createFailedFlag, deleteFailedFlag,
             updateSuccessFlag, updateFailedFlag;
 
-    // ===================================== myFragment界面歌单列表数据控制 ===============================================
+// ===================================== myFragment界面歌单列表数据控制 ===============================================
 
     public MutableLiveData<List<PlaylistModel>> getMyCreatedPlaylists() {
         if (myCreatedPlaylists == null) {
@@ -310,6 +390,13 @@ public class PlaylistViewModel extends ViewModel {
         return showCollect;
     }
 
+    public MutableLiveData<Integer> getShowMylike() {
+        if (showMylike == null) {
+            showMylike = new MutableLiveData<>();
+        }
+        return showMylike;
+    }
+
 
     public void setShowCreated() {
         if (showCreated == null) {
@@ -329,5 +416,15 @@ public class PlaylistViewModel extends ViewModel {
             showCollect.setValue(0);
         }
         showCollect.setValue(showCollect.getValue() + 1);
+    }
+
+    public void setShowMylike() {
+        if (showMylike == null) {
+            showMylike = getShowMylike();
+        }
+        if (showMylike.getValue() == null) {
+            showMylike.setValue(0);
+        }
+        showMylike.setValue(showMylike.getValue() + 1);
     }
 }

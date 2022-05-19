@@ -39,4 +39,7 @@ public interface PlaylistApi {
 
     @POST("generate/playlist/add-music-into-my-like")
     Observable<BaseResult<MusicSelectResponse>> addMusicToMylike(@Body PlaylistMusicAddRequest request);
+
+    @POST("generate/playlist/remove-music-from-my-like")
+    Observable<BaseResult<MusicSelectResponse>> removeMusicFromMylike(@Body PlaylistMusicAddRequest request);
 }
