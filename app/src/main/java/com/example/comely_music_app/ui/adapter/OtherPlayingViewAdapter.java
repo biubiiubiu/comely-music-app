@@ -219,10 +219,14 @@ public class OtherPlayingViewAdapter extends RecyclerView.Adapter<OtherPlayingVi
         }
 
         public void setCoverAndBk(MusicModel currentModel) throws IOException {
-            Drawable imageSource = CoverBkUtils.getImageSourceFromMusicModel(currentModel, itemView);
-            if (imageSource != null) {
-                coverImage.setImageDrawable(imageSource);
-                itemView.findViewById(R.id.item_plying_bk).setBackground(imageSource);
+            CoverBkUtils coverBkUtils = new CoverBkUtils();
+            Drawable coverSource = coverBkUtils.getImageSourceFromMusicModel(currentModel, itemView, true);
+            Drawable bkSource = coverBkUtils.getImageSourceFromMusicModel(currentModel, itemView, false);
+            if (coverSource != null) {
+                coverImage.setImageDrawable(coverSource);
+            }
+            if (bkSource != null) {
+                itemView.findViewById(R.id.item_plying_bk).setBackground(bkSource);
             }
 
             // 获取背景毛玻璃, 已弃用

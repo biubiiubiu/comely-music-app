@@ -47,7 +47,7 @@ public class PlayingViewModel extends AndroidViewModel {
     public MutableLiveData<Boolean> getIsPlayingLiveData() {
         // 如果没有就初始化为isPlaying=true
         if (isPlayingLiveData == null) {
-            isPlayingLiveData = new MutableLiveData<>(true);
+            isPlayingLiveData = new MutableLiveData<>(false);
         }
         return isPlayingLiveData;
     }
@@ -121,8 +121,8 @@ public class PlayingViewModel extends AndroidViewModel {
      * 更改页面状态
      */
     public void changePageStatusLiveData(PageStatus status) {
-        if (isPlayingLiveData == null) {
-            isPlayingLiveData = getIsPlayingLiveData();
+        if (pageStatusLiveData == null) {
+            pageStatusLiveData = getPageStatusLiveData();
         }
         if (!status.equals(pageStatusLiveData.getValue())) {
             pageStatusLiveData.setValue(status);

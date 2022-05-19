@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.view.View;
-import android.widget.ImageView;
 
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.ui.models.MusicModel;
@@ -15,12 +14,13 @@ import java.io.IOException;
 public class CoverBkUtils {
     /**
      * 获取cover和background的图片drawable，如果music资源中没有就返回默认的资源
+     *
      * @param musicModel 当前itemview的数据，即music资源
-     * @param itemView 当前itemview
+     * @param itemView   当前itemview
      * @return 图片资源drawable
      * @throws IOException 文件异常
      */
-    public static Drawable getImageSourceFromMusicModel(MusicModel musicModel, View itemView) throws IOException {
+    public Drawable getImageSourceFromMusicModel(MusicModel musicModel, View itemView, boolean iscover) throws IOException {
         if (musicModel == null) {
             return null;
         }
@@ -36,10 +36,11 @@ public class CoverBkUtils {
             mmr.setDataSource(audioPath);
             byte[] embedCover = mmr.getEmbeddedPicture();
             if (embedCover != null && embedCover.length > 0) {
-                FileOperationUtils.writeBytesToFile(embedCover, coverPath);
+                FileOperationUtils fileOperationUtils = new FileOperationUtils();
+                fileOperationUtils.writeBytesToFile(embedCover, coverPath);
             } else {
                 // 使用默认图片作为封面
-                return getDefaultCoverImage(itemView);
+                return getDefaultCoverImage(itemView, iscover);
             }
         }
         return Drawable.createFromPath(coverPath);
@@ -49,29 +50,33 @@ public class CoverBkUtils {
      * 获取默认图片
      *
      * @param itemView 能够获取到resource的view
+     * @param isCover
      */
     @SuppressLint("UseCompatLoadingForDrawables")
-    private static Drawable getDefaultCoverImage(View itemView) {
+    private Drawable getDefaultCoverImage(View itemView, boolean isCover) {
         int index = (int) (Math.random() * 7) + 1;
-        int drawableId = R.drawable.bk_01;
+        int drawableId = isCover ? R.drawable.bk_01 : R.drawable.player_bk_01;
         switch (index) {
+            case 1:
+                drawableId = isCover ? R.drawable.bk_01 : R.drawable.player_bk_01;
+                break;
             case 2:
-                drawableId = R.drawable.bk_02;
+                drawableId = isCover ? R.drawable.bk_02 : R.drawable.player_bk_01;
                 break;
             case 3:
-                drawableId = R.drawable.bk_03;
+                drawableId = isCover ? R.drawable.bk_03 : R.drawable.player_bk_02;
                 break;
             case 4:
-                drawableId = R.drawable.bk_04;
+                drawableId = isCover ? R.drawable.bk_06 : R.drawable.player_bk_02;
                 break;
             case 5:
-                drawableId = R.drawable.bk_05;
+                drawableId = isCover ? R.drawable.bk_05 : R.drawable.player_bk_02;
                 break;
             case 6:
-                drawableId = R.drawable.bk_06;
+                drawableId = isCover ? R.drawable.bk_06 : R.drawable.player_bk_03;
                 break;
             case 7:
-                drawableId = R.drawable.bk_07;
+                drawableId = isCover ? R.drawable.bk_07 : R.drawable.player_bk_03;
                 break;
         }
         return itemView.getResources().getDrawable(drawableId);

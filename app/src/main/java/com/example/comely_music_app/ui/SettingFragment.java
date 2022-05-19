@@ -1,17 +1,7 @@
 package com.example.comely_music_app.ui;
 
-import static android.content.Context.MODE_PRIVATE;
-
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.SavedStateViewModelFactory;
-import androidx.lifecycle.ViewModelProviders;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,16 +12,19 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.SavedStateViewModelFactory;
+import androidx.lifecycle.ViewModelProviders;
+
 import com.example.comely_music_app.LoginActivity;
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.network.request.UserUpdateRequest;
 import com.example.comely_music_app.network.response.UserInfo;
 import com.example.comely_music_app.network.service.UserService;
 import com.example.comely_music_app.network.service.impl.UserServiceImpl;
-import com.example.comely_music_app.config.ShpConfig;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
 import com.example.comely_music_app.utils.ShpUtils;
-import com.google.gson.Gson;
 
 import java.util.Objects;
 
@@ -39,6 +32,8 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     private EditText nicknameEdit;
     private UserService userService;
     private MutableLiveData<Integer> myFragmentViewsCtrlLiveData;
+
+    private ShpUtils shpUtils;
 
     public SettingFragment(MutableLiveData<Integer> liveData) {
         myFragmentViewsCtrlLiveData = liveData;
@@ -66,6 +61,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View inflateView = inflater.inflate(R.layout.fragment_setting, container, false);
+        shpUtils = new ShpUtils(getActivity());
 
         SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(Objects.requireNonNull(getActivity()).getApplication(), getActivity());
         UserInfoViewModel userInfoViewModel = ViewModelProviders.of(getActivity(), savedState).get(UserInfoViewModel.class);
@@ -83,7 +79,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     }
 
     private void initNickname() {
-        UserInfo info = ShpUtils.getCurrentUserinfoFromShp(getActivity());
+        UserInfo info = shpUtils.getCurrentUserinfoFromShp();
         if (info != null) {
             // 加载用户名
             String nickname = info.getNickname();
@@ -115,26 +111,24 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
 
     private void logout() {
         // 清除当前登录用户的username
-        FragmentActivity activity = getActivity();
-        if (activity != null) {
-            UserInfo userInfo = ShpUtils.getCurrentUserinfoFromShp(activity);
-            if(userInfo!=null){
-                String username = userInfo.getUsername();
-                if (username != null && username.length() > 0) {
-                    userService.logout(username);
-                }
-            } else {
-                Log.d("SettingsFragment", "logout: 用户状态异常");
+        UserInfo userInfo = shpUtils.getCurrentUserinfoFromShp();
+        if (userInfo != null) {
+            String username = userInfo.getUsername();
+            if (username != null && username.length() > 0) {
+                userService.logout(username);
             }
-
-            Intent intent = new Intent(activity, LoginActivity.class);
-            startActivity(intent);
+        } else {
+            Log.d("SettingsFragment", "logout: 用户状态异常");
         }
+
+        Intent intent = new Intent(getActivity(), LoginActivity.class);
+        startActivity(intent);
+
     }
 
     private void updateUserInfo() {
         String nickname = nicknameEdit.getText().toString();
-        UserInfo oldInfo = ShpUtils.getCurrentUserinfoFromShp(getActivity());
+        UserInfo oldInfo = shpUtils.getCurrentUserinfoFromShp();
         if (oldInfo != null) {
             // todo 这里可以修改其它内容
             if (!nickname.equals(oldInfo.getNickname())) {
