@@ -13,6 +13,7 @@ import com.example.comely_music_app.network.request.PlaylistCreateRequest;
 import com.example.comely_music_app.network.request.PlaylistMusicAddRequest;
 import com.example.comely_music_app.network.request.PlaylistSelectRequest;
 import com.example.comely_music_app.network.request.PlaylistUpdateRequest;
+import com.example.comely_music_app.network.response.MusicSelectResponse;
 import com.example.comely_music_app.network.response.PlaylistInfoWithMusicListResponse;
 import com.example.comely_music_app.network.response.UserPlaylistsSelectResponse;
 import com.example.comely_music_app.network.service.MusicService;
@@ -233,20 +234,23 @@ public class PlaylistServiceImpl implements PlaylistService {
 
     @Override
     public void addMusicIntoMyLike(PlaylistMusicAddRequest request) {
-        Observable<BaseResult<Void>> baseResultObservable = playlistApi.addMusicToMylike(request);
+        Observable<BaseResult<MusicSelectResponse>> baseResultObservable = playlistApi.addMusicToMylike(request);
         baseResultObservable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new BaseObserver<Void>(false) {
+                .subscribe(new BaseObserver<MusicSelectResponse>(false) {
                     @Override
-                    public void onSuccess(Void o) {
-//                        添加成功
-
+                    public void onSuccess(MusicSelectResponse response) {
+                        // 添加成功
+                        List<MusicSelectResponse.MusicInfo> infoList = response.getMusicList();
+                        List<MusicModel> modelList = musicService.transMusicInfo2Models(infoList);
+                        playlistViewModel.addIntoMyLikePlaylist(modelList);
                     }
 
                     @Override
-                    public void onFail(int errorCode, String errorMsg, Void response) {
-
+                    public void onFail(int errorCode, String errorMsg, MusicSelectResponse response) {
+                        Log.e("TAG", "addMusicIntoMyLike: 加入喜欢歌单失败", null);
                     }
+
 
                     @Override
                     public void onError(String msg) {
