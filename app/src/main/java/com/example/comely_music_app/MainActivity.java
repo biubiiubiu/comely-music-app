@@ -39,6 +39,7 @@ import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
 import com.example.comely_music_app.ui.enums.PageStatus;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
+import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
@@ -192,15 +193,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         List<PlaylistMusicAddRequest.MusicAddInfo> toAddInfos = playlistService.transMusicModel2AddInfos(toAddIntoMyLike);
         List<PlaylistMusicAddRequest.MusicAddInfo> toRemoveInfos = playlistService.transMusicModel2AddInfos(toRemoveFromMyLike);
 
-        String username = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(this)).getUsername();
+        UserInfo userInfo = ShpUtils.getCurrentUserinfoFromShp(this);
+        if (userInfo != null) {
+            String username = userInfo.getUsername();
+            PlaylistMusicAddRequest addRequest = new PlaylistMusicAddRequest();
+            addRequest.setUsername(username).setMusicAddInfoList(toAddInfos);
+            playlistService.addMusicIntoMyLike(addRequest);
 
-        PlaylistMusicAddRequest addRequest = new PlaylistMusicAddRequest();
-        addRequest.setUsername(username).setMusicAddInfoList(toAddInfos);
-        playlistService.addMusicIntoMyLike(addRequest);
+            PlaylistMusicAddRequest removeRequest = new PlaylistMusicAddRequest();
+            removeRequest.setUsername(username).setMusicAddInfoList(toRemoveInfos);
+            playlistService.addMusicIntoMyLike(removeRequest);
+        }
 
-        PlaylistMusicAddRequest removeRequest = new PlaylistMusicAddRequest();
-        removeRequest.setUsername(username).setMusicAddInfoList(toRemoveInfos);
-        playlistService.addMusicIntoMyLike(removeRequest);
     }
 
     /**
@@ -231,11 +235,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // 清除当前用户信息缓存
                 ShpUtils.clearCurrentUserInfo(this);
                 // 清除用户所有自建歌单详情信息（包括音乐列表）
-                ShpUtils.clearAllCreatedPlaylistDetails(this);
+//                ShpUtils.clearAllCreatedPlaylistDetails(this);
                 // 清除用户自建歌单缓存,注意先后顺序
                 ShpUtils.clearCreatedPlaylist(this);
-                // 清除用户喜欢歌单
-                ShpUtils.clearMylikePlaylist(this);
             }
         });
     }
@@ -300,11 +302,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        playlistViewModel.getMyLikePlaylistDetails().observe(this, detailsModel -> {
+        playlistViewModel.getMyLikePlaylistDetails().observe(this, mylikePlaylistDetails -> {
             // 把”我喜欢“存入本地缓存
-            PlaylistDetailsModel myLikeDetails = playlistViewModel.getMyLikePlaylistDetails().getValue();
-            playlistViewModel.setCurrentPlaylistDetails(myLikeDetails);
-            ShpUtils.writeMyLikePlaylistDetailsIntoShp(this, myLikeDetails);
+            if (mylikePlaylistDetails == null || mylikePlaylistDetails.getMusicModelList() == null) {
+                return;
+            }
+            UserInfo userInfo = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(this));
+            String username = userInfo.getUsername();
+            String nickname = userInfo.getNickname();
+            PlaylistModel info = new PlaylistModel();
+            info.setName(username + "的喜欢歌单");
+            info.setCreatedUserNickname(nickname);
+            info.setVisibility(0);
+            if (mylikePlaylistDetails.getMusicModelList() != null) {
+                info.setMusicNum(mylikePlaylistDetails.getMusicModelList().size());
+            } else {
+                info.setMusicNum(0);
+            }
+            mylikePlaylistDetails.setPlaylistInfo(info);
+
+            PlaylistDetailsModel myLikeFromShp = ShpUtils.getPlaylistDetailsFromShpByPlaylistName(this, username + "的喜欢歌单");
+            if (myLikeFromShp == null) {
+                myLikeFromShp = mylikePlaylistDetails;
+            } else {
+                List<MusicModel> musicListFromShp = myLikeFromShp.getMusicModelList();
+                musicListFromShp = musicListFromShp == null ? new ArrayList<>() : musicListFromShp;
+                for (MusicModel model : mylikePlaylistDetails.getMusicModelList()) {
+                    if (!musicListFromShp.contains(model)) {
+                        musicListFromShp.add(model);
+                    }
+                }
+                myLikeFromShp.setMusicModelList(musicListFromShp);
+            }
+            ShpUtils.writePlaylistDetailsIntoShp(this, myLikeFromShp);
+
+            playlistViewModel.setCurrentPlaylistDetails(myLikeFromShp);
         });
 
         // 从后端获取musicModelList信息，刷新给adapter-endless，并生成界面可使用的list，并且notify一下

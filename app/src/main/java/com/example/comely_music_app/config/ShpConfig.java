@@ -10,9 +10,6 @@ public class ShpConfig {
     public final static String MY_CREATE_PLAYLIST = "MY_CREATE_PLAYLIST";
 
     // 存个人创建的歌单详情信息，这里也可以每次都请求网络，但是用shp可以弥补网络查询速度慢的弱点
-    // 使用时，用PLAYLIST_DETAILS+playlistName作为key
+    // 使用时，用PLAYLIST_DETAILS+playlistName+username作为key(playlist表中（playlistName+username）唯一)
     public final static String PLAYLIST_DETAILS = "PLAYLIST_DETAILS";
-
-    // 存“我喜欢”歌单，退出登录时清除
-    public final static String MY_LIKE_PLAYLIST = "MY_LIKE_PLAYLIST";
 }

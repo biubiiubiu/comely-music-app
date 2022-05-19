@@ -215,7 +215,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
             // 进入我喜欢歌单界面
             // 先查本地shp缓存
             String username = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(mActivity)).getUsername();
-            PlaylistDetailsModel mylikeDetails = ShpUtils.getMyLikePlaylistDetailsFromShp(mActivity);
+            PlaylistDetailsModel mylikeDetails = ShpUtils.getPlaylistDetailsFromShpByPlaylistName(mActivity,username+"的喜欢歌单");
             if (mylikeDetails != null && mylikeDetails.getMusicModelList() != null) {
                 // 本地缓存有就直接使用
                 playlistViewModel.setMyLikePlaylistDetails(mylikeDetails);

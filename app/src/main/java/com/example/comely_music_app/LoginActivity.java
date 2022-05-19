@@ -49,13 +49,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private UserInfoViewModel userInfoViewModel;
     private PlaylistViewModel playlistViewModel;
 
-    private MutableLiveData<LoadDataSuccessFlag> flagMutableLiveData;
+    private final MutableLiveData<LoadDataSuccessFlag> flagMutableLiveData = new MutableLiveData<>(new LoadDataSuccessFlag());
 
     @Data
-    static class LoadDataSuccessFlag {
-        boolean loadMyCreatedSuccess = false;
-        boolean loadMyLikeSuccess = false;
-        boolean loadCollectSuccess = false;
+    static
+    class LoadDataSuccessFlag {
+        boolean loadMyCreatedSuccess;
+        boolean loadMyLikeSuccess;
+        boolean loadCollectSuccess;
+
+        LoadDataSuccessFlag() {
+            loadMyCreatedSuccess = false;
+            loadMyLikeSuccess = false;
+            loadCollectSuccess = false;
+        }
 
         boolean isReady() {
             return loadMyCreatedSuccess && loadMyLikeSuccess && loadCollectSuccess;
@@ -66,7 +73,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        flagMutableLiveData = new MutableLiveData<>();
 
         userInfoViewModel = ViewModelProviders.of(this).get(UserInfoViewModel.class);
         playlistViewModel = ViewModelProviders.of(this).get(PlaylistViewModel.class);
@@ -121,7 +127,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 if (userInfo.getUsername() == null) {
                     Toast.makeText(getApplicationContext(), "密码错误！", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(getApplicationContext(), "登录成功！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "正在登录...", Toast.LENGTH_SHORT).show();
 
                     ShpUtils.writeCurrentUserinfoToShp(this, userInfo);
                     // 获取用户创建歌单
@@ -136,23 +142,43 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         // 控制所有数据都加载完成才能进入主界面
         flagMutableLiveData.observe(this, loadDataSuccessFlag -> {
-            if (Objects.requireNonNull(flagMutableLiveData.getValue()).isReady()) {
-                userInfoViewModel.setIsLogin(true);
-            }
+            userInfoViewModel.setIsLogin(Objects.requireNonNull(flagMutableLiveData.getValue()).isReady());
         });
 
         if (playlistViewModel != null) {
             playlistViewModel.getMyCreatedPlaylists().observe(this, playlistModels -> {
                 // 写入shp，下次直接打开应用不需要联网就可以加载
                 ShpUtils.writeMyCreatePlaylistToShp(this, playlistModels);
-                Objects.requireNonNull(flagMutableLiveData.getValue()).setLoadMyCreatedSuccess(true);
+                LoadDataSuccessFlag value = flagMutableLiveData.getValue();
+                if (value == null) {
+                    value = new LoadDataSuccessFlag();
+                }
+                value.setLoadMyCreatedSuccess(true);
+                flagMutableLiveData.setValue(value);
             });
 
             playlistViewModel.getMyLikePlaylistDetails().observe(this, mylikePlaylistDetails -> {
-                ShpUtils.writeMyLikePlaylistDetailsIntoShp(this, mylikePlaylistDetails);
-                Objects.requireNonNull(flagMutableLiveData.getValue()).setLoadMyLikeSuccess(true);
+                if (mylikePlaylistDetails == null || mylikePlaylistDetails.getMusicModelList() == null) {
+                    return;
+                }
+                UserInfo userInfo = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(this));
+                String username = userInfo.getUsername();
+                String nickname = userInfo.getNickname();
+                PlaylistModel info = new PlaylistModel();
+                info.setName(username + "的喜欢歌单");
+                info.setCreatedUserNickname(nickname);
+                info.setVisibility(0);
+                info.setMusicNum(mylikePlaylistDetails.getMusicModelList().size());
+                mylikePlaylistDetails.setPlaylistInfo(info);
 
-                Objects.requireNonNull(flagMutableLiveData.getValue()).setLoadMyCreatedSuccess(true);
+                ShpUtils.writePlaylistDetailsIntoShp(this, mylikePlaylistDetails);LoadDataSuccessFlag value = flagMutableLiveData.getValue();
+                if (value == null) {
+                    value = new LoadDataSuccessFlag();
+                }
+                value.setLoadMyLikeSuccess(true);
+                flagMutableLiveData.setValue(value);
+                value.setLoadCollectSuccess(true);
+                flagMutableLiveData.setValue(value);
             });
         }
 
@@ -161,6 +187,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 if (isLogin != null && isLogin) {
                     // 登录成功 (注：退出登录动作在settingFragment里触发，loginActivity里面只有登录成功)
                     // 跳转到main
+                    Toast.makeText(getApplicationContext(), "登录成功！", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);
                 }
