@@ -25,8 +25,11 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.comely_music_app.config.ShpConfig;
 import com.example.comely_music_app.enums.PlayerModule;
+import com.example.comely_music_app.network.request.PlaylistMusicAddRequest;
 import com.example.comely_music_app.network.response.UserInfo;
+import com.example.comely_music_app.network.service.PlaylistService;
 import com.example.comely_music_app.network.service.UserService;
+import com.example.comely_music_app.network.service.impl.PlaylistServiceImpl;
 import com.example.comely_music_app.network.service.impl.UserServiceImpl;
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
@@ -34,7 +37,10 @@ import com.example.comely_music_app.ui.adapter.MainPlayingViewAdapter1;
 import com.example.comely_music_app.ui.animation.DepthPageTransformer;
 import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
 import com.example.comely_music_app.ui.enums.PageStatus;
+import com.example.comely_music_app.ui.models.MusicModel;
+import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
+import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
 import com.example.comely_music_app.utils.ShpUtils;
 import com.google.gson.Gson;
@@ -67,6 +73,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private MyFragment myFragment;
     private FindingFragment findingFragment;
 
+    private PlaylistService playlistService;
+    private PlaylistViewModel playlistViewModel;
+
     @SneakyThrows
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,11 +85,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
+
         // 存活时间更久
         SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(getApplication(), this);
         playingViewModel = ViewModelProviders.of(this, savedState).get(PlayingViewModel.class);
         userInfoViewModel = ViewModelProviders.of(this, savedState).get(UserInfoViewModel.class);
+        playlistViewModel = ViewModelProviders.of(this, savedState).get(PlaylistViewModel.class);
 
+        playlistService = new PlaylistServiceImpl(playlistViewModel);
         userService = new UserServiceImpl(userInfoViewModel);
 
         mediaPlayer = new MediaPlayer();
@@ -163,9 +175,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onPause() {
         super.onPause();
+
+        storeAndUploadMyLikeList();
+
         mediaPlayer.stop();
         mediaPlayer.release();
         mediaPlayer = null;
+    }
+
+    private void storeAndUploadMyLikeList() {
+        // 把”我喜欢“存入本地缓存
+        PlaylistDetailsModel myLikeDetails = playlistViewModel.getMyLikePlaylistDetails().getValue();
+        if (myLikeDetails != null && myLikeDetails.getMusicModelList() != null) {
+            // 上传“我喜欢”歌单只需要用户名，不需要歌单名
+            PlaylistMusicAddRequest request = new PlaylistMusicAddRequest();
+            String username = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(this)).getUsername();
+            request.setUsername(username);
+            List<PlaylistMusicAddRequest.MusicAddInfo> infos = new ArrayList<>();
+            for (MusicModel likedMusic : myLikeDetails.getMusicModelList()) {
+                PlaylistMusicAddRequest.MusicAddInfo info = new PlaylistMusicAddRequest.MusicAddInfo(likedMusic.getName(), likedMusic.getArtistName());
+                infos.add(info);
+            }
+            request.setMusicAddInfoList(infos);
+            playlistService.addMusicIntoMyLike(request);
+
+            // 存储shp
+            ShpUtils.writePlaylistDetailsIntoShp(this, myLikeDetails);
+        }
     }
 
     /**
@@ -249,6 +285,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // 点赞 取消
         playingViewModel.getIsLikeLiveData().observe(this, isLike -> {
+            MusicModel likedMusic = playingViewModel.getCurrentMusic().getValue();
+            List<MusicModel> list = new ArrayList<>();
+            list.add(likedMusic);
+            if (isLike) {
+                // 加入viewmodel
+                playlistViewModel.addIntoMyLikePlaylist(list);
+            } else {
+                // 从viewmodel删除
+                playlistViewModel.removeFromMyLikePlaylist(list);
+            }
         });
 
         // 从后端获取musicModelList信息，刷新给adapter-endless，并生成界面可使用的list，并且notify一下

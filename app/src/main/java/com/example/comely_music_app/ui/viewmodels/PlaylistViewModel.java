@@ -134,7 +134,7 @@ public class PlaylistViewModel extends ViewModel {
 
     public MutableLiveData<PlaylistDetailsModel> getMyLikePlaylistDetails() {
         if (myLikePlaylistDetails == null) {
-            myLikePlaylistDetails = new MutableLiveData<>();
+            myLikePlaylistDetails = new MutableLiveData<>(new PlaylistDetailsModel());
         }
         return myLikePlaylistDetails;
     }
@@ -146,19 +146,41 @@ public class PlaylistViewModel extends ViewModel {
         myLikePlaylistDetails.setValue(detailsModel);
     }
 
-    public void addIntoMyLikePlaylist(List<MusicModel> modelList) {
-        if (modelList == null) {
+    public void addIntoMyLikePlaylist(List<MusicModel> toAddList) {
+        if (toAddList == null || toAddList.size() == 0) {
             return;
         }
         PlaylistDetailsModel details = getMyLikePlaylistDetails().getValue();
         if (details != null) {
+            if (details.getMusicModelList() == null || details.getMusicModelList().size() == 0) {
+                details.setMusicModelList(toAddList);
+            } else {
+                List<MusicModel> oldList = details.getMusicModelList();
+                for (MusicModel model : toAddList) {
+                    if (!oldList.contains(model)) {
+                        oldList.add(model);
+                    }
+                }
+                details.setMusicModelList(oldList);
+            }
+            setMyLikePlaylistDetails(details);
+        }
+    }
+
+    public void removeFromMyLikePlaylist(List<MusicModel> toRemoveList) {
+        if (toRemoveList == null || toRemoveList.size() == 0) {
+            return;
+        }
+        PlaylistDetailsModel details = getMyLikePlaylistDetails().getValue();
+        if (details != null && details.getMusicModelList() != null) {
+            List<MusicModel> newList = new ArrayList<>();
             List<MusicModel> oldList = details.getMusicModelList();
-            for (MusicModel model : modelList) {
-                if (oldList.contains(model)) {
-                    oldList.add(model);
+            for (MusicModel model : oldList) {
+                if (!toRemoveList.contains(model)) {
+                    newList.add(model);
                 }
             }
-            details.setMusicModelList(oldList);
+            details.setMusicModelList(newList);
             setMyLikePlaylistDetails(details);
         }
     }

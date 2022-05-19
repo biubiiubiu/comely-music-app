@@ -242,8 +242,11 @@ public class PlaylistServiceImpl implements PlaylistService {
                     public void onSuccess(MusicSelectResponse response) {
                         // 添加成功
                         List<MusicSelectResponse.MusicInfo> infoList = response.getMusicList();
-                        List<MusicModel> modelList = musicService.transMusicInfo2Models(infoList);
-                        playlistViewModel.addIntoMyLikePlaylist(modelList);
+                        for (MusicSelectResponse.MusicInfo info:infoList){
+                            Log.d("TAG", "addMusicIntoMyLike: 成功加入喜欢歌单："+info.getName()+info.getArtistName());
+                        }
+//                        List<MusicModel> modelList = musicService.transMusicInfo2Models(infoList);
+//                        playlistViewModel.addIntoMyLikePlaylist(modelList);
                     }
 
                     @Override
