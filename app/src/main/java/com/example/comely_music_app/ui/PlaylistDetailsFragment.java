@@ -38,7 +38,6 @@ import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
-import com.example.comely_music_app.utils.CoverBkUtils;
 import com.example.comely_music_app.utils.ScreenUtils;
 import com.example.comely_music_app.utils.ShpUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialog;

@@ -8,6 +8,7 @@ import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 
+import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 public class PlaylistViewModel extends ViewModel {
     private MutableLiveData<List<PlaylistModel>> myCreatedPlaylists;
     private MutableLiveData<PlaylistDetailsModel> currentPlaylistDetails;
+    private MutableLiveData<PlaylistDetailsModel> myLikePlaylistDetails;
 
     /**
      * 点击自建歌单/收藏歌单时+1，触发回调，展示歌单详情页
@@ -128,6 +130,37 @@ public class PlaylistViewModel extends ViewModel {
             currentPlaylistDetails = getCurrentPlaylistDetails();
         }
         currentPlaylistDetails.setValue(detailsModel);
+    }
+
+    public MutableLiveData<PlaylistDetailsModel> getMyLikePlaylistDetails() {
+        if (myLikePlaylistDetails == null) {
+            myLikePlaylistDetails = new MutableLiveData<>();
+        }
+        return myLikePlaylistDetails;
+    }
+
+    public void setMyLikePlaylistDetails(PlaylistDetailsModel detailsModel) {
+        if (myLikePlaylistDetails == null) {
+            myLikePlaylistDetails = getCurrentPlaylistDetails();
+        }
+        myLikePlaylistDetails.setValue(detailsModel);
+    }
+
+    public void addIntoMyLikePlaylist(List<MusicModel> modelList) {
+        if (modelList == null) {
+            return;
+        }
+        PlaylistDetailsModel details = getMyLikePlaylistDetails().getValue();
+        if (details != null) {
+            List<MusicModel> oldList = details.getMusicModelList();
+            for (MusicModel model : modelList) {
+                if (oldList.contains(model)) {
+                    oldList.add(model);
+                }
+            }
+            details.setMusicModelList(oldList);
+            setMyLikePlaylistDetails(details);
+        }
     }
 
 
