@@ -136,15 +136,16 @@ public class MainPlayingViewHolder extends RecyclerView.ViewHolder {
     }
 
     private void getMore() {
-        Toast.makeText(context, "更多", Toast.LENGTH_SHORT).show();
+        // 用一个livedata去控制弹出bottomsheet
+        playingViewModel.setShowMainBottomSheetDialog();
     }
 
     private void download() {
-        Toast.makeText(context, "下载", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "抱歉，该音乐目前不支持下载哦~", Toast.LENGTH_SHORT).show();
     }
 
     private void comment() {
-        Toast.makeText(context, "评论", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "抱歉，该功能正在维护中~", Toast.LENGTH_SHORT).show();
     }
 
     public void setTitle(String title) {

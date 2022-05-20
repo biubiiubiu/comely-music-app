@@ -121,6 +121,11 @@ public class MainPlayingViewAdapter1 extends RecyclerView.Adapter<MainPlayingVie
         }
     }
 
+
+    public List<MusicModel> getMusicList_endlessModule() {
+        return musicList_endlessModule;
+    }
+
     public void setMusicList_playlistModule(List<MusicModel> list) {
         if (list != null && list.size() > 0) {
             musicList_playlistModule = list;

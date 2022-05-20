@@ -269,15 +269,15 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         }
 
         if (playingViewModel != null) {
-            playingViewModel.getShowCreated().observe(Objects.requireNonNull(mActivity), model -> {
+            playingViewModel.getShowCreated().observe(Objects.requireNonNull(mActivity), i -> {
                 PlaylistDetailsModel detailsModel = playingViewModel.getCurrentPlaylistDetails().getValue();
                 ShpUtils.writePlaylistDetailsIntoShp(mActivity, detailsModel);
                 myFragmentViewsCtrlLiveData.setValue(2);
             });
             playingViewModel.getShowCollect().observe(Objects.requireNonNull(mActivity),
-                    model -> myFragmentViewsCtrlLiveData.setValue(3));
+                    i -> myFragmentViewsCtrlLiveData.setValue(3));
             playingViewModel.getShowMylike().observe(Objects.requireNonNull(mActivity),
-                    model -> myFragmentViewsCtrlLiveData.setValue(4));
+                    i -> myFragmentViewsCtrlLiveData.setValue(4));
         }
 
         if (playingViewModel != null) {

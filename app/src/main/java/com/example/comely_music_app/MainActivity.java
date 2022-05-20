@@ -37,10 +37,12 @@ import com.example.comely_music_app.ui.animation.DepthPageTransformer;
 import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
 import com.example.comely_music_app.ui.enums.PageStatus;
 import com.example.comely_music_app.ui.models.MusicModel;
+import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
 import com.example.comely_music_app.utils.ShpUtils;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -312,6 +314,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     // 从viewmodel删除
                     playingViewModel.removeFromMyLikePlaylist(list);
                     playingViewModel.dislike(list);
+                    // todo 用adapter.notifyItemChanged(position)去刷新界面数据
                 }
             }
         });
@@ -407,12 +410,79 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+        // 控制底部导航按钮
         playingViewModel.getShowBottomNevBar().observe(this, isShow -> {
             if (isShow) {
                 findViewById(R.id.bottom_nev_bar).setVisibility(View.VISIBLE);
             } else {
                 findViewById(R.id.bottom_nev_bar).setVisibility(View.INVISIBLE);
             }
+        });
+
+        // 控制播放主界面的底部菜单是否弹出
+        playingViewModel.getShowMainBottomSheetDialog().observe(this, i -> {
+            if (i == 0) {
+                // 第一次打开app会初始化，此时不展示弹窗
+                return;
+            }
+            // 修改当前歌曲
+            BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+            bottomSheetDialog.setContentView(R.layout.dialog_bottom_layout_music);
+            //给布局设置透明背景色，让图片突出来
+            View viewById = bottomSheetDialog.getDelegate().findViewById(R.id.design_bottom_sheet);
+            if (viewById != null) {
+                viewById.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+            }
+//                封面暂不显示
+//                ImageView cover = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_item_cover);
+
+            TextView musicNameText = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_music_name);
+            TextView artistNameText = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_artist_name);
+            List<MusicModel> musicModels = viewPagerAdapterEndlessModule.getMusicList_endlessModule();
+            MusicModel model = playingViewModel.getCurrentPlayMusic().getValue();
+            // 设置当前选中音乐
+            if (model != null) {
+                playingViewModel.setCurrentCheckMusic(model);
+            }
+            if (model != null && musicNameText != null && artistNameText != null) {
+                musicNameText.setText(model.getName());
+                artistNameText.setText(model.getArtistName());
+            }
+            // 判断当前音乐是否在喜欢歌单，用于控制likeBtn图标样式
+            Boolean isLiked = playingViewModel.getCurrentCheckMusicIsLiked().getValue();
+
+            ImageButton likeBtn = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_like_btn);
+            if (likeBtn != null) {
+                if (isLiked != null && isLiked) {
+                    likeBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_liked));
+                } else {
+                    likeBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_dislike));
+                }
+            }
+            if (likeBtn != null) {
+                likeBtn.setOnClickListener(v13 -> {
+                    playingViewModel.changeCurrentCheckMusicIsLiked();
+                    Boolean isLike = playingViewModel.getCurrentCheckMusicIsLiked().getValue();
+                    if (isLike != null && isLike) {
+                        likeBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_liked));
+                    } else {
+                        likeBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_dislike));
+                    }
+                });
+            }
+
+            // 播放主界面不能删除
+            View delete = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_delete_music);
+            if (delete != null) {
+                delete.setVisibility(View.INVISIBLE);
+            }
+
+            View add2Playlist = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_add_to_playlist);
+            if (add2Playlist != null) {
+                add2Playlist.setOnClickListener(v12 -> Toast.makeText(getApplicationContext(), "抱歉，该功能暂未开放哦~",
+                        Toast.LENGTH_SHORT).show());
+            }
+            bottomSheetDialog.show();
         });
     }
 

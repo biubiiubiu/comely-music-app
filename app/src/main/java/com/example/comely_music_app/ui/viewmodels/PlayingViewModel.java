@@ -22,6 +22,7 @@ public class PlayingViewModel extends AndroidViewModel {
     // =========== 界面UI控制 ============
     private MutableLiveData<PageStatus> pageStatusLiveData;
     private MutableLiveData<Boolean> showBottomNevBar;
+    private MutableLiveData<Integer> showMainBottomSheetDialog;
 
     // 点击自建歌单/收藏歌单时+1，触发回调，展示歌单详情页
     private MutableLiveData<Integer> showCreated, showCollect, showMylike;
@@ -42,7 +43,7 @@ public class PlayingViewModel extends AndroidViewModel {
     // =========== 音乐控制：当前播放的音乐、当前选中的音乐 是否被点赞 =============
     private MutableLiveData<Boolean> currentPlayMusicIsLiked, currentCheckMusicIsLiked;
 
-//    // =========== 歌单选中控制：用户创建的歌单列表（点击进入歌单时刷新当前选中歌单类型: 0-未选择，1-当前界面是我喜欢歌单，2-自建歌单，3-收藏歌单，4-最近播放，5-推荐歌单） ==============
+    //    // =========== 歌单选中控制：用户创建的歌单列表（点击进入歌单时刷新当前选中歌单类型: 0-未选择，1-当前界面是我喜欢歌单，2-自建歌单，3-收藏歌单，4-最近播放，5-推荐歌单） ==============
 //    private MutableLiveData<Integer> currentCheckPlaylist;
     // =========== 歌单数据控制：用户创建的歌单列表（登录时初始化、每次修改歌单信息时刷新） ==============
     private MutableLiveData<List<PlaylistModel>> myCreatedPlaylists;
@@ -95,6 +96,23 @@ public class PlayingViewModel extends AndroidViewModel {
             showBottomNevBar = getShowBottomNevBar();
         }
         showBottomNevBar.setValue(isShow);
+    }
+
+    public MutableLiveData<Integer> getShowMainBottomSheetDialog() {
+        if (showMainBottomSheetDialog == null) {
+            showMainBottomSheetDialog = new MutableLiveData<>(0);
+        }
+        return showMainBottomSheetDialog;
+    }
+
+    public void setShowMainBottomSheetDialog() {
+        if (showMainBottomSheetDialog == null) {
+            showMainBottomSheetDialog = getShowMainBottomSheetDialog();
+        }
+        if (showMainBottomSheetDialog.getValue() == null) {
+            showMainBottomSheetDialog.setValue(0);
+        }
+        showMainBottomSheetDialog.setValue(showMainBottomSheetDialog.getValue() + 1);
     }
 
     public MutableLiveData<Integer> getShowCreated() {
@@ -471,7 +489,6 @@ public class PlayingViewModel extends AndroidViewModel {
 //        }
 //        currentCheckPlaylist.setValue(i);
 //    }
-
     public MutableLiveData<List<PlaylistModel>> getMyCreatedPlaylists() {
         if (myCreatedPlaylists == null) {
             myCreatedPlaylists = new MutableLiveData<>();
