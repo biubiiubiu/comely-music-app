@@ -1,5 +1,8 @@
 package com.example.comely_music_app.ui;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,15 +11,21 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.SavedStateViewModelFactory;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.ui.adapter.OtherPlayingViewAdapter;
 import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
+import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 
+import java.util.List;
 import java.util.Objects;
 
 public class PlaylistPlayingFragment extends Fragment implements View.OnClickListener {
@@ -28,15 +37,18 @@ public class PlaylistPlayingFragment extends Fragment implements View.OnClickLis
     OtherPlayingViewAdapter adapter;
     PlayingViewModel playingViewModel;
     MutableLiveData<Integer> detailsViewCtrlLiveData;
+    private FragmentActivity mActivity;
 
-    public PlaylistPlayingFragment(MutableLiveData<Integer> ctrlLiveData, PlayingViewModel playingViewModel) {
-        this.playingViewModel = playingViewModel;
+    public PlaylistPlayingFragment(MutableLiveData<Integer> ctrlLiveData) {
         this.detailsViewCtrlLiveData = ctrlLiveData;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(Objects.requireNonNull(mActivity).getApplication(), mActivity);
+
+        playingViewModel = ViewModelProviders.of(mActivity, savedState).get(PlayingViewModel.class);
     }
 
     @Override
@@ -69,6 +81,26 @@ public class PlaylistPlayingFragment extends Fragment implements View.OnClickLis
         return inflateView;
     }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        //添加引用
+        if (context instanceof Activity) {
+            mActivity = (FragmentActivity) context;
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        //销毁引用
+        mActivity = null;
+        playingViewModel = null;
+        detailsViewCtrlLiveData = null;
+    }
+
     private void initIcons(View inflateView) {
 
         backBtn = inflateView.findViewById(R.id.exit_other_playing_viewpage);
@@ -82,16 +114,30 @@ public class PlaylistPlayingFragment extends Fragment implements View.OnClickLis
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        playingViewModel = null;
-        detailsViewCtrlLiveData = null;
-    }
-
-    @Override
     public void onClick(View v) {
         if (v.getId() == R.id.exit_other_playing_viewpage) {
             detailsViewCtrlLiveData.setValue(0);
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void setCurItem(int position) {
+        if (position >= 0 && position < adapter.getItemCount()) {
+            viewPager2.setCurrentItem(position, false);
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void initDatas() {
+        // 刷新歌单歌曲列表
+        if (playingViewModel != null && playingViewModel.getCurrentPlaylistDetails() != null && playingViewModel.getCurrentPlaylistDetails().getValue() != null) {
+            List<MusicModel> currentPlayingingMusicList = playingViewModel.getCurrentPlaylistDetails().getValue().getMusicModelList();
+
+            if (currentPlayingingMusicList != null) {
+                adapter.setMusicList_playlistModule(currentPlayingingMusicList);
+            }
+            adapter.notifyDataSetChanged();
+            Log.d("TAG", "initDatas: 展示歌曲列表");
         }
     }
 }

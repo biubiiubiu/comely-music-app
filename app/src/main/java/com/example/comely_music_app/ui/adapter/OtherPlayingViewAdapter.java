@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.ui.animation.MyClickListener;
 import com.example.comely_music_app.ui.models.MusicModel;
+import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.utils.CoverBkUtils;
 
@@ -38,12 +39,16 @@ public class OtherPlayingViewAdapter extends RecyclerView.Adapter<OtherPlayingVi
     private int position;
 
     private final PlayingViewModel playingViewModel;
-    private final String currentPlaylistName;
+    private String currentPlaylistName;
 
 
     public OtherPlayingViewAdapter(PlayingViewModel playingViewModel, String currentPlaylistName) {
         this.playingViewModel = playingViewModel;
         this.currentPlaylistName = currentPlaylistName;
+        PlaylistDetailsModel curPlaylist = playingViewModel.getCurrentPlaylistDetails().getValue();
+        if (curPlaylist != null && curPlaylist.getMusicModelList() != null) {
+            musicList_playlistModule = curPlaylist.getMusicModelList();
+        }
     }
 
     /**
@@ -61,7 +66,7 @@ public class OtherPlayingViewAdapter extends RecyclerView.Adapter<OtherPlayingVi
 
     @Override
     public int getItemCount() {
-        return musicList_playlistModule != null ? musicList_playlistModule.size() : 0;
+        return musicList_playlistModule != null ? musicList_playlistModule.size() : 1;
     }
 
     @NonNull
@@ -78,6 +83,11 @@ public class OtherPlayingViewAdapter extends RecyclerView.Adapter<OtherPlayingVi
             musicList_playlistModule = list;
         }
     }
+
+    public void setCurrentPlaylistName(String playlistName) {
+        this.currentPlaylistName = playlistName;
+    }
+
 
     /**
      * 解析数据到界面上
@@ -220,9 +230,11 @@ public class OtherPlayingViewAdapter extends RecyclerView.Adapter<OtherPlayingVi
 
         public void setCoverAndBk(MusicModel currentModel) throws IOException {
             Drawable imageSource = CoverBkUtils.getImageSourceFromMusicModel(currentModel, itemView);
-            if (imageSource != null) {
+            Drawable defaultBk = CoverBkUtils.getImageSourceFromMusicModel(null, itemView);
+            if (imageSource != null && defaultBk != null) {
                 coverImage.setImageDrawable(imageSource);
-                itemView.findViewById(R.id.item_plying_bk).setBackground(imageSource);
+                View view = itemView.findViewById(R.id.item_plying_bk_playlist_module);
+                view.setBackground(defaultBk);
             }
 
             // 获取背景毛玻璃, 已弃用

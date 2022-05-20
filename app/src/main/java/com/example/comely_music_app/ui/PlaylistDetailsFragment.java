@@ -65,6 +65,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
 
     private final MutableLiveData<Integer> detailsViewCtrlLiveData = new MutableLiveData<>(0);
     private PlaylistPlayingFragment playlistPlayingFragment;
+    private int currentItemPosition = 0;
 
     public PlaylistDetailsFragment(MutableLiveData<Integer> liveData) {
         myFragmentViewsCtrlLiveData = liveData;
@@ -93,18 +94,10 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onClick(View itemView, int position) {
-
-                Log.d("TAG", "播放歌曲：");
                 if (musicListAdapter.getMusicList() != null && musicListAdapter.getMusicList().size() >= position) {
                     Log.d("TAG", "播放歌曲：111");
+                    currentItemPosition = position;
                     detailsViewCtrlLiveData.setValue(1);
-
-//                    MusicModel musicModel = musicListAdapter.getMusicList().get(position);
-//                    playingViewModel.setCurrentMusic(musicModel);
-//                    viewPagerAdapter.setMusicList_playlistModule(musicListAdapter.getMusicList());
-//                    viewPager.setCurrentItem(position);
-//                    viewPagerAdapter.notifyDataSetChanged();
-
                 }
             }
 
@@ -199,13 +192,6 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
         });
         musicListRecycleView.setAdapter(musicListAdapter);
 
-        if (playlistPlayingFragment == null) {
-            playlistPlayingFragment = new PlaylistPlayingFragment(detailsViewCtrlLiveData, playingViewModel);
-        }
-        FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
-        ft.add(R.id.frame_blank_for_playing_viewpager, playlistPlayingFragment);
-        ft.commit();
-
         setObserveOnViewModels();
         return inflateView;
     }
@@ -245,6 +231,12 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
         }
 
         detailsViewCtrlLiveData.observe(mActivity, integer -> {
+            if (playlistPlayingFragment == null) {
+                playlistPlayingFragment = new PlaylistPlayingFragment(detailsViewCtrlLiveData);
+                FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+                ft.add(R.id.frame_blank_for_playing_viewpager, playlistPlayingFragment);
+                ft.commit();
+            }
             if (integer == 0) {
                 Log.d("TAG", "setObserveOnViewModels: 展示歌单详情页");
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
@@ -252,6 +244,8 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
                 ft.commit();
                 hidePlayingFrameBlank();
             } else if (integer == 1) {
+                playlistPlayingFragment.initDatas();
+                playlistPlayingFragment.setCurItem(currentItemPosition);
                 Log.d("TAG", "setObserveOnViewModels: 展示歌单播放页");
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.show(playlistPlayingFragment);

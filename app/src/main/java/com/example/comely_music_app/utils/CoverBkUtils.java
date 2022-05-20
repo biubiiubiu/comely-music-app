@@ -22,7 +22,7 @@ public class CoverBkUtils {
      */
     public static Drawable getImageSourceFromMusicModel(MusicModel musicModel, View itemView) throws IOException {
         if (musicModel == null) {
-            return null;
+            return getDefaultCoverImage(itemView);
         }
         String coverPath = musicModel.getCoverLocalPath();
         String audioPath = musicModel.getAudioLocalPath();
