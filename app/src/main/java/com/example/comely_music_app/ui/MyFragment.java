@@ -23,7 +23,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -60,7 +59,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
 
     private UserInfoViewModel userInfoViewModel;
 
-    private RecyclerView playlistRecycleView;
+    private RecyclerView myCreatedPlaylistRecycleView;
     private PlaylistViewListAdapter adapter;
 
     private PlaylistService playlistService;
@@ -92,7 +91,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         initIcons(view);
 
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
-        playlistRecycleView.setLayoutManager(manager);
+        myCreatedPlaylistRecycleView.setLayoutManager(manager);
         List<PlaylistModel> myCreatePlaylistFromShp = ShpUtils.getMyCreatePlaylistFromShp(mActivity);
         adapter = new PlaylistViewListAdapter(myCreatePlaylistFromShp);
         adapter.setListener(new AdapterClickListener() {
@@ -135,7 +134,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
             public void onClickRightBtn(View v, int position) {
             }
         });
-        playlistRecycleView.setAdapter(adapter);
+        myCreatedPlaylistRecycleView.setAdapter(adapter);
 
         initDatas();
 
@@ -196,7 +195,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         appbar = view.findViewById(R.id.appbar);
         scrollView = view.findViewById(R.id.my_nested_scroll_view);
         ImageButton addPlaylist = view.findViewById(R.id.add_playlist);
-        playlistRecycleView = view.findViewById(R.id.created_playlist_list);
+        myCreatedPlaylistRecycleView = view.findViewById(R.id.created_playlist_list);
 
         View mylikeBtn = view.findViewById(R.id.my_like_playlist);
 
@@ -282,6 +281,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         }
 
         if (playingViewModel != null) {
+            // 当前歌单数据变化，修改myfragment歌单列表的自建歌单列表
             playingViewModel.getCurrentPlaylistDetails().observe(Objects.requireNonNull(mActivity), detailsModel -> {
                 PlaylistModel playlistInfo = detailsModel.getPlaylistInfo();
                 UserInfo userinfo = ShpUtils.getCurrentUserinfoFromShp(mActivity);
@@ -324,7 +324,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                 // 可收藏
                 Log.d("TAG", "setObserveOnViewModels: 设置为可收藏");
                 playlistDetailsFragment.setCollectAllowed();
-                // 自建歌单界面
+                // 收藏歌单界面
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.show(playlistDetailsFragment);
                 ft.commit();
@@ -334,7 +334,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                 playlistDetailsFragment.setCollectNotAllowed();
                 // 可收藏
                 Log.d("TAG", "setObserveOnViewModels: 我喜欢歌单");
-                // 自建歌单界面
+                // 喜欢歌单界面
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.show(playlistDetailsFragment);
                 ft.commit();

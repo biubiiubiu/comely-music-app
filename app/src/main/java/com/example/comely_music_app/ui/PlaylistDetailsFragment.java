@@ -22,6 +22,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -145,20 +146,19 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
                 if (musicModels != null && musicModels.size() >= position) {
                     MusicModel model = musicModels.get(position);
                     // 设置当前选中音乐
-                    playingViewModel.setCurrentCheckMusic(model);
-
+                    if (model != null) {
+                        playingViewModel.setCurrentCheckMusic(model);
+                    }
                     if (model != null && musicNameText != null && artistNameText != null) {
                         musicNameText.setText(model.getName());
                         artistNameText.setText(model.getArtistName());
                     }
                     // 判断当前音乐是否在喜欢歌单，用于控制likeBtn图标样式
-                    PlaylistDetailsModel details = playingViewModel.getMyLikePlaylistDetails().getValue();
-                    if (details != null && details.getMusicModelList() != null && details.getMusicModelList().size() > 0) {
-                        itemMusicIsLiked = details.getMusicModelList().contains(model);
-                    }
+                    Boolean isLiked = playingViewModel.getCurrentCheckMusicIsLiked().getValue();
+                    itemMusicIsLiked = isLiked != null && isLiked;
                 }
-                ImageButton likeBtn = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_like_btn);
 
+                ImageButton likeBtn = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_like_btn);
                 if (likeBtn != null) {
                     if (itemMusicIsLiked) {
                         likeBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_liked));
@@ -166,13 +166,10 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
                         likeBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_dislike));
                     }
                 }
-
-                View delete = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_delete_music);
-                View add2Playlist = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_add_to_playlist);
                 if (likeBtn != null) {
                     likeBtn.setOnClickListener(v13 -> {
-                        playingViewModel.changeCurrentPlayMusicIsLiked();
-                        Boolean isLike = playingViewModel.getCurrentPlayMusicIsLiked().getValue();
+                        playingViewModel.changeCurrentCheckMusicIsLiked();
+                        Boolean isLike = playingViewModel.getCurrentCheckMusicIsLiked().getValue();
                         if (isLike != null && isLike) {
                             likeBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_liked));
                         } else {
@@ -180,6 +177,8 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
                         }
                     });
                 }
+
+                View delete = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_delete_music);
                 if (delete != null) {
                     delete.setOnClickListener(v1 -> {
                         // 删除当前歌曲
@@ -190,6 +189,8 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
                         }
                     });
                 }
+
+                View add2Playlist = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_add_to_playlist);
                 if (add2Playlist != null) {
                     add2Playlist.setOnClickListener(v12 -> Toast.makeText(getContext(), "抱歉，该功能暂未开放哦~", Toast.LENGTH_SHORT).show());
                 }
@@ -235,13 +236,9 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
     private void setObserveOnViewModels() {
         if (playingViewModel != null) {
             playingViewModel.getCurrentPlaylistDetails().observe(mActivity, detailsModel -> {
+                // 当前歌单界面发生变化，刷新数据
                 musicListAdapter.setPlaylistDetails(detailsModel);
-                String username = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(mActivity)).getUsername();
-                if (detailsModel.getPlaylistInfo() != null && detailsModel.getPlaylistInfo().getName() != null &&
-                        detailsModel.getPlaylistInfo().getName().equals(username + "的喜欢歌单")) {
-                    // 不是喜欢歌单
-                    ShpUtils.writePlaylistDetailsIntoShp(mActivity, detailsModel);
-                }
+                ShpUtils.writePlaylistDetailsIntoShp(mActivity, detailsModel);
                 // initDatas()包含adapter.notifyDataSetChanged();
                 initDatas();
             });

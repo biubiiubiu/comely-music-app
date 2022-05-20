@@ -42,7 +42,8 @@ public class PlayingViewModel extends AndroidViewModel {
     // =========== 音乐控制：当前播放的音乐、当前选中的音乐 是否被点赞 =============
     private MutableLiveData<Boolean> currentPlayMusicIsLiked, currentCheckMusicIsLiked;
 
-
+//    // =========== 歌单选中控制：用户创建的歌单列表（点击进入歌单时刷新当前选中歌单类型: 0-未选择，1-当前界面是我喜欢歌单，2-自建歌单，3-收藏歌单，4-最近播放，5-推荐歌单） ==============
+//    private MutableLiveData<Integer> currentCheckPlaylist;
     // =========== 歌单数据控制：用户创建的歌单列表（登录时初始化、每次修改歌单信息时刷新） ==============
     private MutableLiveData<List<PlaylistModel>> myCreatedPlaylists;
     // =========== 歌单数据控制：当前选中的歌单详情页（第一次点击进入时初始化，之后每次修改歌单信息/增加修改歌曲时设置） ==============
@@ -59,7 +60,9 @@ public class PlayingViewModel extends AndroidViewModel {
         super(Objects.requireNonNull(application));
     }
 
-    /** ============================================ 界面UI ========================================================*/
+    /**
+     * ============================================ 界面UI ========================================================
+     */
 
     public MutableLiveData<PageStatus> getPageStatusLiveData() {
         if (pageStatusLiveData == null) {
@@ -401,6 +404,12 @@ public class PlayingViewModel extends AndroidViewModel {
         if (currentPlayMusicIsLiked == null) {
             currentPlayMusicIsLiked = new MutableLiveData<>(false);
         }
+        MusicModel currentPlay = getCurrentPlayMusic().getValue();
+        PlaylistDetailsModel mylikeDetails = getMyLikePlaylistDetails().getValue();
+        if (currentPlay != null && mylikeDetails != null && mylikeDetails.getMusicModelList() != null) {
+            List<MusicModel> musicModelList = mylikeDetails.getMusicModelList();
+            currentPlayMusicIsLiked.setValue(musicModelList.contains(currentPlay));
+        }
         return currentPlayMusicIsLiked;
     }
 
@@ -419,6 +428,13 @@ public class PlayingViewModel extends AndroidViewModel {
     public MutableLiveData<Boolean> getCurrentCheckMusicIsLiked() {
         if (currentCheckMusicIsLiked == null) {
             currentCheckMusicIsLiked = new MutableLiveData<>(false);
+        }
+        MusicModel currentCheck = getCurrentCheckMusic().getValue();
+        PlaylistDetailsModel mylikeDetails = getMyLikePlaylistDetails().getValue();
+        if (currentCheck != null && mylikeDetails != null && mylikeDetails.getMusicModelList() != null) {
+            List<MusicModel> musicModelList = mylikeDetails.getMusicModelList();
+            boolean contains = musicModelList.contains(currentCheck);
+            currentCheckMusicIsLiked.setValue(contains);
         }
         return currentCheckMusicIsLiked;
     }
@@ -440,6 +456,22 @@ public class PlayingViewModel extends AndroidViewModel {
      * =================================================== 歌单控制 =====================================================
      */
     // ================= myFragment界面歌单列表数据控制 ============
+//    public MutableLiveData<Integer> getCurrentCheckPlaylist() {
+//        if(currentCheckPlaylist == null) {
+//            // 0-未选择，1-当前界面是我喜欢歌单，2-自建歌单，3-收藏歌单，4-最近播放，5-推荐歌单
+//            currentCheckPlaylist = new MutableLiveData<>(0);
+//        }
+//        return currentCheckPlaylist;
+//    }
+//
+//    // 0-未选择，1-当前界面是我喜欢歌单，2-自建歌单，3-收藏歌单，4-最近播放，5-推荐歌单
+//    public void setCurrentCheckPlaylist(Integer i) {
+//        if(currentCheckPlaylist==null){
+//            currentCheckPlaylist = getCurrentCheckPlaylist();
+//        }
+//        currentCheckPlaylist.setValue(i);
+//    }
+
     public MutableLiveData<List<PlaylistModel>> getMyCreatedPlaylists() {
         if (myCreatedPlaylists == null) {
             myCreatedPlaylists = new MutableLiveData<>();
@@ -549,7 +581,7 @@ public class PlayingViewModel extends AndroidViewModel {
         return myLikePlaylistDetails;
     }
 
-    // ============ ”我喜欢“歌单界面数据控制
+    // ============ ”我喜欢“歌单界面数据控制 ==============
     public void setMyLikePlaylistDetails(PlaylistDetailsModel detailsModel) {
         if (myLikePlaylistDetails == null) {
             myLikePlaylistDetails = getCurrentPlaylistDetails();

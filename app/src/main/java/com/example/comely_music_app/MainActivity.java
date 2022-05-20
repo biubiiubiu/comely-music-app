@@ -282,12 +282,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        // 点赞 取消
+        // 点赞 取消(当前播放的音乐)
         playingViewModel.getCurrentPlayMusicIsLiked().observe(this, isLike -> {
             MusicModel currentPlay = playingViewModel.getCurrentPlayMusic().getValue();
             List<MusicModel> list = new ArrayList<>();
             if (currentPlay != null) {
                 list.add(currentPlay);
+                if (isLike) {
+                    // 加入viewmodel
+                    playingViewModel.addIntoMyLikePlaylist(list);
+                    playingViewModel.like(list);
+                } else {
+                    // 从viewmodel删除
+                    playingViewModel.removeFromMyLikePlaylist(list);
+                    playingViewModel.dislike(list);
+                }
+            }
+        });
+        // 点赞 取消(当前歌单详情界面选中的音乐)
+        playingViewModel.getCurrentCheckMusicIsLiked().observe(this, isLike -> {
+            MusicModel currentCheck = playingViewModel.getCurrentCheckMusic().getValue();
+            List<MusicModel> list = new ArrayList<>();
+            if (currentCheck != null) {
+                list.add(currentCheck);
                 if (isLike) {
                     // 加入viewmodel
                     playingViewModel.addIntoMyLikePlaylist(list);
@@ -318,23 +335,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 info.setMusicNum(0);
             }
             mylikePlaylistDetails.setPlaylistInfo(info);
-
-            PlaylistDetailsModel myLikeFromShp = ShpUtils.getPlaylistDetailsFromShpByPlaylistName(this, username + "的喜欢歌单");
-            if (myLikeFromShp == null) {
-                myLikeFromShp = mylikePlaylistDetails;
-            } else {
-                List<MusicModel> musicListFromShp = myLikeFromShp.getMusicModelList();
-                musicListFromShp = musicListFromShp == null ? new ArrayList<>() : musicListFromShp;
-                for (MusicModel model : mylikePlaylistDetails.getMusicModelList()) {
-                    if (!musicListFromShp.contains(model)) {
-                        musicListFromShp.add(model);
-                    }
-                }
-                myLikeFromShp.setMusicModelList(musicListFromShp);
-            }
-            ShpUtils.writePlaylistDetailsIntoShp(this, myLikeFromShp);
-
-            playingViewModel.setCurrentPlaylistDetails(myLikeFromShp);
+            ShpUtils.writePlaylistDetailsIntoShp(this, mylikePlaylistDetails);
         });
 
         // 从后端获取musicModelList信息，刷新给adapter-endless，并生成界面可使用的list，并且notify一下
