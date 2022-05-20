@@ -179,8 +179,8 @@ public class OtherPlayingViewAdapter extends RecyclerView.Adapter<OtherPlayingVi
 
         @SuppressLint("UseCompatLoadingForDrawables")
         public void changeLikeStatus() {
-            playingViewModel.changeIsLikeLiveData();
-            Boolean isLike = playingViewModel.getIsLikeLiveData().getValue();
+            playingViewModel.changeCurrentPlayMusicIsLiked();
+            Boolean isLike = playingViewModel.getCurrentPlayMusicIsLiked().getValue();
             if (isLike != null && isLike) {
                 likeBtn.setImageDrawable(itemView.getResources().getDrawable(R.drawable.ic_liked));
             } else {

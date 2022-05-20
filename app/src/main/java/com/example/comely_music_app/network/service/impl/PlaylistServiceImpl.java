@@ -3,8 +3,6 @@ package com.example.comely_music_app.network.service.impl;
 import android.content.Context;
 import android.util.Log;
 
-import androidx.lifecycle.MutableLiveData;
-
 import com.example.comely_music_app.network.apis.PlaylistApi;
 import com.example.comely_music_app.network.base.ApiManager;
 import com.example.comely_music_app.network.base.BaseObserver;
@@ -22,7 +20,7 @@ import com.example.comely_music_app.ui.enums.PlaylistSelectScene;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
-import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
+import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,18 +31,18 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class PlaylistServiceImpl implements PlaylistService {
     private final PlaylistApi playlistApi;
-    private final PlaylistViewModel playlistViewModel;
+    private final PlayingViewModel playingViewModel;
     private final MusicService musicService;
 
-    public PlaylistServiceImpl(PlaylistViewModel viewModel) {
+    public PlaylistServiceImpl(PlayingViewModel viewModel) {
         playlistApi = ApiManager.getInstance().getApiService(PlaylistApi.class);
-        playlistViewModel = viewModel;
+        playingViewModel = viewModel;
         musicService = new MusicServiceImpl();
     }
 
-    public PlaylistServiceImpl(PlaylistViewModel viewModel, Context context) {
+    public PlaylistServiceImpl(PlayingViewModel viewModel, Context context) {
         playlistApi = ApiManager.getInstance().getApiService(PlaylistApi.class);
-        playlistViewModel = viewModel;
+        playingViewModel = viewModel;
         musicService = new MusicServiceImpl(context);
     }
 
@@ -56,19 +54,19 @@ public class PlaylistServiceImpl implements PlaylistService {
                 .subscribe(new BaseObserver<Void>(false) {
                     @Override
                     public void onSuccess(Void o) {
-                        if (playlistViewModel != null) {
+                        if (playingViewModel != null) {
                             PlaylistModel model = new PlaylistModel();
                             model.setName(request.getName());
                             model.setMusicNum(request.getMusicNum());
-                            playlistViewModel.addPlaylist2MyCreatedPlaylists(model);
-                            playlistViewModel.setCreateSuccessFlag();
+                            playingViewModel.addPlaylist2MyCreatedPlaylists(model);
+                            playingViewModel.setCreateSuccessFlag();
                         }
                     }
 
                     @Override
                     public void onFail(int errorCode, String errorMsg, Void response) {
                         Log.e("TAG", "onFail: 后端创建歌单失败", null);
-                        playlistViewModel.setCreateFailedFlag();
+                        playingViewModel.setCreateFailedFlag();
                     }
 
                     @Override
@@ -86,18 +84,18 @@ public class PlaylistServiceImpl implements PlaylistService {
                 .subscribe(new BaseObserver<Void>(false) {
                     @Override
                     public void onSuccess(Void o) {
-                        if (playlistViewModel != null) {
+                        if (playingViewModel != null) {
                             PlaylistModel model = new PlaylistModel();
                             model.setName(request.getPlaylistName());
-                            playlistViewModel.deletePlaylistInCreatedPlaylists(model);
-                            playlistViewModel.setDeleteSuccessFlag();
+                            playingViewModel.deletePlaylistInCreatedPlaylists(model);
+                            playingViewModel.setDeleteSuccessFlag();
                         }
                     }
 
                     @Override
                     public void onFail(int errorCode, String errorMsg, Void response) {
                         Log.e("TAG", "onFail: 后端创建歌单失败", null);
-                        playlistViewModel.setDeleteFailedFlag();
+                        playingViewModel.setDeleteFailedFlag();
                     }
 
                     @Override
@@ -115,13 +113,13 @@ public class PlaylistServiceImpl implements PlaylistService {
                 .subscribe(new BaseObserver<UserPlaylistsSelectResponse>(false) {
                     @Override
                     public void onSuccess(UserPlaylistsSelectResponse response) {
-                        playlistViewModel.setMyCreatedPlaylists(response.getPlaylistInfoList());
+                        playingViewModel.setMyCreatedPlaylists(response.getPlaylistInfoList());
                     }
 
                     @Override
                     public void onFail(int errorCode, String errorMsg, UserPlaylistsSelectResponse response) {
                         Log.e("TAG", "onFail: 获取用户自建歌单失败", null);
-                        playlistViewModel.setUpdateFailedFlag();
+                        playingViewModel.setUpdateFailedFlag();
                     }
 
                     @Override
@@ -152,15 +150,15 @@ public class PlaylistServiceImpl implements PlaylistService {
                         if (request.getDescription() != null) {
                             model.setDescription(request.getDescription());
                         }
-                        playlistViewModel.updateCreatedPlaylistByName(request.getOldName(), model);
-                        playlistViewModel.setUpdateSuccessFlag();
+                        playingViewModel.updateCreatedPlaylistByName(request.getOldName(), model);
+                        playingViewModel.setUpdateSuccessFlag();
                     }
 
                     @Override
                     public void onFail(int errorCode, String errorMsg, Void response) {
 
                         Log.e("TAG", "onFail: 后端修改歌单失败", null);
-                        playlistViewModel.setUpdateFailedFlag();
+                        playingViewModel.setUpdateFailedFlag();
                     }
 
                     @Override
@@ -183,29 +181,29 @@ public class PlaylistServiceImpl implements PlaylistService {
                     public void onSuccess(PlaylistInfoWithMusicListResponse response) {
                         if (scene.equals(PlaylistSelectScene.MY_CREATE_PLAYLIST)) {
                             List<MusicModel> musicModelList = musicService.transMusicInfo2Models(response.getMusicInfoList());
-                            PlaylistDetailsModel currentDetails = playlistViewModel.getCurrentPlaylistDetails().getValue();
+                            PlaylistDetailsModel currentDetails = playingViewModel.getCurrentPlaylistDetails().getValue();
                             if (currentDetails == null) {
                                 currentDetails = new PlaylistDetailsModel();
                             }
                             currentDetails.setPlaylistInfo(response.getPlaylistInfo());
                             currentDetails.setMusicModelList(musicModelList);
                             // 触发歌单详情页展示
-                            playlistViewModel.setCurrentPlaylistDetails(currentDetails);
+                            playingViewModel.setCurrentPlaylistDetails(currentDetails);
                         } else if (scene.equals(PlaylistSelectScene.COLLECT_PLAYLIST)) {
                             // todo 展示用户收藏歌单详情页
                         } else if (scene.equals(PlaylistSelectScene.MY_LIKE)) {
                             // 展示用户喜欢歌单详情页
                             List<MusicModel> musicModelList = musicService.transMusicInfo2Models(response.getMusicInfoList());
-                            PlaylistDetailsModel mylikeDetails = playlistViewModel.getMyLikePlaylistDetails().getValue();
+                            PlaylistDetailsModel mylikeDetails = playingViewModel.getMyLikePlaylistDetails().getValue();
                             if (mylikeDetails == null) {
                                 mylikeDetails = new PlaylistDetailsModel();
                             }
                             mylikeDetails.setPlaylistInfo(response.getPlaylistInfo());
                             mylikeDetails.setMusicModelList(musicModelList);
                             // 用于存储数据
-                            playlistViewModel.setMyLikePlaylistDetails(mylikeDetails);
+                            playingViewModel.setMyLikePlaylistDetails(mylikeDetails);
                             // 触发歌单详情页展示
-                            playlistViewModel.setCurrentPlaylistDetails(mylikeDetails);
+                            playingViewModel.setCurrentPlaylistDetails(mylikeDetails);
                         }
                     }
 
@@ -229,8 +227,8 @@ public class PlaylistServiceImpl implements PlaylistService {
                 .subscribe(new BaseObserver<Void>(false) {
                     @Override
                     public void onSuccess(Void o) {
-                        playlistViewModel.deleteMusicInCurrentMusic(request.getMusicAddInfoList());
-                        playlistViewModel.setDeleteSuccessFlag();
+                        playingViewModel.deleteMusicInCurrentPlaylistDetails(request.getMusicAddInfoList());
+                        playingViewModel.setDeleteSuccessFlag();
                     }
 
                     @Override
@@ -240,7 +238,7 @@ public class PlaylistServiceImpl implements PlaylistService {
                             sb.append("  ").append(info.getTitle());
                         }
                         Log.e("TAG", "onFail: 后端从歌单中删除歌曲失败！失败歌曲：" + sb.toString(), null);
-                        playlistViewModel.setDeleteFailedFlag();
+                        playingViewModel.setDeleteFailedFlag();
                     }
 
                     @Override

@@ -1,10 +1,8 @@
 package com.example.comely_music_app;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,7 +12,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.example.comely_music_app.network.request.LoginRequest;
@@ -24,30 +21,24 @@ import com.example.comely_music_app.network.service.PlaylistService;
 import com.example.comely_music_app.network.service.UserService;
 import com.example.comely_music_app.network.service.impl.PlaylistServiceImpl;
 import com.example.comely_music_app.network.service.impl.UserServiceImpl;
-import com.example.comely_music_app.config.ShpConfig;
 import com.example.comely_music_app.ui.enums.PlaylistSelectScene;
-import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
-import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
+import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
 import com.example.comely_music_app.utils.ShpUtils;
-import com.google.gson.Gson;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import lombok.Data;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
-    private TextView usernameText, passwordText, forget_password;
-    private Button loginBtn;
+    private TextView usernameText, passwordText;
     private String username, password;
 
     private UserService userService;
     private PlaylistService playlistService;
     private UserInfoViewModel userInfoViewModel;
-    private PlaylistViewModel playlistViewModel;
+    private PlayingViewModel playingViewModel;
 
     private final MutableLiveData<LoadDataSuccessFlag> flagMutableLiveData = new MutableLiveData<>(new LoadDataSuccessFlag());
 
@@ -75,9 +66,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_login);
 
         userInfoViewModel = ViewModelProviders.of(this).get(UserInfoViewModel.class);
-        playlistViewModel = ViewModelProviders.of(this).get(PlaylistViewModel.class);
+        playingViewModel = ViewModelProviders.of(this).get(PlayingViewModel.class);
         userService = new UserServiceImpl(userInfoViewModel);
-        playlistService = new PlaylistServiceImpl(playlistViewModel);
+        playlistService = new PlaylistServiceImpl(playingViewModel);
         initIcons();
         setObserveOnUserInfoLivedata();
     }
@@ -145,8 +136,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             userInfoViewModel.setIsLogin(Objects.requireNonNull(flagMutableLiveData.getValue()).isReady());
         });
 
-        if (playlistViewModel != null) {
-            playlistViewModel.getMyCreatedPlaylists().observe(this, playlistModels -> {
+        if (playingViewModel != null) {
+            playingViewModel.getMyCreatedPlaylists().observe(this, playlistModels -> {
                 // 写入shp，下次直接打开应用不需要联网就可以加载
                 ShpUtils.writeMyCreatePlaylistToShp(this, playlistModels);
                 LoadDataSuccessFlag value = flagMutableLiveData.getValue();
@@ -157,7 +148,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 flagMutableLiveData.setValue(value);
             });
 
-            playlistViewModel.getMyLikePlaylistDetails().observe(this, mylikePlaylistDetails -> {
+            playingViewModel.getMyLikePlaylistDetails().observe(this, mylikePlaylistDetails -> {
                 if (mylikePlaylistDetails == null || mylikePlaylistDetails.getMusicModelList() == null) {
                     return;
                 }
@@ -213,8 +204,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void initIcons() {
         usernameText = findViewById(R.id.username_text);
         passwordText = findViewById(R.id.password_text);
-        loginBtn = findViewById(R.id.login_btn);
-        forget_password = findViewById(R.id.forget_password);
+        Button loginBtn = findViewById(R.id.login_btn);
+        TextView forget_password = findViewById(R.id.forget_password);
 
         loginBtn.setOnClickListener(this);
         forget_password.setOnClickListener(this);

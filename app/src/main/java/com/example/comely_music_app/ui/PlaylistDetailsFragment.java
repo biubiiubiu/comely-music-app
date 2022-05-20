@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +22,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.SavedStateViewModelFactory;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -38,7 +39,6 @@ import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
-import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
 import com.example.comely_music_app.utils.ScreenUtils;
 import com.example.comely_music_app.utils.ShpUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -51,14 +51,12 @@ import java.util.Objects;
 public class PlaylistDetailsFragment extends Fragment implements View.OnClickListener {
     //    private MutableLiveData<PlaylistModel> currentShowingPlaylist;
     private final MutableLiveData<Integer> myFragmentViewsCtrlLiveData;
-    private ImageView playlistAvatar;
     private TextView playlistName, description, createdUsername, musicNum;
     private ImageButton collectBtn;
     private RecyclerView musicListRecycleView;
-    private PlaylistViewModel playlistViewModel;
     private MusicListAdapter musicListAdapter;
     private FragmentActivity mActivity;
-    private final PlaylistService playlistService;
+    private PlaylistService playlistService;
 
     private PlayingViewModel playingViewModel;
 
@@ -67,16 +65,17 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
     private final MutableLiveData<Integer> detailsViewCtrlLiveData = new MutableLiveData<>(0);
     private PlaylistPlayingFragment playlistPlayingFragment;
 
-    public PlaylistDetailsFragment(MutableLiveData<Integer> liveData, PlaylistViewModel playlistViewModel, PlayingViewModel playingViewModel) {
+    public PlaylistDetailsFragment(MutableLiveData<Integer> liveData) {
         myFragmentViewsCtrlLiveData = liveData;
-        this.playlistViewModel = playlistViewModel;
-        this.playingViewModel = playingViewModel;
-        playlistService = new PlaylistServiceImpl(this.playlistViewModel);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(Objects.requireNonNull(mActivity).getApplication(), mActivity);
+
+        playingViewModel = ViewModelProviders.of(mActivity, savedState).get(PlayingViewModel.class);
+        playlistService = new PlaylistServiceImpl(playingViewModel);
     }
 
     @Override
@@ -85,9 +84,10 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
         View inflateView = inflater.inflate(R.layout.fragment_playlist_details, container, false);
         initIcons(inflateView);
 
+
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
         musicListRecycleView.setLayoutManager(manager);
-        musicListAdapter = new MusicListAdapter(playlistViewModel.getCurrentPlaylistDetails().getValue());
+        musicListAdapter = new MusicListAdapter(playingViewModel.getCurrentPlaylistDetails().getValue());
         musicListAdapter.setListener(new AdapterClickListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -110,7 +110,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
             @Override
             public void onLongClick(View v, int position) {
                 // 删除当前歌曲
-                PlaylistDetailsModel detailsModel = playlistViewModel.getCurrentPlaylistDetails().getValue();
+                PlaylistDetailsModel detailsModel = playingViewModel.getCurrentPlaylistDetails().getValue();
                 if (detailsModel != null && detailsModel.getPlaylistInfo() != null) {
                     String playlistName = detailsModel.getPlaylistInfo().getName();
                     showDeleteDialog(playlistName, musicListAdapter.getMusicList().get(position));
@@ -123,6 +123,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
                 Toast.makeText(getContext(), "支持正版音乐~", Toast.LENGTH_SHORT).show();
             }
 
+            @SuppressLint("UseCompatLoadingForDrawables")
             @Override
             public void onClickRightBtn(View v, int position) {
                 // 修改当前歌曲
@@ -135,33 +136,54 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
                 }
 //                封面暂不显示
 //                ImageView cover = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_item_cover);
+
+                boolean itemMusicIsLiked = false;
+
                 TextView musicNameText = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_music_name);
                 TextView artistNameText = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_artist_name);
                 List<MusicModel> musicModels = musicListAdapter.getMusicList();
                 if (musicModels != null && musicModels.size() >= position) {
                     MusicModel model = musicModels.get(position);
+                    // 设置当前选中音乐
+                    playingViewModel.setCurrentCheckMusic(model);
+
                     if (model != null && musicNameText != null && artistNameText != null) {
                         musicNameText.setText(model.getName());
                         artistNameText.setText(model.getArtistName());
                     }
+                    // 判断当前音乐是否在喜欢歌单，用于控制likeBtn图标样式
+                    PlaylistDetailsModel details = playingViewModel.getMyLikePlaylistDetails().getValue();
+                    if (details != null && details.getMusicModelList() != null && details.getMusicModelList().size() > 0) {
+                        itemMusicIsLiked = details.getMusicModelList().contains(model);
+                    }
                 }
                 ImageButton likeBtn = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_like_btn);
+
+                if (likeBtn != null) {
+                    if (itemMusicIsLiked) {
+                        likeBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_liked));
+                    } else {
+                        likeBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_dislike));
+                    }
+                }
+
                 View delete = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_delete_music);
                 View add2Playlist = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_add_to_playlist);
                 if (likeBtn != null) {
-                    likeBtn.setOnClickListener(new View.OnClickListener() {
-                        @SuppressLint("UseCompatLoadingForDrawables")
-                        @Override
-                        public void onClick(View v) {
-                            Log.d("TAG", "onClick: 点赞");
+                    likeBtn.setOnClickListener(v13 -> {
+                        playingViewModel.changeCurrentPlayMusicIsLiked();
+                        Boolean isLike = playingViewModel.getCurrentPlayMusicIsLiked().getValue();
+                        if (isLike != null && isLike) {
                             likeBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_liked));
+                        } else {
+                            likeBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_dislike));
                         }
                     });
                 }
                 if (delete != null) {
                     delete.setOnClickListener(v1 -> {
                         // 删除当前歌曲
-                        PlaylistDetailsModel detailsModel = playlistViewModel.getCurrentPlaylistDetails().getValue();
+                        PlaylistDetailsModel detailsModel = playingViewModel.getCurrentPlaylistDetails().getValue();
                         if (detailsModel != null && detailsModel.getPlaylistInfo() != null) {
                             String playlistName = detailsModel.getPlaylistInfo().getName();
                             showDeleteDialog(playlistName, musicListAdapter.getMusicList().get(position));
@@ -177,7 +199,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
         musicListRecycleView.setAdapter(musicListAdapter);
 
         if (playlistPlayingFragment == null) {
-            playlistPlayingFragment = new PlaylistPlayingFragment(detailsViewCtrlLiveData, playingViewModel, playlistViewModel);
+            playlistPlayingFragment = new PlaylistPlayingFragment(detailsViewCtrlLiveData, playingViewModel);
         }
         FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
         ft.add(R.id.frame_blank_for_playing_viewpager, playlistPlayingFragment);
@@ -204,15 +226,15 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
 
         //销毁引用
         mActivity = null;
-        playlistViewModel = null;
         playingViewModel = null;
+        playlistService = null;
     }
 
 
     @SuppressLint("NotifyDataSetChanged")
     private void setObserveOnViewModels() {
-        if (playlistViewModel != null) {
-            playlistViewModel.getCurrentPlaylistDetails().observe(mActivity, detailsModel -> {
+        if (playingViewModel != null) {
+            playingViewModel.getCurrentPlaylistDetails().observe(mActivity, detailsModel -> {
                 musicListAdapter.setPlaylistDetails(detailsModel);
                 String username = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(mActivity)).getUsername();
                 if (detailsModel.getPlaylistInfo() != null && detailsModel.getPlaylistInfo().getName() != null &&
@@ -291,7 +313,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
             playlistService.deleteMusicFromPlaylist(request);
 
             // 触发删除shp
-            playlistViewModel.deleteMusicInCurrentMusic(infos);
+            playingViewModel.deleteMusicInCurrentPlaylistDetails(infos);
             //... To-do
             dialog.dismiss();
         });
@@ -306,9 +328,9 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
     @SuppressLint({"SetTextI18n", "NotifyDataSetChanged"})
     public void initDatas() {
         // 刷新歌单基本信息
-        if (playlistViewModel != null && playlistViewModel.getCurrentPlaylistDetails() != null
-                && playlistViewModel.getCurrentPlaylistDetails().getValue() != null) {
-            PlaylistModel model = playlistViewModel.getCurrentPlaylistDetails().getValue().getPlaylistInfo();
+        if (playingViewModel != null && playingViewModel.getCurrentPlaylistDetails() != null
+                && playingViewModel.getCurrentPlaylistDetails().getValue() != null) {
+            PlaylistModel model = playingViewModel.getCurrentPlaylistDetails().getValue().getPlaylistInfo();
             if (model.getName() != null) {
                 playlistName.setText(model.getName());
             }
@@ -320,8 +342,8 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
             }
         }
         // 刷新歌单歌曲列表
-        if (playlistViewModel != null && playlistViewModel.getCurrentPlaylistDetails() != null && playlistViewModel.getCurrentPlaylistDetails().getValue() != null) {
-            List<MusicModel> currentShowingMusicList = playlistViewModel.getCurrentPlaylistDetails().getValue().getMusicModelList();
+        if (playingViewModel != null && playingViewModel.getCurrentPlaylistDetails() != null && playingViewModel.getCurrentPlaylistDetails().getValue() != null) {
+            List<MusicModel> currentShowingMusicList = playingViewModel.getCurrentPlaylistDetails().getValue().getMusicModelList();
 
             if (currentShowingMusicList != null) {
                 musicNum.setText(currentShowingMusicList.size() + "首");
@@ -340,7 +362,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
 
     private void initIcons(View view) {
         playlistName = view.findViewById(R.id.playlist_details_playlistName);
-        playlistAvatar = view.findViewById(R.id.playlist_details_avatar);
+//        ImageView playlistAvatar = view.findViewById(R.id.playlist_details_avatar);
         createdUsername = view.findViewById(R.id.playlist_details_createdUsername);
         description = view.findViewById(R.id.playlist_details_description);
         musicNum = view.findViewById(R.id.playlist_details_music_num);

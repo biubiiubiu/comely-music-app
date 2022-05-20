@@ -18,7 +18,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
@@ -41,7 +40,6 @@ import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
-import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
 import com.example.comely_music_app.utils.ShpUtils;
 import com.google.gson.Gson;
@@ -75,7 +73,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FindingFragment findingFragment;
 
     private PlaylistService playlistService;
-    private PlaylistViewModel playlistViewModel;
 
     @SneakyThrows
     @Override
@@ -91,9 +88,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(getApplication(), this);
         playingViewModel = ViewModelProviders.of(this, savedState).get(PlayingViewModel.class);
         userInfoViewModel = ViewModelProviders.of(this, savedState).get(UserInfoViewModel.class);
-        playlistViewModel = ViewModelProviders.of(this, savedState).get(PlaylistViewModel.class);
 
-        playlistService = new PlaylistServiceImpl(playlistViewModel);
+        playlistService = new PlaylistServiceImpl(playingViewModel);
         userService = new UserServiceImpl(userInfoViewModel);
 
         mediaPlayer = new MediaPlayer();
@@ -115,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     mediaPlayer.stop();
                 }
                 if (Objects.requireNonNull(playingViewModel.getMusicListLiveData_endlessModule().getValue()).size() > position) {
-                    playingViewModel.setCurrentMusic(playingViewModel.getMusicListLiveData_endlessModule().getValue().get(position));
+                    playingViewModel.setCurrentPlayMusic(playingViewModel.getMusicListLiveData_endlessModule().getValue().get(position));
                     Log.d("TAG", "onPageSelected: 当前选择position:" + position + " "
                             + playingViewModel.getMusicListLiveData_endlessModule().getValue().get(position).getName());
                 }
@@ -140,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     mediaPlayer.stop();
                 }
                 if (Objects.requireNonNull(playingViewModel.getMusicListLiveData_playlistModule().getValue()).size() > position) {
-                    playingViewModel.setCurrentMusic(playingViewModel.getMusicListLiveData_playlistModule().getValue().get(position));
+                    playingViewModel.setCurrentPlayMusic(playingViewModel.getMusicListLiveData_playlistModule().getValue().get(position));
                     Log.d("TAG", "onPageSelected: 当前选择position:" + position + " "
                             + playingViewModel.getMusicListLiveData_playlistModule().getValue().get(position).getName());
                 }
@@ -155,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         FragmentTransaction ft = manager.beginTransaction();
-        myFragment = new MyFragment(playingViewModel);
+        myFragment = new MyFragment();
         findingFragment = new FindingFragment();
         ft.add(R.id.frame_blank, myFragment);
         ft.add(R.id.frame_blank, findingFragment);
@@ -187,8 +183,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void storeAndUploadMyLikeList() {
         // 上传到数据库
         // 在mysql里：把toadd添加到我喜欢，把toremove从我喜欢里删除
-        List<MusicModel> toAddIntoMyLike = playlistViewModel.getToAddIntoMyLike();
-        List<MusicModel> toRemoveFromMyLike = playlistViewModel.getToRemoveFromMyLike();
+        List<MusicModel> toAddIntoMyLike = playingViewModel.getToAddIntoMyLike();
+        List<MusicModel> toRemoveFromMyLike = playingViewModel.getToRemoveFromMyLike();
 
         List<PlaylistMusicAddRequest.MusicAddInfo> toAddInfos = playlistService.transMusicModel2AddInfos(toAddIntoMyLike);
         List<PlaylistMusicAddRequest.MusicAddInfo> toRemoveInfos = playlistService.transMusicModel2AddInfos(toRemoveFromMyLike);
@@ -287,22 +283,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         // 点赞 取消
-        playingViewModel.getIsLikeLiveData().observe(this, isLike -> {
-            MusicModel likedMusic = playingViewModel.getCurrentMusic().getValue();
+        playingViewModel.getCurrentPlayMusicIsLiked().observe(this, isLike -> {
+            MusicModel currentPlay = playingViewModel.getCurrentPlayMusic().getValue();
             List<MusicModel> list = new ArrayList<>();
-            list.add(likedMusic);
-            if (isLike) {
-                // 加入viewmodel
-                playlistViewModel.addIntoMyLikePlaylist(list);
-                playlistViewModel.like(list);
-            } else {
-                // 从viewmodel删除
-                playlistViewModel.removeFromMyLikePlaylist(list);
-                playlistViewModel.dislike(list);
+            if (currentPlay != null) {
+                list.add(currentPlay);
+                if (isLike) {
+                    // 加入viewmodel
+                    playingViewModel.addIntoMyLikePlaylist(list);
+                    playingViewModel.like(list);
+                } else {
+                    // 从viewmodel删除
+                    playingViewModel.removeFromMyLikePlaylist(list);
+                    playingViewModel.dislike(list);
+                }
             }
         });
 
-        playlistViewModel.getMyLikePlaylistDetails().observe(this, mylikePlaylistDetails -> {
+        playingViewModel.getMyLikePlaylistDetails().observe(this, mylikePlaylistDetails -> {
             // 把”我喜欢“存入本地缓存
             if (mylikePlaylistDetails == null || mylikePlaylistDetails.getMusicModelList() == null) {
                 return;
@@ -336,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             ShpUtils.writePlaylistDetailsIntoShp(this, myLikeFromShp);
 
-            playlistViewModel.setCurrentPlaylistDetails(myLikeFromShp);
+            playingViewModel.setCurrentPlaylistDetails(myLikeFromShp);
         });
 
         // 从后端获取musicModelList信息，刷新给adapter-endless，并生成界面可使用的list，并且notify一下
@@ -356,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         // 当前界面滑动时，播放当前界面音乐
-        playingViewModel.getCurrentMusic().observe(this, currentMusic -> {
+        playingViewModel.getCurrentPlayMusic().observe(this, currentMusic -> {
             if (currentMusic != null) {
                 String path = currentMusic.getAudioLocalPath();
                 try {
@@ -409,14 +407,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        playingViewModel.getShowBottomNevBar().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean isShow) {
-                if (isShow) {
-                    findViewById(R.id.bottom_nev_bar).setVisibility(View.VISIBLE);
-                } else {
-                    findViewById(R.id.bottom_nev_bar).setVisibility(View.INVISIBLE);
-                }
+        playingViewModel.getShowBottomNevBar().observe(this, isShow -> {
+            if (isShow) {
+                findViewById(R.id.bottom_nev_bar).setVisibility(View.VISIBLE);
+            } else {
+                findViewById(R.id.bottom_nev_bar).setVisibility(View.INVISIBLE);
             }
         });
     }

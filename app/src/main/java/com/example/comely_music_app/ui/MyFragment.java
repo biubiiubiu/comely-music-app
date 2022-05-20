@@ -42,7 +42,6 @@ import com.example.comely_music_app.ui.enums.PlaylistSelectScene;
 import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
-import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
 import com.example.comely_music_app.ui.viewmodels.UserInfoViewModel;
 import com.example.comely_music_app.utils.ScreenUtils;
 import com.example.comely_music_app.utils.ShpUtils;
@@ -60,7 +59,6 @@ public class MyFragment extends Fragment implements View.OnClickListener {
     private final MutableLiveData<Integer> myFragmentViewsCtrlLiveData = new MutableLiveData<>(0);
 
     private UserInfoViewModel userInfoViewModel;
-    private PlaylistViewModel playlistViewModel;
 
     private RecyclerView playlistRecycleView;
     private PlaylistViewListAdapter adapter;
@@ -71,8 +69,17 @@ public class MyFragment extends Fragment implements View.OnClickListener {
     private PlaylistDetailsFragment playlistDetailsFragment;
     private PlayingViewModel playingViewModel;
 
-    public MyFragment(PlayingViewModel playingViewModel) {
-        this.playingViewModel = playingViewModel;
+    public MyFragment() {
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(Objects.requireNonNull(mActivity).getApplication(), mActivity);
+
+        userInfoViewModel = ViewModelProviders.of(mActivity, savedState).get(UserInfoViewModel.class);
+        playingViewModel = ViewModelProviders.of(mActivity, savedState).get(PlayingViewModel.class);
+        playlistService = new PlaylistServiceImpl(playingViewModel);
     }
 
     @Nullable
@@ -81,14 +88,8 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_my, container, false);
-        SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(
-                Objects.requireNonNull(mActivity).getApplication(), mActivity);
-        userInfoViewModel = ViewModelProviders.of(mActivity, savedState).get(UserInfoViewModel.class);
-        playlistViewModel = ViewModelProviders.of(mActivity, savedState).get(PlaylistViewModel.class);
 
-        playlistService = new PlaylistServiceImpl(playlistViewModel);
         initIcons(view);
-
 
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
         playlistRecycleView.setLayoutManager(manager);
@@ -108,13 +109,13 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                 if (detailsModel != null && detailsModel.getPlaylistInfo() != null
                         && detailsModel.getMusicModelList() != null) {
                     // 本地缓存有就直接使用
-                    playlistViewModel.setCurrentPlaylistDetails(detailsModel);
+                    playingViewModel.setCurrentPlaylistDetails(detailsModel);
                 } else {
                     // 本地shp缓存没有的话再查数据库
                     playlistService.selectPlaylistDetailsByScene(request, PlaylistSelectScene.MY_CREATE_PLAYLIST);
                 }
                 // 触发展示用户自建歌单详情页
-                playlistViewModel.setShowCreated();
+                playingViewModel.setShowCreated();
             }
 
             @Override
@@ -145,8 +146,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         ft.commit();
 
         FragmentTransaction ft1 = mActivity.getSupportFragmentManager().beginTransaction();
-        playlistDetailsFragment = new PlaylistDetailsFragment(myFragmentViewsCtrlLiveData, playlistViewModel,
-                playingViewModel);
+        playlistDetailsFragment = new PlaylistDetailsFragment(myFragmentViewsCtrlLiveData);
         ft1.add(R.id.frame_blank_for_setting, playlistDetailsFragment);
         ft1.commit();
 
@@ -218,8 +218,8 @@ public class MyFragment extends Fragment implements View.OnClickListener {
             PlaylistDetailsModel mylikeDetails = ShpUtils.getPlaylistDetailsFromShpByPlaylistName(mActivity,username+"的喜欢歌单");
             if (mylikeDetails != null && mylikeDetails.getMusicModelList() != null) {
                 // 本地缓存有就直接使用
-                playlistViewModel.setMyLikePlaylistDetails(mylikeDetails);
-                playlistViewModel.setCurrentPlaylistDetails(mylikeDetails);
+                playingViewModel.setMyLikePlaylistDetails(mylikeDetails);
+                playingViewModel.setCurrentPlaylistDetails(mylikeDetails);
             } else {
                 // 本地shp缓存没有的话再查数据库
                 PlaylistSelectRequest request = new PlaylistSelectRequest();
@@ -227,7 +227,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                 playlistService.selectPlaylistDetailsByScene(request, PlaylistSelectScene.MY_LIKE);
             }
             // 触发展示用户我喜欢歌单详情页
-            playlistViewModel.setShowMylike();
+            playingViewModel.setShowMylike();
         }
     }
 
@@ -259,8 +259,8 @@ public class MyFragment extends Fragment implements View.OnClickListener {
             });
         }
 
-        if (playlistViewModel != null) {
-            playlistViewModel.getMyCreatedPlaylists().observe(Objects.requireNonNull(mActivity), playlistModels -> {
+        if (playingViewModel != null) {
+            playingViewModel.getMyCreatedPlaylists().observe(Objects.requireNonNull(mActivity), playlistModels -> {
                 adapter.setPlaylistData(playlistModels);
                 // 写入shp，下次直接打开应用不需要联网就可以加载
                 ShpUtils.writeMyCreatePlaylistToShp(mActivity, playlistModels);
@@ -269,29 +269,26 @@ public class MyFragment extends Fragment implements View.OnClickListener {
             });
         }
 
-        if (playlistViewModel != null) {
-            playlistViewModel.getShowCreated().observe(Objects.requireNonNull(mActivity), model -> {
-                PlaylistDetailsModel detailsModel = playlistViewModel.getCurrentPlaylistDetails().getValue();
+        if (playingViewModel != null) {
+            playingViewModel.getShowCreated().observe(Objects.requireNonNull(mActivity), model -> {
+                PlaylistDetailsModel detailsModel = playingViewModel.getCurrentPlaylistDetails().getValue();
                 ShpUtils.writePlaylistDetailsIntoShp(mActivity, detailsModel);
                 myFragmentViewsCtrlLiveData.setValue(2);
             });
-            playlistViewModel.getShowCollect().observe(Objects.requireNonNull(mActivity),
+            playingViewModel.getShowCollect().observe(Objects.requireNonNull(mActivity),
                     model -> myFragmentViewsCtrlLiveData.setValue(3));
-            playlistViewModel.getShowMylike().observe(Objects.requireNonNull(mActivity),
+            playingViewModel.getShowMylike().observe(Objects.requireNonNull(mActivity),
                     model -> myFragmentViewsCtrlLiveData.setValue(4));
         }
 
-        if (playlistViewModel != null) {
-            playlistViewModel.getCurrentPlaylistDetails().observe(Objects.requireNonNull(mActivity), new Observer<PlaylistDetailsModel>() {
-                @Override
-                public void onChanged(PlaylistDetailsModel detailsModel) {
-                    PlaylistModel playlistInfo = detailsModel.getPlaylistInfo();
-                    UserInfo userinfo = ShpUtils.getCurrentUserinfoFromShp(mActivity);
-                    if (userinfo != null) {
-                        if (userinfo.getNickname().equals(playlistInfo.getCreatedUserNickname())) {
-                            // 这里根据歌单名称来修改created歌单中的info
-                            playlistViewModel.updateCreatedPlaylistByName(playlistInfo.getName(), playlistInfo);
-                        }
+        if (playingViewModel != null) {
+            playingViewModel.getCurrentPlaylistDetails().observe(Objects.requireNonNull(mActivity), detailsModel -> {
+                PlaylistModel playlistInfo = detailsModel.getPlaylistInfo();
+                UserInfo userinfo = ShpUtils.getCurrentUserinfoFromShp(mActivity);
+                if (userinfo != null) {
+                    if (userinfo.getNickname().equals(playlistInfo.getCreatedUserNickname())) {
+                        // 这里根据歌单名称来修改created歌单中的info
+                        playingViewModel.updateCreatedPlaylistByName(playlistInfo.getName(), playlistInfo);
                     }
                 }
             });
@@ -372,33 +369,33 @@ public class MyFragment extends Fragment implements View.OnClickListener {
     }
 
     private void observeOnSuccessToShowToast() {
-        if (playlistViewModel != null) {
-            playlistViewModel.getCreateSuccessFlag().observe(Objects.requireNonNull(mActivity),
+        if (playingViewModel != null) {
+            playingViewModel.getCreateSuccessFlag().observe(Objects.requireNonNull(mActivity),
                     integer -> Toast.makeText(mActivity, "创建成功！", Toast.LENGTH_SHORT).show());
         }
 
-        if (playlistViewModel != null) {
-            playlistViewModel.getCreateFailedFlag().observe(Objects.requireNonNull(mActivity),
+        if (playingViewModel != null) {
+            playingViewModel.getCreateFailedFlag().observe(Objects.requireNonNull(mActivity),
                     integer -> Toast.makeText(mActivity, "创建失败，请检查网络", Toast.LENGTH_SHORT).show());
         }
 
-        if (playlistViewModel != null) {
-            playlistViewModel.getDeleteSuccessFlag().observe(Objects.requireNonNull(mActivity),
+        if (playingViewModel != null) {
+            playingViewModel.getDeleteSuccessFlag().observe(Objects.requireNonNull(mActivity),
                     integer -> Toast.makeText(mActivity, "删除成功！", Toast.LENGTH_SHORT).show());
         }
 
-        if (playlistViewModel != null) {
-            playlistViewModel.getDeleteFailedFlag().observe(Objects.requireNonNull(mActivity),
+        if (playingViewModel != null) {
+            playingViewModel.getDeleteFailedFlag().observe(Objects.requireNonNull(mActivity),
                     integer -> Toast.makeText(mActivity, "删除失败，请检查网络", Toast.LENGTH_SHORT).show());
         }
 
-        if (playlistViewModel != null) {
-            playlistViewModel.getUpdateSuccessFlag().observe(Objects.requireNonNull(mActivity),
+        if (playingViewModel != null) {
+            playingViewModel.getUpdateSuccessFlag().observe(Objects.requireNonNull(mActivity),
                     integer -> Toast.makeText(mActivity, "修改成功！", Toast.LENGTH_SHORT).show());
         }
 
-        if (playlistViewModel != null) {
-            playlistViewModel.getUpdateFailedFlag().observe(Objects.requireNonNull(mActivity),
+        if (playingViewModel != null) {
+            playingViewModel.getUpdateFailedFlag().observe(Objects.requireNonNull(mActivity),
                     integer -> Toast.makeText(mActivity, "修改失败，请检查网络", Toast.LENGTH_SHORT).show());
         }
     }

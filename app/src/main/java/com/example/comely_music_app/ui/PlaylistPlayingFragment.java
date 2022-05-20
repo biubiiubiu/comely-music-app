@@ -16,7 +16,6 @@ import com.example.comely_music_app.R;
 import com.example.comely_music_app.ui.adapter.OtherPlayingViewAdapter;
 import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
-import com.example.comely_music_app.ui.viewmodels.PlaylistViewModel;
 
 import java.util.Objects;
 
@@ -28,13 +27,10 @@ public class PlaylistPlayingFragment extends Fragment implements View.OnClickLis
     ViewPager2 viewPager2;
     OtherPlayingViewAdapter adapter;
     PlayingViewModel playingViewModel;
-    PlaylistViewModel playlistViewModel;
     MutableLiveData<Integer> detailsViewCtrlLiveData;
 
-    public PlaylistPlayingFragment(MutableLiveData<Integer> ctrlLiveData, PlayingViewModel playingViewModel,
-                                   PlaylistViewModel playlistViewModel) {
+    public PlaylistPlayingFragment(MutableLiveData<Integer> ctrlLiveData, PlayingViewModel playingViewModel) {
         this.playingViewModel = playingViewModel;
-        this.playlistViewModel = playlistViewModel;
         this.detailsViewCtrlLiveData = ctrlLiveData;
     }
 
@@ -52,9 +48,9 @@ public class PlaylistPlayingFragment extends Fragment implements View.OnClickLis
         initIcons(inflateView);
 
         String curPlaylistName = "歌单播放";
-        if (playlistViewModel != null && playlistViewModel.getCurrentPlaylistDetails().getValue() != null
-                && playlistViewModel.getCurrentPlaylistDetails().getValue().getPlaylistInfo() != null) {
-            curPlaylistName = playlistViewModel.getCurrentPlaylistDetails().getValue().getPlaylistInfo().getName();
+        if (playingViewModel != null && playingViewModel.getCurrentPlaylistDetails().getValue() != null
+                && playingViewModel.getCurrentPlaylistDetails().getValue().getPlaylistInfo() != null) {
+            curPlaylistName = playingViewModel.getCurrentPlaylistDetails().getValue().getPlaylistInfo().getName();
         }
         adapter = new OtherPlayingViewAdapter(playingViewModel, curPlaylistName);
         viewPager2.setAdapter(adapter);
@@ -63,7 +59,7 @@ public class PlaylistPlayingFragment extends Fragment implements View.OnClickLis
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 if (Objects.requireNonNull(playingViewModel.getMusicListLiveData_playlistModule().getValue()).size() > position) {
-                    playingViewModel.setCurrentMusic(playingViewModel.getMusicListLiveData_playlistModule().getValue().get(position));
+                    playingViewModel.setCurrentPlayMusic(playingViewModel.getMusicListLiveData_playlistModule().getValue().get(position));
                     Log.d("TAG", "onPageSelected: 当前选择position:" + position + " "
                             + playingViewModel.getMusicListLiveData_playlistModule().getValue().get(position).getName());
                 }
@@ -89,7 +85,6 @@ public class PlaylistPlayingFragment extends Fragment implements View.OnClickLis
     public void onDetach() {
         super.onDetach();
         playingViewModel = null;
-        playlistViewModel = null;
         detailsViewCtrlLiveData = null;
     }
 
