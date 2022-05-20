@@ -56,6 +56,9 @@ public class PlayingViewModel extends AndroidViewModel {
     private List<MusicModel> toAddIntoMyLike = new ArrayList<>();
     private List<MusicModel> toRemoveFromMyLike = new ArrayList<>();
 
+    // =========== 模糊搜索的结果 =============
+    private MutableLiveData<List<MusicModel>> fuzzySearchResultMusicList;
+
 
     public PlayingViewModel(@Nullable Application application) {
         super(Objects.requireNonNull(application));
@@ -719,5 +722,18 @@ public class PlayingViewModel extends AndroidViewModel {
         }
     }
 
+    public MutableLiveData<List<MusicModel>> getFuzzySearchResultMusicList() {
+        if (fuzzySearchResultMusicList == null) {
+            fuzzySearchResultMusicList = new MutableLiveData<>();
+        }
+        return fuzzySearchResultMusicList;
+    }
+
+    public void setFuzzySearchResultMusicList(List<MusicModel> resultMusicList) {
+        if (fuzzySearchResultMusicList == null) {
+            fuzzySearchResultMusicList = getFuzzySearchResultMusicList();
+        }
+        fuzzySearchResultMusicList.setValue(resultMusicList);
+    }
 
 }

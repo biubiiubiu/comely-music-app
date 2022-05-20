@@ -124,6 +124,66 @@ public class MusicServiceImpl implements MusicService {
                 });
     }
 
+    @Override
+    public void fuzzySearchMusicByName(String searchContent, PlayingViewModel playingViewModel) {
+        if (searchContent == null || searchContent.length() == 0) {
+            return;
+        }
+        Observable<BaseResult<MusicSelectResponse>> fuzzyResult = musicApi.fuzzySearchMusic(searchContent);
+        fuzzyResult.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BaseObserver<MusicSelectResponse>(false) {
+                    @Override
+                    public void onSuccess(MusicSelectResponse response) {
+                        if (response != null && response.getMusicList() != null) {
+                            Log.d("TAG", "fuzzySearchMusicByName: 模糊搜索成功");
+                            List<MusicModel> modelList = transMusicInfo2Models(response.getMusicList());
+                            playingViewModel.setFuzzySearchResultMusicList(modelList);
+                        }
+                    }
+
+                    @Override
+                    public void onFail(int errorCode, String errorMsg, MusicSelectResponse response) {
+                        Log.d("TAG", "fuzzySearchMusicByName: 根据模糊搜索失败");
+                    }
+
+                    @Override
+                    public void onError(String msg) {
+
+                    }
+                });
+    }
+
+    @Override
+    public void fuzzySearchMusicByNameLimit(String searchContent, PlayingViewModel playingViewModel) {
+        if (searchContent == null || searchContent.length() == 0) {
+            return;
+        }
+        Observable<BaseResult<MusicSelectResponse>> fuzzyResult = musicApi.fuzzySearchMusicLimit(searchContent);
+        fuzzyResult.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BaseObserver<MusicSelectResponse>(false) {
+                    @Override
+                    public void onSuccess(MusicSelectResponse response) {
+                        if (response != null && response.getMusicList() != null) {
+                            Log.d("TAG", "fuzzySearchMusicByName: 模糊搜索成功");
+                            List<MusicModel> modelList = transMusicInfo2Models(response.getMusicList());
+                            playingViewModel.setFuzzySearchResultMusicList(modelList);
+                        }
+                    }
+
+                    @Override
+                    public void onFail(int errorCode, String errorMsg, MusicSelectResponse response) {
+                        Log.d("TAG", "fuzzySearchMusicByName: 根据模糊搜索失败");
+                    }
+
+                    @Override
+                    public void onError(String msg) {
+
+                    }
+                });
+    }
+
     public List<MusicModel> transMusicInfo2Models(List<MusicSelectResponse.MusicInfo> musicInfoList) {
         if (musicInfoList == null) {
             return null;

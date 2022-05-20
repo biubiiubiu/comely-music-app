@@ -75,20 +75,14 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.Musi
             }
             return true;
         });
-        holder.itemView.findViewById(R.id.item_playlist_behind_title_btn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null) {
-                    listener.onClickBtnBehindTitle(v, position);
-                }
+        holder.itemView.findViewById(R.id.item_playlist_behind_title_btn).setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onClickBtnBehindTitle(v, position);
             }
         });
-        holder.itemView.findViewById(R.id.item_playlist_ormusic_right_image).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null) {
-                    listener.onClickRightBtn(v, position);
-                }
+        holder.itemView.findViewById(R.id.item_playlist_ormusic_right_image).setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onClickRightBtn(v, position);
             }
         });
     }
