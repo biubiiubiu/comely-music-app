@@ -15,6 +15,7 @@ import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -85,6 +86,26 @@ public class ShpUtils {
         }
     }
 
+    public static void writeHistorySearchList(Activity mActivity, List<String> historyList) {
+        SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = shp.edit();
+        Gson gson = new Gson();
+        String historyListStr = gson.toJson(historyList);
+        editor.putString(ShpConfig.HISTORY_SEARCH, historyListStr);
+        editor.apply();
+    }
+
+    public static List<String> getHistorySearchList(Activity mActivity) {
+        SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
+        String myCreatePlaylistStr = shp.getString(ShpConfig.HISTORY_SEARCH, "");
+        if (!myCreatePlaylistStr.equals("")) {
+            Gson gson = new Gson();
+            return gson.fromJson(myCreatePlaylistStr, new TypeToken<List<String>>() {
+            }.getType());
+        }
+        return new ArrayList<>();
+    }
+
     // ============================= clear =================================
 
     public static void clearCurrentUserInfo(Activity mActivity) {
@@ -98,6 +119,13 @@ public class ShpUtils {
         SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = shp.edit();
         editor.putString(ShpConfig.MY_CREATE_PLAYLIST, "");
+        editor.apply();
+    }
+
+    public static void clearSearchHistoryList(Activity mActivity){
+        SharedPreferences shp = Objects.requireNonNull(mActivity).getSharedPreferences(ShpConfig.SHP_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = shp.edit();
+        editor.putString(ShpConfig.HISTORY_SEARCH, "");
         editor.apply();
     }
 

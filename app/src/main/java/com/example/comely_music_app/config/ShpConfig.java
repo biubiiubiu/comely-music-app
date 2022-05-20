@@ -12,4 +12,6 @@ public class ShpConfig {
     // 存个人创建的歌单详情信息，这里也可以每次都请求网络，但是用shp可以弥补网络查询速度慢的弱点
     // 使用时，用PLAYLIST_DETAILS+playlistName+username作为key(playlist表中（playlistName+username）唯一)
     public final static String PLAYLIST_DETAILS = "PLAYLIST_DETAILS";
+
+    public final static String HISTORY_SEARCH = "HISTORY_SEARCH";
 }

@@ -10,11 +10,13 @@
     tools:context=".ui.FindingFragment">
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/playlist_details_play_all"
-        android:layout_width="400dp"
+        android:id="@+id/finding_search_cardview"
+        android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_gravity="center_horizontal"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
         app:cardBackgroundColor="@color/main_background"
         app:cardCornerRadius="20dp">
 
@@ -35,6 +37,7 @@
                 android:background="@android:color/transparent"
                 android:scaleType="centerCrop"
                 app:srcCompat="@drawable/ic_search"
+                android:layout_weight="1"
                 tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
             <EditText
@@ -45,6 +48,7 @@
                 android:layout_marginStart="10dp"
                 android:background="@color/ps_color_transparent"
                 android:hint="搜索你想找的音乐"
+                android:layout_weight="10"
                 android:textColor="@color/dialog_text_color"
                 android:textColorHint="@color/dialog_text_color"
                 android:textSize="16sp"
@@ -55,8 +59,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginStart="5dp"
+                android:layout_marginEnd="10dp"
                 android:text="搜索"
+                android:layout_weight="1"
                 android:textColor="@color/dialog_text_color"
                 android:textSize="18sp" />
         </LinearLayout>

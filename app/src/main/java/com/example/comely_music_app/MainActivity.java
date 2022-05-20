@@ -235,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                ShpUtils.clearAllCreatedPlaylistDetails(this);
                 // 清除用户自建歌单缓存,注意先后顺序
                 ShpUtils.clearCreatedPlaylist(this);
+
             }
         });
     }
@@ -501,6 +502,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playPauseBtn = findViewById(R.id.play_pause_btn);
         View findBtn = findViewById(R.id.find_btn);
         View myBtn = findViewById(R.id.my_btn);
+        View searchBtn = findViewById(R.id.search_btn);
         frameBlank = findViewById(R.id.frame_blank);
         playPauseBtn = findViewById(R.id.play_pause_btn);
 
@@ -519,7 +521,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         playPauseBtn.setOnClickListener(this);
         findBtn.setOnClickListener(this);
         myBtn.setOnClickListener(this);
-
+        searchBtn.setOnClickListener(this);
     }
 
 
@@ -531,7 +533,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } else {
                 playingViewModel.changePageStatusLiveData(PageStatus.PLAYING);
             }
-        } else if (v.getId() == R.id.find_btn) {
+        } else if (v.getId() == R.id.find_btn || v.getId() == R.id.search_btn) {
             playingViewModel.changePageStatusLiveData(PageStatus.FINDING);
         } else if (v.getId() == R.id.my_btn) {
             playingViewModel.changePageStatusLiveData(PageStatus.MY);

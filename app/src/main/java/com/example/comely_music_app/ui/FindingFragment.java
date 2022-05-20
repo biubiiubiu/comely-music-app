@@ -8,8 +8,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListPopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,10 +34,16 @@ import com.example.comely_music_app.ui.adapter.MusicListAdapter;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
+import com.example.comely_music_app.utils.ShpUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class FindingFragment extends Fragment {
     private TextView searchBtn;
@@ -47,6 +56,7 @@ public class FindingFragment extends Fragment {
     private int currentItemPosition = 0;
     private final MutableLiveData<Integer> detailsViewCtrlLiveData = new MutableLiveData<>(0);
     private View searchMore;
+    private View cardview;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -200,7 +210,9 @@ public class FindingFragment extends Fragment {
         }
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     private void initIcons(View view) {
+        cardview = view.findViewById(R.id.finding_search_cardview);
         searchBtn = view.findViewById(R.id.finding_search);
         searchEdit = view.findViewById(R.id.finding_editText);
         searchResultRecycleView = view.findViewById(R.id.finding_search_result_recv);
@@ -209,8 +221,14 @@ public class FindingFragment extends Fragment {
         searchMore.setVisibility(View.INVISIBLE);
 
         searchBtn.setOnClickListener(v -> {
-            String searchContent = searchEdit.getText().toString();
+            String searchContent = searchEdit.getText().toString().trim();
             if (searchContent.length() > 0) {
+                List<String> historyList = ShpUtils.getHistorySearchList(mActivity);
+                Set<String> set = new HashSet<>(historyList);
+                set.add(searchContent);
+                historyList = new ArrayList<>(set);
+                historyList.remove("");
+                ShpUtils.writeHistorySearchList(mActivity, historyList);
                 musicService.fuzzySearchMusicByNameLimit(searchContent, playingViewModel);
             }
         });
@@ -221,6 +239,30 @@ public class FindingFragment extends Fragment {
                 musicService.fuzzySearchMusicByName(searchContent, playingViewModel);
                 searchMore.setVisibility(View.INVISIBLE);
             }
+        });
+
+        searchEdit.setOnClickListener(v -> {
+            ListPopupWindow listPopupWindow = new ListPopupWindow(getContext());
+            List<String> historyList = ShpUtils.getHistorySearchList(mActivity);
+            historyList.add("清空历史记录");
+            final String[] historyArray = historyList.toArray(new String[0]);
+            listPopupWindow.setAdapter(new ArrayAdapter<>(getActivity(), R.layout.item_popup_window, historyArray));
+            listPopupWindow.setBackgroundDrawable(getResources().getDrawable(R.color.btn_gray));
+            listPopupWindow.setAnchorView(cardview);
+            listPopupWindow.setModal(true);
+
+            listPopupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    if (i == historyArray.length - 1) {
+                        ShpUtils.clearSearchHistoryList(mActivity);
+                    } else {
+                        searchEdit.setText(historyArray[i]);
+                    }
+                    listPopupWindow.dismiss();
+                }
+            });
+            listPopupWindow.show();
         });
     }
 
