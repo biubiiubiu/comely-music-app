@@ -478,7 +478,8 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
             myFragmentViewsCtrlLiveData.setValue(0);
         } else if (v.getId() == R.id.playlist_details_play_all) {
             // 播放此歌单全部歌曲
-            Toast.makeText(getContext(), "抱歉，该功能暂未开放~", Toast.LENGTH_SHORT).show();
+            currentItemPosition = 0;
+            detailsViewCtrlLiveData.setValue(1);
         } else if (v.getId() == R.id.playlist_details_multi_check) {
             // 多选操作，跳转新界面
             Toast.makeText(getContext(), "抱歉，该功能暂未开放~", Toast.LENGTH_SHORT).show();
