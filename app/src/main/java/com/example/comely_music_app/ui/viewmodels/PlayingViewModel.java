@@ -14,6 +14,7 @@ import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -638,11 +639,13 @@ public class PlayingViewModel extends AndroidViewModel {
                 details.setMusicModelList(toAddList);
             } else {
                 List<MusicModel> oldList = details.getMusicModelList();
+                Collections.reverse(oldList);
                 for (MusicModel model : toAddList) {
                     if (!oldList.contains(model)) {
                         oldList.add(model);
                     }
                 }
+                Collections.reverse(oldList);
                 details.setMusicModelList(oldList);
             }
             setMyLikePlaylistDetails(details);
@@ -692,11 +695,13 @@ public class PlayingViewModel extends AndroidViewModel {
                 details.setMusicModelList(toAddList);
             } else {
                 List<MusicModel> oldList = details.getMusicModelList();
+                Collections.reverse(oldList);
                 for (MusicModel model : toAddList) {
                     if (!oldList.contains(model)) {
                         oldList.add(model);
                     }
                 }
+                Collections.reverse(oldList);
                 details.setMusicModelList(oldList);
             }
             setRecentlyPlaylistDetails(details);

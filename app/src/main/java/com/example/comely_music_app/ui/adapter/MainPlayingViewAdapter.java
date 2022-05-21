@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
-import com.example.comely_music_app.enums.PlayerModule;
 import com.example.comely_music_app.network.request.MusicSelectByTagsRequest;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.provider.MusicModelProvider;
@@ -25,30 +24,26 @@ import lombok.SneakyThrows;
 /**
  * 用于修改PlayingViewPager界面数据
  */
-public class MainPlayingViewAdapter1 extends RecyclerView.Adapter<MainPlayingViewHolder> {
+public class MainPlayingViewAdapter extends RecyclerView.Adapter<MainPlayingViewHolder> {
     private final MusicModelProvider modelProvider;
 
     private final static int INIT_NUM = 6;
     private final static int ADD_NUM = 3;
-    private List<MusicModel> musicList_endlessModule, musicList_playlistModule;
-    private final PlayerModule playerModule;
+    private List<MusicModel> musicList_endlessModule;
 
     private int position;
 
     private final PlayingViewModel playingViewModel;
 
-    public MainPlayingViewAdapter1(PlayingViewModel playingViewModel, PlayerModule module) {
+    public MainPlayingViewAdapter(PlayingViewModel playingViewModel) {
         this.playingViewModel = playingViewModel;
-        this.playerModule = module;
         // 初始化各个item list的数据
         modelProvider = new MusicModelProvider();
 
-        // 如果是无限模式就从远端获取
-        if (module.equals(PlayerModule.ENDLESS)) {
-            List<String> tags = new ArrayList<>();
-            tags.add("古风");
-            initMusicModelListByTags(tags);
-        }
+        // 从远端获取
+        List<String> tags = new ArrayList<>();
+        tags.add("古风");
+        initMusicModelListByTags(tags);
     }
 
 //    public PlayingViewListAdapter(Context applicationContext, PlayingViewModel playingViewModel) {
@@ -75,13 +70,7 @@ public class MainPlayingViewAdapter1 extends RecyclerView.Adapter<MainPlayingVie
 
     @Override
     public int getItemCount() {
-        if (playerModule == PlayerModule.ENDLESS) {
-            return musicList_endlessModule != null ? musicList_endlessModule.size() : 0;
-        }
-        if (playerModule.equals(PlayerModule.PLAYLIST)) {
-            return musicList_playlistModule != null ? musicList_playlistModule.size() : 0;
-        }
-        return 0;
+        return musicList_endlessModule != null ? musicList_endlessModule.size() : 0;
     }
 
     @NonNull
@@ -126,25 +115,13 @@ public class MainPlayingViewAdapter1 extends RecyclerView.Adapter<MainPlayingVie
         return musicList_endlessModule;
     }
 
-    public void setMusicList_playlistModule(List<MusicModel> list) {
-        if (list != null && list.size() > 0) {
-            musicList_playlistModule = list;
-        }
-    }
 
     /**
      * 解析数据到界面上
      */
     private void initCurrentViewContents(MainPlayingViewHolder holder) throws IOException {
-        if (playerModule.equals(PlayerModule.ENDLESS) && musicList_endlessModule != null) {
-            MusicModel currentModel = musicList_endlessModule.get(position);
-            holder.setTitle(currentModel.getName());
-            holder.setCoverAndBk(currentModel);
-        }
-        if (playerModule.equals(PlayerModule.PLAYLIST) && musicList_playlistModule != null) {
-            MusicModel currentModel = musicList_playlistModule.get(position);
-            holder.setTitle(currentModel.getName());
-            holder.setCoverAndBk(currentModel);
-        }
+        MusicModel currentModel = musicList_endlessModule.get(position);
+        holder.setTitle(currentModel.getName());
+        holder.setCoverAndBk(currentModel);
     }
 }

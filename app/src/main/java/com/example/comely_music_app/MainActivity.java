@@ -33,7 +33,7 @@ import com.example.comely_music_app.network.service.impl.PlaylistServiceImpl;
 import com.example.comely_music_app.network.service.impl.UserServiceImpl;
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
-import com.example.comely_music_app.ui.adapter.MainPlayingViewAdapter1;
+import com.example.comely_music_app.ui.adapter.MainPlayingViewAdapter;
 import com.example.comely_music_app.ui.animation.DepthPageTransformer;
 import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
 import com.example.comely_music_app.ui.enums.PageStatus;
@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton playPauseBtn;
 
     private ViewPager2 viewPagerEndlessModule, viewPagerPlaylistModule;
-    private MainPlayingViewAdapter1 viewPagerAdapterEndlessModule, viewPagerAdapterPlaylistModule;
+    private MainPlayingViewAdapter viewPagerAdapterEndlessModule;
 
     private PlayingViewModel playingViewModel;
     private UserInfoViewModel userInfoViewModel;
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         initIcon();
 
-        viewPagerAdapterEndlessModule = new MainPlayingViewAdapter1(playingViewModel, PlayerModule.ENDLESS);
+        viewPagerAdapterEndlessModule = new MainPlayingViewAdapter(playingViewModel);
         viewPagerEndlessModule.setAdapter(viewPagerAdapterEndlessModule);
         // 滑动页面时更改当前音乐
         viewPagerEndlessModule.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -119,29 +119,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             + playingViewModel.getMusicListLiveData_endlessModule().getValue().get(position).getName());
                 }
                 // 最后一个item的时候再次获取一批
-                if (playingViewModel.getPlayerModule().getValue() == PlayerModule.ENDLESS &&
-                        position == viewPagerAdapterEndlessModule.getItemCount() - 1) {
+                if (position == viewPagerAdapterEndlessModule.getItemCount() - 1) {
                     List<String> tags = new ArrayList<>();
                     tags.add("古风");
                     viewPagerAdapterEndlessModule.addMusicListByTags(tags);
-                }
-            }
-        });
-
-        viewPagerAdapterPlaylistModule = new MainPlayingViewAdapter1(playingViewModel, PlayerModule.PLAYLIST);
-        viewPagerPlaylistModule.setAdapter(viewPagerAdapterPlaylistModule);
-        viewPagerPlaylistModule.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                // 停止当前音乐播放
-                if (mediaPlayer.isPlaying()) {
-                    mediaPlayer.stop();
-                }
-                if (Objects.requireNonNull(playingViewModel.getMusicListLiveData_playlistModule().getValue()).size() > position) {
-                    playingViewModel.setCurrentPlayMusic(playingViewModel.getMusicListLiveData_playlistModule().getValue().get(position));
-                    Log.d("TAG", "onPageSelected: 当前选择position:" + position + " "
-                            + playingViewModel.getMusicListLiveData_playlistModule().getValue().get(position).getName());
                 }
             }
         });
@@ -398,13 +379,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        playingViewModel.getMusicListLiveData_playlistModule().observe(this, musicModels -> {
-            if (musicModels != null && musicModels.size() != 0) {
-                viewPagerAdapterPlaylistModule.setMusicList_playlistModule(musicModels);
-                viewPagerAdapterPlaylistModule.notifyDataSetChanged();
-            }
-        });
-
         // 当前界面滑动时，播放当前界面音乐
         playingViewModel.getCurrentPlayMusic().observe(this, currentMusic -> {
             if (currentMusic != null) {
@@ -495,12 +469,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (viewById != null) {
                 viewById.setBackgroundColor(getResources().getColor(android.R.color.transparent));
             }
-//                封面暂不显示
-//                ImageView cover = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_item_cover);
-
             TextView musicNameText = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_music_name);
             TextView artistNameText = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_artist_name);
-            List<MusicModel> musicModels = viewPagerAdapterEndlessModule.getMusicList_endlessModule();
             MusicModel model = playingViewModel.getCurrentPlayMusic().getValue();
             // 设置当前选中音乐
             if (model != null) {
@@ -569,11 +539,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         viewPagerEndlessModule = findViewById(R.id.viewpage_playing_endless_module);
         viewPagerEndlessModule.setOrientation(ORIENTATION_VERTICAL);
-        viewPagerEndlessModule.setPageTransformer(DepthPageTransformer.getDepthPageTransformer());
+        viewPagerEndlessModule.setPageTransformer(ZoomOutPageTransformer.getZoomOutPageTransformer());
 
         viewPagerPlaylistModule = findViewById(R.id.viewpage_playing_playlist_module);
         viewPagerPlaylistModule.setOrientation(ORIENTATION_VERTICAL);
-        viewPagerPlaylistModule.setPageTransformer(ZoomOutPageTransformer.getZoomOutPageTransformer());
+        viewPagerPlaylistModule.setPageTransformer(DepthPageTransformer.getDepthPageTransformer());
         viewPagerPlaylistModule.setVisibility(View.INVISIBLE);
 
         playerModuleTxt = findViewById(R.id.player_module_txt);
