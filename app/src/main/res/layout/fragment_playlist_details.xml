@@ -141,12 +141,6 @@
                     </LinearLayout>
 
                 </LinearLayout>
-
-                <FrameLayout
-                    android:id="@+id/frame_blank_for_playing_viewpager"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="invisible" />
             </LinearLayout>
 
             <LinearLayout
@@ -265,6 +259,12 @@
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <FrameLayout
+        android:id="@+id/frame_blank_for_playing_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible" />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

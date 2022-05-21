@@ -258,17 +258,16 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
     }
 
     private void showPlayingFrameBlank() {
+        if (detailsContent.getVisibility() == View.VISIBLE) {
+            detailsContent.setVisibility(View.INVISIBLE);
+        }
         playingViewModel.setShowBottomNevBar(false);
         if (frameBlankPlaying.getVisibility() == View.INVISIBLE) {
             frameBlankPlaying.setVisibility(View.VISIBLE);
         }
-        if (detailsContent.getVisibility() == View.VISIBLE) {
-            detailsContent.setVisibility(View.INVISIBLE);
-        }
     }
 
     private void hidePlayingFrameBlank() {
-
         playingViewModel.setShowBottomNevBar(true);
         if (frameBlankPlaying.getVisibility() == View.VISIBLE) {
             frameBlankPlaying.setVisibility(View.INVISIBLE);
