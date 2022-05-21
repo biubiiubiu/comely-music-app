@@ -34,7 +34,7 @@ public interface PlaylistApi {
     Observable<BaseResult<PlaylistInfoWithMusicListResponse>> selectPlaylistWithMusicList(@Body PlaylistSelectRequest request);
 
     @POST("generate/playlist/add-music-into-playlist")
-    Observable<BaseResult<MusicSelectResponse>> addMusicToPlaylist(@Body PlaylistMusicAddRequest request);
+    Observable<BaseResult<Void>> addMusicIntoPlaylist(@Body PlaylistMusicAddRequest request);
 
     @POST("generate/playlist/delete-music-from-playlist")
     Observable<BaseResult<Void>> deleteMusicFromPlaylist(@Body PlaylistMusicAddRequest request);

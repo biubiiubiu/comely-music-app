@@ -233,6 +233,29 @@ public class PlaylistServiceImpl implements PlaylistService {
     }
 
     @Override
+    public void addMusicIntoPlaylist(PlaylistMusicAddRequest request) {
+        Observable<BaseResult<Void>> result = playlistApi.addMusicIntoPlaylist(request);
+        result.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BaseObserver<Void>(false) {
+                    @Override
+                    public void onSuccess(Void o) {
+                        Log.d("TAG", "addMusicIntoPlaylist: 添加音乐到歌单成功");
+                    }
+
+                    @Override
+                    public void onFail(int errorCode, String errorMsg, Void response) {
+
+                    }
+
+                    @Override
+                    public void onError(String msg) {
+
+                    }
+                });
+    }
+
+    @Override
     public void deleteMusicFromPlaylist(PlaylistMusicAddRequest request) {
         Observable<BaseResult<Void>> delete = playlistApi.deleteMusicFromPlaylist(request);
         delete.subscribeOn(Schedulers.io())

@@ -21,7 +21,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,7 +28,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.enums.PlayerModule;
-import com.example.comely_music_app.network.request.PlaylistSelectRequest;
 import com.example.comely_music_app.network.response.UserInfo;
 import com.example.comely_music_app.network.service.MusicService;
 import com.example.comely_music_app.network.service.PlaylistService;
@@ -38,7 +36,6 @@ import com.example.comely_music_app.network.service.impl.PlaylistServiceImpl;
 import com.example.comely_music_app.ui.adapter.AdapterClickListener;
 import com.example.comely_music_app.ui.adapter.MusicListAdapter;
 import com.example.comely_music_app.ui.adapter.PlaylistViewListAdapter;
-import com.example.comely_music_app.ui.enums.PlaylistSelectScene;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
@@ -53,8 +50,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import lombok.ToString;
-
 public class FindingFragment extends Fragment {
     private EditText searchEdit;
     private RecyclerView searchResultRecycleView;
@@ -66,7 +61,7 @@ public class FindingFragment extends Fragment {
     private MusicService musicService;
     private int currentItemPosition = 0;
     private final MutableLiveData<Integer> findingViewCtrlLiveData = new MutableLiveData<>(0);
-    private PlaylistPlayingFragment playlistPlayingFragment;
+    private PlaylistPlayingFragment playingFragment;
     private PlaylistDetailsFragment playlistDetailsFragment;
     private View searchMore;
     private View cardview;
@@ -373,10 +368,10 @@ public class FindingFragment extends Fragment {
         }
 
         findingViewCtrlLiveData.observe(mActivity, integer -> {
-            if (playlistPlayingFragment == null) {
-                playlistPlayingFragment = new PlaylistPlayingFragment(findingViewCtrlLiveData);
+            if (playingFragment == null) {
+                playingFragment = new PlaylistPlayingFragment(findingViewCtrlLiveData);
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
-                ft.add(R.id.finding_frame_blank_for_playing_viewpager, playlistPlayingFragment);
+                ft.add(R.id.finding_frame_blank_for_playing_viewpager, playingFragment);
                 ft.commit();
             }
             if (playlistDetailsFragment == null) {
@@ -388,21 +383,21 @@ public class FindingFragment extends Fragment {
             if (integer == 0) {
                 Log.d("TAG", "setObserveOnViewModels: 展示搜索结果页");
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
-                ft.hide(playlistPlayingFragment);
+                ft.hide(playingFragment);
                 ft.hide(playlistDetailsFragment);
                 ft.commit();
                 hidePlayingFrameBlank();
             } else if (integer == 1) {
                 playingViewModel.setPlayerModule(PlayerModule.PLAYLIST);
-                playlistPlayingFragment.initDatas();
-                playlistPlayingFragment.setCurItem(currentItemPosition);
+                playingFragment.initDatas();
+                playingFragment.setCurItem(currentItemPosition);
                 Log.d("TAG", "setObserveOnViewModels: 展示歌单播放页");
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
-                ft.show(playlistPlayingFragment);
+                ft.show(playingFragment);
                 ft.commit();
                 showPlayingFrameBlank();
             } else if (integer == 2) {
-                Log.d("TAG", "setObserveOnViewModels: 展示歌单播放页");
+                Log.d("TAG", "setObserveOnViewModels: 展示歌单详情页");
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.show(playlistDetailsFragment);
                 ft.commit();

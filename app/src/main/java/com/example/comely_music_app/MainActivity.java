@@ -667,6 +667,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         ShpUtils.writePlaylistDetailsIntoShp(this, targetPlaylistDetails);
         playingViewModel.updateCreatedPlaylistByName(targetCreatedPlaylistName, targetPlaylistDetails.getPlaylistInfo());
+
+        // 生成添加到歌单的信息，刷给mysql
+        PlaylistMusicAddRequest request = new PlaylistMusicAddRequest();
+        UserInfo userinfo = ShpUtils.getCurrentUserinfoFromShp(this);
+        if (userinfo == null) {
+            return;
+        }
+        request.setUsername(userinfo.getUsername()).setPlaylistName(targetCreatedPlaylistName);
+        List<PlaylistMusicAddRequest.MusicAddInfo> infos = new ArrayList<>();
+        infos.add(new PlaylistMusicAddRequest.MusicAddInfo(model.getName(), model.getArtistName()));
+        request.setMusicAddInfoList(infos);
+        playlistService.addMusicIntoPlaylist(request);
         Toast.makeText(getApplicationContext(), "添加成功！", Toast.LENGTH_SHORT).show();
     }
 
