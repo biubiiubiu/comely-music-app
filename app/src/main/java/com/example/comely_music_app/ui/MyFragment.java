@@ -103,12 +103,12 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                 PlaylistSelectRequest request = new PlaylistSelectRequest();
                 request.setUsername(username).setPlaylistName(clickPlaylistItem.getName());
                 // 先查本地shp缓存
-                PlaylistDetailsModel detailsModel =
+                PlaylistDetailsModel createdDetails =
                         ShpUtils.getPlaylistDetailsFromShpByPlaylistName(mActivity, clickPlaylistItem.getName());
-                if (detailsModel != null && detailsModel.getPlaylistInfo() != null
-                        && detailsModel.getMusicModelList() != null) {
+                if (createdDetails != null && createdDetails.getPlaylistInfo() != null
+                        && createdDetails.getMusicModelList() != null) {
                     // 本地缓存有就直接使用
-                    playingViewModel.setCurrentPlaylistDetails(detailsModel);
+                    playingViewModel.setCurrentPlaylistDetails(createdDetails);
                 } else {
                     // 本地shp缓存没有的话再查数据库
                     playlistService.selectPlaylistDetailsByScene(request, PlaylistSelectScene.MY_CREATE_PLAYLIST);
@@ -198,10 +198,12 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         myCreatedPlaylistRecycleView = view.findViewById(R.id.created_playlist_list);
 
         View mylikeBtn = view.findViewById(R.id.my_like_playlist);
+        View recentlyPlayBtn = view.findViewById(R.id.my_recently_played);
 
         avatarImg.setOnClickListener(this);
         addPlaylist.setOnClickListener(this);
         mylikeBtn.setOnClickListener(this);
+        recentlyPlayBtn.setOnClickListener(this);
     }
 
     @Override
@@ -214,7 +216,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
             // 进入我喜欢歌单界面
             // 先查本地shp缓存
             String username = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(mActivity)).getUsername();
-            PlaylistDetailsModel mylikeDetails = ShpUtils.getPlaylistDetailsFromShpByPlaylistName(mActivity,username+"的喜欢歌单");
+            PlaylistDetailsModel mylikeDetails = ShpUtils.getPlaylistDetailsFromShpByPlaylistName(mActivity, username + "的喜欢歌单");
             if (mylikeDetails != null && mylikeDetails.getMusicModelList() != null) {
                 // 本地缓存有就直接使用
                 playingViewModel.setMyLikePlaylistDetails(mylikeDetails);
@@ -227,6 +229,23 @@ public class MyFragment extends Fragment implements View.OnClickListener {
             }
             // 触发展示用户我喜欢歌单详情页
             playingViewModel.setShowMylike();
+        } else if (v.getId() == R.id.my_recently_played) {
+            // 进入最近播放歌单界面
+            // 先查本地shp缓存
+            String username = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(mActivity)).getUsername();
+            PlaylistDetailsModel recentlyPlay = ShpUtils.getPlaylistDetailsFromShpByPlaylistName(mActivity, username + "的最近播放");
+            if (recentlyPlay != null && recentlyPlay.getMusicModelList() != null) {
+                // 本地缓存有就直接使用
+                playingViewModel.setRecentlyPlaylistDetails(recentlyPlay);
+                playingViewModel.setCurrentPlaylistDetails(recentlyPlay);
+            } else {
+                // 本地shp缓存没有的话再查数据库
+                PlaylistSelectRequest request = new PlaylistSelectRequest();
+                request.setUsername(username).setPlaylistName(username + "的最近播放");
+                playlistService.selectPlaylistDetailsByScene(request, PlaylistSelectScene.RECENTLY_PLAY);
+            }
+            // 触发展示用户最近播放歌单详情页
+            playingViewModel.setShowRecentlyPlay();
         }
     }
 
@@ -278,6 +297,8 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                     i -> myFragmentViewsCtrlLiveData.setValue(3));
             playingViewModel.getShowMylike().observe(Objects.requireNonNull(mActivity),
                     i -> myFragmentViewsCtrlLiveData.setValue(4));
+            playingViewModel.getShowRecentlyPlay().observe(Objects.requireNonNull(mActivity),
+                    i -> myFragmentViewsCtrlLiveData.setValue(5));
         }
 
         if (playingViewModel != null) {
@@ -299,6 +320,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         myFragmentViewsCtrlLiveData.observe(Objects.requireNonNull(mActivity), integer -> {
             if (integer == 0) {
                 // myFragment界面
+                Log.d("TAG", "setObserveOnViewModels: 进入myfragment界面");
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.hide(settingFragment);
                 ft.hide(playlistDetailsFragment);
@@ -306,6 +328,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                 hideSettingOrDetailsFrameBlank();
             } else if (integer == 1) {
                 // settings界面
+                Log.d("TAG", "setObserveOnViewModels: 进入settings界面");
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.show(settingFragment);
                 ft.commit();
@@ -313,6 +336,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
             } else if (integer == 2) {
                 playlistDetailsFragment.initDatas();
                 // 不可收藏
+                Log.d("TAG", "setObserveOnViewModels: 进入自建歌单界面，设置为不可收藏");
                 playlistDetailsFragment.setCollectNotAllowed();
                 // 自建歌单界面
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
@@ -322,7 +346,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
             } else if (integer == 3) {
                 playlistDetailsFragment.initDatas();
                 // 可收藏
-                Log.d("TAG", "setObserveOnViewModels: 设置为可收藏");
+                Log.d("TAG", "setObserveOnViewModels: 进入收藏歌单界面，设置为可收藏");
                 playlistDetailsFragment.setCollectAllowed();
                 // 收藏歌单界面
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
@@ -333,8 +357,19 @@ public class MyFragment extends Fragment implements View.OnClickListener {
                 playlistDetailsFragment.initDatas();
                 playlistDetailsFragment.setCollectNotAllowed();
                 // 可收藏
-                Log.d("TAG", "setObserveOnViewModels: 我喜欢歌单");
+                Log.d("TAG", "setObserveOnViewModels: 进入我喜欢歌单界面，我喜欢歌单");
                 // 喜欢歌单界面
+                FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+                ft.show(playlistDetailsFragment);
+                ft.commit();
+                showSettingOrDetailsFrameBlank();
+            } else if (integer == 5) {
+                playlistDetailsFragment.initDatas();
+                playlistDetailsFragment.setCollectNotAllowed();
+//                playlistDetailsFragment.setPlaylistInfoNotShowed();
+                // 可收藏
+                Log.d("TAG", "setObserveOnViewModels: 进入最近播放歌单界面，最近播放歌单");
+                // 最近播放歌单界面
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.show(playlistDetailsFragment);
                 ft.commit();

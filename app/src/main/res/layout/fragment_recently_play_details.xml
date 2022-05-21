@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ps_color_transparent"
+    tools:context=".ui.PlaylistDetailsFragment">
+
+    <!--    返回时展示这个-->
+<!--    <androidx.core.widget.NestedScrollView-->
+<!--        android:id="@+id/playlist_details_content"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:background="#D2051212"-->
+<!--        android:fillViewport="true"-->
+<!--        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">-->
+
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="vertical">-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="vertical">-->
+
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginTop="20dp">-->
+
+<!--                    <ImageButton-->
+<!--                        android:id="@+id/playlist_details_back"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginStart="10dp"-->
+<!--                        android:background="@color/ps_color_transparent"-->
+<!--                        android:src="@drawable/ps_ic_normal_back"-->
+<!--                        tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/playlist_details_playlistName"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginEnd="40dp"-->
+<!--                        android:fontFamily="@font/calibri"-->
+<!--                        android:gravity="center_horizontal"-->
+<!--                        android:text="歌单名称"-->
+<!--                        android:textColor="@color/gray"-->
+<!--                        android:textSize="22sp" />-->
+<!--                </LinearLayout>-->
+
+
+<!--                <FrameLayout-->
+<!--                    android:id="@+id/frame_blank_for_playing_viewpager"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:visibility="invisible" />-->
+<!--            </LinearLayout>-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="400dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginStart="30dp"-->
+<!--                android:layout_marginTop="20dp"-->
+<!--                android:layout_marginEnd="20dp"-->
+<!--                android:orientation="horizontal">-->
+
+<!--                <androidx.cardview.widget.CardView-->
+<!--                    android:id="@+id/playlist_details_play_all"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    app:cardBackgroundColor="@color/main_background"-->
+<!--                    app:cardCornerRadius="15dp">-->
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_gravity="center_horizontal"-->
+<!--                        android:layout_marginStart="6dp"-->
+<!--                        android:layout_marginTop="3dp"-->
+<!--                        android:layout_marginEnd="10dp"-->
+<!--                        android:layout_marginBottom="3dp"-->
+<!--                        android:orientation="horizontal">-->
+
+<!--                        <ImageButton-->
+<!--                            android:layout_width="25dp"-->
+<!--                            android:layout_height="25dp"-->
+<!--                            android:layout_gravity="center"-->
+<!--                            android:background="@android:color/transparent"-->
+<!--                            android:scaleType="centerCrop"-->
+<!--                            app:srcCompat="@drawable/ic_pause"-->
+<!--                            tools:ignore="SpeakableTextPresentCheck" />-->
+
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_gravity="center"-->
+<!--                            android:text=" 播放全部 · "-->
+<!--                            android:textColor="@color/gray"-->
+<!--                            android:textSize="12sp" />-->
+
+<!--                        <TextView-->
+<!--                            android:id="@+id/playlist_details_music_num"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_gravity="center"-->
+<!--                            android:text="0首"-->
+<!--                            android:textColor="@color/gray"-->
+<!--                            android:textSize="12sp" />-->
+<!--                    </LinearLayout>-->
+<!--                </androidx.cardview.widget.CardView>-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="1" />-->
+
+<!--                <ImageButton-->
+<!--                    android:id="@+id/playlist_details_multi_check"-->
+<!--                    android:layout_width="20dp"-->
+<!--                    android:layout_height="20dp"-->
+<!--                    android:layout_gravity="center"-->
+<!--                    android:background="@color/ps_color_transparent"-->
+<!--                    android:scaleType="centerCrop"-->
+<!--                    android:src="@drawable/ic_multi_check" />-->
+
+<!--            </LinearLayout>-->
+
+<!--            <androidx.recyclerview.widget.RecyclerView-->
+<!--                android:id="@+id/playlist_details_music_list"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:layout_marginStart="30dp"-->
+<!--                android:layout_marginTop="20dp"-->
+<!--                android:layout_marginEnd="20dp"-->
+<!--                android:layout_marginBottom="120dp" />-->
+<!--        </LinearLayout>-->
+<!--    </androidx.core.widget.NestedScrollView>-->
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

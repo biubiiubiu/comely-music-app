@@ -25,6 +25,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.comely_music_app.config.ShpConfig;
 import com.example.comely_music_app.enums.PlayerModule;
 import com.example.comely_music_app.network.request.PlaylistMusicAddRequest;
+import com.example.comely_music_app.network.request.PlaylistSelectRequest;
 import com.example.comely_music_app.network.response.UserInfo;
 import com.example.comely_music_app.network.service.PlaylistService;
 import com.example.comely_music_app.network.service.UserService;
@@ -36,6 +37,7 @@ import com.example.comely_music_app.ui.adapter.MainPlayingViewAdapter1;
 import com.example.comely_music_app.ui.animation.DepthPageTransformer;
 import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
 import com.example.comely_music_app.ui.enums.PageStatus;
+import com.example.comely_music_app.ui.enums.PlaylistSelectScene;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
@@ -158,8 +160,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ft.add(R.id.frame_blank, findingFragment);
         ft.commit();
 
+        // 进入app需要从后端获取一次我喜欢、最近播放歌单
+        initPlaylistDatas();
+
         setObserveOnPlayingViewModel();
         setObserveOnUserInfoViewModel();
+    }
+
+    private void initPlaylistDatas() {
+        UserInfo userInfo = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(this));
+        // 获取用户创建歌单
+        playlistService.selectAllCreatedPlaylistByUsername(userInfo.getUsername());
+        // 获取我喜欢歌单
+        PlaylistSelectRequest request = new PlaylistSelectRequest();
+        request.setUsername(userInfo.getUsername()).setPlaylistName(userInfo.getUsername() + "的喜欢歌单");
+        playlistService.selectPlaylistDetailsByScene(request, PlaylistSelectScene.MY_LIKE);
+        // 获取最近播放歌单
+        PlaylistSelectRequest request1 = new PlaylistSelectRequest();
+        request1.setUsername(userInfo.getUsername()).setPlaylistName(userInfo.getUsername() + "的最近播放");
+        playlistService.selectPlaylistDetailsByScene(request1, PlaylistSelectScene.RECENTLY_PLAY);
+
     }
 
     @Override
@@ -341,6 +361,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             ShpUtils.writePlaylistDetailsIntoShp(this, mylikePlaylistDetails);
         });
 
+        playingViewModel.getRecentlyPlaylistDetails().observe(this, recentlyPlaylistDetails -> {
+            // 把”最近播放“存入本地缓存
+            if (recentlyPlaylistDetails == null || recentlyPlaylistDetails.getMusicModelList() == null) {
+                return;
+            }
+            UserInfo userInfo = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(this));
+            String username = userInfo.getUsername();
+            String nickname = userInfo.getNickname();
+            PlaylistModel info = new PlaylistModel();
+            info.setName(username + "的最近播放");
+            info.setCreatedUserNickname(nickname);
+            info.setVisibility(0);
+            if (recentlyPlaylistDetails.getMusicModelList() != null) {
+                info.setMusicNum(recentlyPlaylistDetails.getMusicModelList().size());
+            } else {
+                info.setMusicNum(0);
+            }
+            recentlyPlaylistDetails.setPlaylistInfo(info);
+            ShpUtils.writePlaylistDetailsIntoShp(this, recentlyPlaylistDetails);
+        });
+
         // 从后端获取musicModelList信息，刷新给adapter-endless，并生成界面可使用的list，并且notify一下
         playingViewModel.getMusicListLiveData_endlessModule().observe(this, musicModels -> {
             if (musicModels != null && musicModels.size() != 0) {
@@ -373,6 +414,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     TextView total = findViewById(R.id.playing_total_duration);
                     total.setText(formatTime(mediaPlayer.getDuration()));
+                    // 访问后端接口，加入到最近播放（mysql）
+                    PlaylistMusicAddRequest request = new PlaylistMusicAddRequest();
+                    UserInfo userInfo = ShpUtils.getCurrentUserinfoFromShp(this);
+                    if (userInfo != null) {
+                        request.setUsername(userInfo.getUsername());
+                        List<PlaylistMusicAddRequest.MusicAddInfo> infoList = new ArrayList<>();
+                        PlaylistMusicAddRequest.MusicAddInfo info = new PlaylistMusicAddRequest.MusicAddInfo();
+                        info.setTitle(currentMusic.getName());
+                        info.setArtistName(currentMusic.getArtistName());
+                        infoList.add(info);
+                        request.setMusicAddInfoList(infoList);
+                        playlistService.addMusicIntoRecentlyPlay(request);
+                    }
                 } catch (IOException e) {
                     Toast.makeText(getApplicationContext(), "播放错误", Toast.LENGTH_SHORT).show();
                 }

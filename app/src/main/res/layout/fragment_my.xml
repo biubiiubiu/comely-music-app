@@ -184,7 +184,7 @@
                             android:src="@drawable/ic_my_like" />
 
                         <de.hdodenhof.circleimageview.CircleImageView
-                            android:id="@+id/my_latest_played"
+                            android:id="@+id/my_recently_played"
                             android:layout_width="48dp"
                             android:layout_height="42dp"
                             android:layout_gravity="center"

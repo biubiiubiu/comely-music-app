@@ -204,6 +204,19 @@ public class PlaylistServiceImpl implements PlaylistService {
                             playingViewModel.setMyLikePlaylistDetails(mylikeDetails);
                             // 触发歌单详情页展示
                             playingViewModel.setCurrentPlaylistDetails(mylikeDetails);
+                        } else if (scene.equals(PlaylistSelectScene.RECENTLY_PLAY)) {
+                            // 展示用户喜欢歌单详情页
+                            List<MusicModel> musicModelList = musicService.transMusicInfo2Models(response.getMusicInfoList());
+                            PlaylistDetailsModel recentlyPlayDetails = playingViewModel.getRecentlyPlaylistDetails().getValue();
+                            if (recentlyPlayDetails == null) {
+                                recentlyPlayDetails = new PlaylistDetailsModel();
+                            }
+                            recentlyPlayDetails.setPlaylistInfo(response.getPlaylistInfo());
+                            recentlyPlayDetails.setMusicModelList(musicModelList);
+                            // 用于存储数据
+                            playingViewModel.setRecentlyPlaylistDetails(recentlyPlayDetails);
+                            // 触发歌单详情页展示
+                            playingViewModel.setCurrentPlaylistDetails(recentlyPlayDetails);
                         }
                     }
 
@@ -256,7 +269,7 @@ public class PlaylistServiceImpl implements PlaylistService {
                 .subscribe(new BaseObserver<MusicSelectResponse>(false) {
                     @Override
                     public void onSuccess(MusicSelectResponse response) {
-                        // 添加成功
+                        // 添加成功，这里不需要写入viewmodel，因为是在activity onPause()的时候触发的
                         List<MusicSelectResponse.MusicInfo> infoList = response.getMusicList();
                         for (MusicSelectResponse.MusicInfo info : infoList) {
                             Log.d("TAG", "addMusicIntoMyLike: 成功加入喜欢歌单：" + info.getName() + info.getArtistName());
@@ -286,13 +299,74 @@ public class PlaylistServiceImpl implements PlaylistService {
                 .subscribe(new BaseObserver<MusicSelectResponse>(false) {
                     @Override
                     public void onSuccess(MusicSelectResponse response) {
+                        // 移除成功，这里不需要写入viewmodel，因为是在activity onPause()的时候触发的
+                        List<MusicSelectResponse.MusicInfo> infoList = response.getMusicList();
+                        for (MusicSelectResponse.MusicInfo info : infoList) {
+                            Log.d("TAG",
+                                    "removeMusicFromMyLike: 成功从喜欢歌单移除音乐：" + info.getName() + info.getArtistName());
+                        }
+//                        List<MusicModel> modelList = musicService.transMusicInfo2Models(infoList);
+//                        playlistViewModel.addIntoMyLikePlaylist(modelList);
+                    }
+
+                    @Override
+                    public void onFail(int errorCode, String errorMsg, MusicSelectResponse response) {
+                        Log.e("TAG", "removeMusicFromMyLike: 从喜欢歌单移除音乐失败", null);
+                    }
+
+
+                    @Override
+                    public void onError(String msg) {
+
+                    }
+                });
+    }
+
+    @Override
+    public void addMusicIntoRecentlyPlay(PlaylistMusicAddRequest request) {
+        Observable<BaseResult<MusicSelectResponse>> baseResultObservable = playlistApi.addMusicToRecentlyPlay(request);
+        baseResultObservable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BaseObserver<MusicSelectResponse>(false) {
+                    @Override
+                    public void onSuccess(MusicSelectResponse response) {
+                        // 添加成功
+                        List<MusicSelectResponse.MusicInfo> infoList = response.getMusicList();
+                        for (MusicSelectResponse.MusicInfo info : infoList) {
+                            Log.d("TAG", "addMusicIntoMyLike: 成功加入最近播放：" + info.getName() + info.getArtistName());
+                        }
+                        List<MusicModel> modelList = musicService.transMusicInfo2Models(infoList);
+                        playingViewModel.addIntoRecentlyPlaylist(modelList);
+                    }
+
+                    @Override
+                    public void onFail(int errorCode, String errorMsg, MusicSelectResponse response) {
+                        Log.e("TAG", "addMusicIntoMyLike: 加入最近播放失败", null);
+                    }
+
+
+                    @Override
+                    public void onError(String msg) {
+
+                    }
+                });
+    }
+
+    @Override
+    public void removeMusicFromRecentlyPlay(PlaylistMusicAddRequest request) {
+        Observable<BaseResult<MusicSelectResponse>> baseResultObservable = playlistApi.removeMusicFromRecentlyPlay(request);
+        baseResultObservable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BaseObserver<MusicSelectResponse>(false) {
+                    @Override
+                    public void onSuccess(MusicSelectResponse response) {
                         // 添加成功
                         List<MusicSelectResponse.MusicInfo> infoList = response.getMusicList();
                         for (MusicSelectResponse.MusicInfo info : infoList) {
                             Log.d("TAG", "removeMusicFromMyLike: 成功删除喜欢歌单：" + info.getName() + info.getArtistName());
                         }
-//                        List<MusicModel> modelList = musicService.transMusicInfo2Models(infoList);
-//                        playlistViewModel.addIntoMyLikePlaylist(modelList);
+                        List<MusicModel> modelList = musicService.transMusicInfo2Models(infoList);
+                        playingViewModel.removeFromRecentlyPlaylist(modelList);
                     }
 
                     @Override

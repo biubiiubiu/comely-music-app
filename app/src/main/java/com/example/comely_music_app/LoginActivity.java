@@ -48,15 +48,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         boolean loadMyCreatedSuccess;
         boolean loadMyLikeSuccess;
         boolean loadCollectSuccess;
+        boolean loadRecentlySuccess;
 
         LoadDataSuccessFlag() {
             loadMyCreatedSuccess = false;
             loadMyLikeSuccess = false;
-            loadCollectSuccess = false;
+            loadCollectSuccess = true;
+            loadRecentlySuccess = false;
         }
 
         boolean isReady() {
-            return loadMyCreatedSuccess && loadMyLikeSuccess && loadCollectSuccess;
+            return loadMyCreatedSuccess && loadMyLikeSuccess && loadCollectSuccess && loadRecentlySuccess;
         }
     }
 
@@ -127,6 +129,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     PlaylistSelectRequest request = new PlaylistSelectRequest();
                     request.setUsername(userInfo.getUsername()).setPlaylistName(userInfo.getUsername() + "的喜欢歌单");
                     playlistService.selectPlaylistDetailsByScene(request, PlaylistSelectScene.MY_LIKE);
+                    // 获取最近播放歌单
+                    PlaylistSelectRequest request1 = new PlaylistSelectRequest();
+                    request1.setUsername(userInfo.getUsername()).setPlaylistName(userInfo.getUsername() + "的最近播放");
+                    playlistService.selectPlaylistDetailsByScene(request, PlaylistSelectScene.RECENTLY_PLAY);
                 }
             }
         });
@@ -162,13 +168,35 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 info.setMusicNum(mylikePlaylistDetails.getMusicModelList().size());
                 mylikePlaylistDetails.setPlaylistInfo(info);
 
-                ShpUtils.writePlaylistDetailsIntoShp(this, mylikePlaylistDetails);LoadDataSuccessFlag value = flagMutableLiveData.getValue();
+                ShpUtils.writePlaylistDetailsIntoShp(this, mylikePlaylistDetails);
+                LoadDataSuccessFlag value = flagMutableLiveData.getValue();
                 if (value == null) {
                     value = new LoadDataSuccessFlag();
                 }
                 value.setLoadMyLikeSuccess(true);
                 flagMutableLiveData.setValue(value);
-                value.setLoadCollectSuccess(true);
+            });
+
+            playingViewModel.getRecentlyPlaylistDetails().observe(this, recentlyPlaylistDetails -> {
+                if (recentlyPlaylistDetails == null || recentlyPlaylistDetails.getMusicModelList() == null) {
+                    return;
+                }
+                UserInfo userInfo = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(this));
+                String username = userInfo.getUsername();
+                String nickname = userInfo.getNickname();
+                PlaylistModel info = new PlaylistModel();
+                info.setName(username + "的最近播放");
+                info.setCreatedUserNickname(nickname);
+                info.setVisibility(0);
+                info.setMusicNum(recentlyPlaylistDetails.getMusicModelList().size());
+                recentlyPlaylistDetails.setPlaylistInfo(info);
+
+                ShpUtils.writePlaylistDetailsIntoShp(this, recentlyPlaylistDetails);
+                LoadDataSuccessFlag value = flagMutableLiveData.getValue();
+                if (value == null) {
+                    value = new LoadDataSuccessFlag();
+                }
+                value.setLoadRecentlySuccess(true);
                 flagMutableLiveData.setValue(value);
             });
         }

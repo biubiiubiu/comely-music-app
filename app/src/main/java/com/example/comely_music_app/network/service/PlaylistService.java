@@ -26,5 +26,9 @@ public interface PlaylistService {
 
     void removeMusicFromMyLike(PlaylistMusicAddRequest request);
 
+    void addMusicIntoRecentlyPlay(PlaylistMusicAddRequest request);
+
+    void removeMusicFromRecentlyPlay(PlaylistMusicAddRequest request);
+
     List<PlaylistMusicAddRequest.MusicAddInfo> transMusicModel2AddInfos(List<MusicModel> musicModels);
 }

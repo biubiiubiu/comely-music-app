@@ -25,7 +25,7 @@ public class PlayingViewModel extends AndroidViewModel {
     private MutableLiveData<Integer> showMainBottomSheetDialog;
 
     // 点击自建歌单/收藏歌单时+1，触发回调，展示歌单详情页
-    private MutableLiveData<Integer> showCreated, showCollect, showMylike;
+    private MutableLiveData<Integer> showCreated, showCollect, showMylike, showRecentlyPlay;
     // 创建/删除歌单 成功/失败时设置+1，触发回调
     private MutableLiveData<Integer> createSuccessFlag, deleteSuccessFlag, createFailedFlag, deleteFailedFlag,
             updateSuccessFlag, updateFailedFlag;
@@ -51,6 +51,8 @@ public class PlayingViewModel extends AndroidViewModel {
     private MutableLiveData<PlaylistDetailsModel> currentPlaylistDetails;
     // =========== 歌单数据控制：”我喜欢“歌单详情页（登陆时初始化，之后每次点赞/取消点赞时（播放页、各单详情页）设置）
     private MutableLiveData<PlaylistDetailsModel> myLikePlaylistDetails;
+    // =========== 歌单数据控制：”最近播放“歌单详情页（登陆时初始化，之后每次播放歌曲时（或者从最近播放中移除时）设置）
+    private MutableLiveData<PlaylistDetailsModel> recentlyPlaylistDetails;
     // (因为点赞和取消点赞是频繁的，不能每次都请求数据库，所以在关闭activity时刷新到数据库)
     // 于是分别存放需要在数据库“我喜欢”歌单中 添加与删除 的音乐，用于增量刷新数据库中我喜欢歌单
     private List<MusicModel> toAddIntoMyLike = new ArrayList<>();
@@ -167,6 +169,23 @@ public class PlayingViewModel extends AndroidViewModel {
             showMylike.setValue(0);
         }
         showMylike.setValue(showMylike.getValue() + 1);
+    }
+
+    public MutableLiveData<Integer> getShowRecentlyPlay() {
+        if (showRecentlyPlay == null) {
+            showRecentlyPlay = new MutableLiveData<>();
+        }
+        return showRecentlyPlay;
+    }
+
+    public void setShowRecentlyPlay() {
+        if (showRecentlyPlay == null) {
+            showRecentlyPlay = getShowRecentlyPlay();
+        }
+        if (showRecentlyPlay.getValue() == null) {
+            showRecentlyPlay.setValue(0);
+        }
+        showRecentlyPlay.setValue(showRecentlyPlay.getValue() + 1);
     }
 
     // ====================== flag控制 =============================
@@ -645,6 +664,60 @@ public class PlayingViewModel extends AndroidViewModel {
             }
             details.setMusicModelList(newList);
             setMyLikePlaylistDetails(details);
+        }
+    }
+
+    // ============ ”最近播放“歌单界面数据控制 ==============
+    public MutableLiveData<PlaylistDetailsModel> getRecentlyPlaylistDetails() {
+        if (recentlyPlaylistDetails == null) {
+            recentlyPlaylistDetails = new MutableLiveData<>(new PlaylistDetailsModel());
+        }
+        return recentlyPlaylistDetails;
+    }
+
+    public void setRecentlyPlaylistDetails(PlaylistDetailsModel detailsModel) {
+        if (recentlyPlaylistDetails == null) {
+            recentlyPlaylistDetails = getRecentlyPlaylistDetails();
+        }
+        recentlyPlaylistDetails.setValue(detailsModel);
+    }
+
+    public void addIntoRecentlyPlaylist(List<MusicModel> toAddList) {
+        if (toAddList == null || toAddList.size() == 0) {
+            return;
+        }
+        PlaylistDetailsModel details = getRecentlyPlaylistDetails().getValue();
+        if (details != null) {
+            if (details.getMusicModelList() == null || details.getMusicModelList().size() == 0) {
+                details.setMusicModelList(toAddList);
+            } else {
+                List<MusicModel> oldList = details.getMusicModelList();
+                for (MusicModel model : toAddList) {
+                    if (!oldList.contains(model)) {
+                        oldList.add(model);
+                    }
+                }
+                details.setMusicModelList(oldList);
+            }
+            setRecentlyPlaylistDetails(details);
+        }
+    }
+
+    public void removeFromRecentlyPlaylist(List<MusicModel> toRemoveList) {
+        if (toRemoveList == null || toRemoveList.size() == 0) {
+            return;
+        }
+        PlaylistDetailsModel details = getRecentlyPlaylistDetails().getValue();
+        if (details != null && details.getMusicModelList() != null) {
+            List<MusicModel> newList = new ArrayList<>();
+            List<MusicModel> oldList = details.getMusicModelList();
+            for (MusicModel model : oldList) {
+                if (!toRemoveList.contains(model)) {
+                    newList.add(model);
+                }
+            }
+            details.setMusicModelList(newList);
+            setRecentlyPlaylistDetails(details);
         }
     }
 

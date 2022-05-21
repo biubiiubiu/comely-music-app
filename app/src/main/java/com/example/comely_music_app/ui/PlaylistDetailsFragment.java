@@ -66,6 +66,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
     private final MutableLiveData<Integer> detailsViewCtrlLiveData = new MutableLiveData<>(0);
     private PlaylistPlayingFragment playlistPlayingFragment;
     private int currentItemPosition = 0;
+    private View infoView1, infoView2, listView;
 
     public PlaylistDetailsFragment(MutableLiveData<Integer> liveData) {
         myFragmentViewsCtrlLiveData = liveData;
@@ -363,6 +364,10 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
         detailsContent = view.findViewById(R.id.playlist_details_content);
         frameBlankPlaying = view.findViewById(R.id.frame_blank_for_playing_viewpager);
 
+        infoView1 = view.findViewById(R.id.playlist_details_info_view1);
+        infoView2 = view.findViewById(R.id.playlist_details_info_view2);
+        listView = view.findViewById(R.id.playlist_details_info_view3);
+
         view.findViewById(R.id.playlist_details_back).setOnClickListener(this);
         view.findViewById(R.id.playlist_details_play_all).setOnClickListener(this);
         view.findViewById(R.id.playlist_details_multi_check).setOnClickListener(this);
@@ -391,6 +396,18 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
             collectBtn.setOnClickListener(v -> Toast.makeText(getContext(), "不能收藏自己的歌单哦~", Toast.LENGTH_SHORT).show());
         }
     }
+
+//    public void setPlaylistInfoNotShowed() {
+//        if (infoView1 != null) {
+//            infoView1.setVisibility(View.INVISIBLE);
+//        }
+//        if (infoView2 != null) {
+//            infoView2.setVisibility(View.INVISIBLE);
+//        }
+//        if (listView != null) {
+//            listView.setTop(100);
+//        }
+//    }
 
     public void setCollectAllowed() {
         if (collectBtn != null) {

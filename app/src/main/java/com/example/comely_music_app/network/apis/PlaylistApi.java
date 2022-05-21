@@ -42,4 +42,10 @@ public interface PlaylistApi {
 
     @POST("generate/playlist/remove-music-from-my-like")
     Observable<BaseResult<MusicSelectResponse>> removeMusicFromMylike(@Body PlaylistMusicAddRequest request);
+
+    @POST("generate/playlist/add-music-into-recently-play")
+    Observable<BaseResult<MusicSelectResponse>> addMusicToRecentlyPlay(@Body PlaylistMusicAddRequest request);
+
+    @POST("generate/playlist/remove-music-from-recently-play")
+    Observable<BaseResult<MusicSelectResponse>> removeMusicFromRecentlyPlay(@Body PlaylistMusicAddRequest request);
 }
