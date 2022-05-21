@@ -30,5 +30,7 @@ public interface PlaylistService {
 
     void removeMusicFromRecentlyPlay(PlaylistMusicAddRequest request);
 
+    void fuzzySearchPlaylist(String searchContent);
+
     List<PlaylistMusicAddRequest.MusicAddInfo> transMusicModel2AddInfos(List<MusicModel> musicModels);
 }

@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -22,6 +21,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,12 +29,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.enums.PlayerModule;
+import com.example.comely_music_app.network.request.PlaylistSelectRequest;
 import com.example.comely_music_app.network.response.UserInfo;
 import com.example.comely_music_app.network.service.MusicService;
+import com.example.comely_music_app.network.service.PlaylistService;
 import com.example.comely_music_app.network.service.impl.MusicServiceImpl;
+import com.example.comely_music_app.network.service.impl.PlaylistServiceImpl;
 import com.example.comely_music_app.ui.adapter.AdapterClickListener;
 import com.example.comely_music_app.ui.adapter.MusicListAdapter;
 import com.example.comely_music_app.ui.adapter.PlaylistViewListAdapter;
+import com.example.comely_music_app.ui.enums.PlaylistSelectScene;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
@@ -49,19 +53,25 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import lombok.ToString;
+
 public class FindingFragment extends Fragment {
     private EditText searchEdit;
     private RecyclerView searchResultRecycleView;
     private MusicListAdapter musicListAdapter;
+    private PlaylistViewListAdapter playlistsAdapter;
+
     private FragmentActivity mActivity;
     private PlayingViewModel playingViewModel;
     private MusicService musicService;
     private int currentItemPosition = 0;
     private final MutableLiveData<Integer> findingViewCtrlLiveData = new MutableLiveData<>(0);
     private PlaylistPlayingFragment playlistPlayingFragment;
+    private PlaylistDetailsFragment playlistDetailsFragment;
     private View searchMore;
     private View cardview;
     private View detailsContent, frameBlankPlaying;
+    private PlaylistService playlistService;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,6 +79,7 @@ public class FindingFragment extends Fragment {
         SavedStateViewModelFactory savedState = new SavedStateViewModelFactory(Objects.requireNonNull(mActivity).getApplication(), mActivity);
         playingViewModel = ViewModelProviders.of(mActivity, savedState).get(PlayingViewModel.class);
         musicService = new MusicServiceImpl();
+        playlistService = new PlaylistServiceImpl(playingViewModel);
     }
 
     @Nullable
@@ -112,6 +123,36 @@ public class FindingFragment extends Fragment {
             }
         });
         searchResultRecycleView.setAdapter(musicListAdapter);
+
+        List<PlaylistModel> list = new ArrayList<>();
+        playlistsAdapter = new PlaylistViewListAdapter(list);
+        playlistsAdapter.setListener(new AdapterClickListener() {
+            @Override
+            public void onClick(View itemView, int position) {
+                // 进入歌单界面
+                List<PlaylistDetailsModel> playlistDetailsModels = playingViewModel.getFuzzySearchResultPlaylists().getValue();
+                if (playlistDetailsModels != null && playlistDetailsModels.size() >= position) {
+                    PlaylistDetailsModel detailsModel = playlistDetailsModels.get(position);
+                    playingViewModel.setCurrentPlaylistDetails(detailsModel);
+                }
+                // 触发展示用户收藏歌单详情页
+                playingViewModel.setShowSearchPlaylist();
+            }
+
+            @Override
+            public void onLongClick(View v, int position) {
+            }
+
+            @Override
+            public void onClickBtnBehindTitle(View v, int position) {
+                // 修改当前歌单
+                Toast.makeText(mActivity.getApplicationContext(), "不能修改此歌单哦~", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onClickRightBtn(View v, int position) {
+            }
+        });
 
         setObserveOnViewModels();
         return view;
@@ -290,6 +331,7 @@ public class FindingFragment extends Fragment {
         mActivity = null;
         playingViewModel = null;
         musicService = null;
+        playlistService = null;
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -302,6 +344,7 @@ public class FindingFragment extends Fragment {
                         searchMore.setVisibility(View.VISIBLE);
                     }
                     musicListAdapter.setMusicList(musicModels);
+                    searchResultRecycleView.setAdapter(musicListAdapter);
                     musicListAdapter.notifyDataSetChanged();
 
                     PlaylistDetailsModel detailsModel = new PlaylistDetailsModel();
@@ -313,6 +356,20 @@ public class FindingFragment extends Fragment {
                     playingViewModel.setCurrentPlaylistDetails(detailsModel);
                 }
             });
+
+            playingViewModel.getFuzzySearchResultPlaylists().observe(mActivity, playlistDetailsModels -> {
+                if (playlistDetailsModels != null) {
+                    List<PlaylistModel> playlistModels = new ArrayList<>();
+                    for (PlaylistDetailsModel model : playlistDetailsModels) {
+                        playlistModels.add(model.getPlaylistInfo());
+                    }
+                    playlistsAdapter.setPlaylistData(playlistModels);
+                    searchResultRecycleView.setAdapter(playlistsAdapter);
+                    playlistsAdapter.notifyDataSetChanged();
+                }
+            });
+
+            playingViewModel.getShowSearchPlaylist().observe(mActivity, integer -> findingViewCtrlLiveData.setValue(2));
         }
 
         findingViewCtrlLiveData.observe(mActivity, integer -> {
@@ -322,10 +379,17 @@ public class FindingFragment extends Fragment {
                 ft.add(R.id.finding_frame_blank_for_playing_viewpager, playlistPlayingFragment);
                 ft.commit();
             }
+            if (playlistDetailsFragment == null) {
+                playlistDetailsFragment = new PlaylistDetailsFragment(findingViewCtrlLiveData);
+                FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+                ft.add(R.id.finding_frame_blank_for_playing_viewpager, playlistDetailsFragment);
+                ft.commit();
+            }
             if (integer == 0) {
-                Log.d("TAG", "setObserveOnViewModels: 展示歌单详情页");
+                Log.d("TAG", "setObserveOnViewModels: 展示搜索结果页");
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.hide(playlistPlayingFragment);
+                ft.hide(playlistDetailsFragment);
                 ft.commit();
                 hidePlayingFrameBlank();
             } else if (integer == 1) {
@@ -335,6 +399,12 @@ public class FindingFragment extends Fragment {
                 Log.d("TAG", "setObserveOnViewModels: 展示歌单播放页");
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.show(playlistPlayingFragment);
+                ft.commit();
+                showPlayingFrameBlank();
+            } else if (integer == 2) {
+                Log.d("TAG", "setObserveOnViewModels: 展示歌单播放页");
+                FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+                ft.show(playlistDetailsFragment);
                 ft.commit();
                 showPlayingFrameBlank();
             }
@@ -365,7 +435,8 @@ public class FindingFragment extends Fragment {
     @SuppressLint("UseCompatLoadingForDrawables")
     private void initIcons(View view) {
         cardview = view.findViewById(R.id.finding_search_cardview);
-        TextView searchBtn = view.findViewById(R.id.finding_search);
+        TextView searchMusicBtn = view.findViewById(R.id.finding_search_music);
+        TextView searchPlaylistBtn = view.findViewById(R.id.finding_search_playlist);
         searchEdit = view.findViewById(R.id.finding_editText);
         searchResultRecycleView = view.findViewById(R.id.finding_search_result_recv);
 
@@ -375,7 +446,7 @@ public class FindingFragment extends Fragment {
         detailsContent = view.findViewById(R.id.finding_playlist_details_content);
         frameBlankPlaying = view.findViewById(R.id.finding_frame_blank_for_playing_viewpager);
 
-        searchBtn.setOnClickListener(v -> {
+        searchMusicBtn.setOnClickListener(v -> {
             String searchContent = searchEdit.getText().toString().trim();
             if (searchContent.length() > 0) {
                 List<String> historyList = ShpUtils.getHistorySearchList(mActivity);
@@ -385,6 +456,19 @@ public class FindingFragment extends Fragment {
                 historyList.remove("");
                 ShpUtils.writeHistorySearchList(mActivity, historyList);
                 musicService.fuzzySearchMusicByNameLimit(searchContent, playingViewModel);
+            }
+        });
+
+        searchPlaylistBtn.setOnClickListener(v -> {
+            String searchContent = searchEdit.getText().toString().trim();
+            if (searchContent.length() > 0) {
+                List<String> historyList = ShpUtils.getHistorySearchList(mActivity);
+                Set<String> set = new HashSet<>(historyList);
+                set.add(searchContent);
+                historyList = new ArrayList<>(set);
+                historyList.remove("");
+                ShpUtils.writeHistorySearchList(mActivity, historyList);
+                playlistService.fuzzySearchPlaylist(searchContent);
             }
         });
 

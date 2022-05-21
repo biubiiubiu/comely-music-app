@@ -9,6 +9,8 @@ import com.example.comely_music_app.network.response.MusicSelectResponse;
 import com.example.comely_music_app.network.response.PlaylistInfoWithMusicListResponse;
 import com.example.comely_music_app.network.response.UserPlaylistsSelectResponse;
 
+import java.util.List;
+
 import io.reactivex.rxjava3.core.Observable;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -48,4 +50,7 @@ public interface PlaylistApi {
 
     @POST("generate/playlist/remove-music-from-recently-play")
     Observable<BaseResult<MusicSelectResponse>> removeMusicFromRecentlyPlay(@Body PlaylistMusicAddRequest request);
+
+    @GET("generate/playlist/fuzzy-search-playlist/{searchContent}")
+    Observable<BaseResult<List<PlaylistInfoWithMusicListResponse>>> fuzzySearchPlaylist(@Path("searchContent") String searchContent);
 }

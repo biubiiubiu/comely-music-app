@@ -383,6 +383,42 @@ public class PlaylistServiceImpl implements PlaylistService {
     }
 
     @Override
+    public void fuzzySearchPlaylist(String searchContent) {
+        Observable<BaseResult<List<PlaylistInfoWithMusicListResponse>>> resultObservable = playlistApi.fuzzySearchPlaylist(searchContent);
+        resultObservable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BaseObserver<List<PlaylistInfoWithMusicListResponse>>(false) {
+                    @Override
+                    public void onSuccess(List<PlaylistInfoWithMusicListResponse> responseList) {
+                        if (responseList == null) {
+                            return;
+                        }
+                        Log.e("TAG", "fuzzySearchPlaylist: 模糊搜索歌单成功：" + responseList.size() + "个", null);
+                        List<PlaylistDetailsModel> detailsModelList = new ArrayList<>();
+                        for (PlaylistInfoWithMusicListResponse response : responseList) {
+                            PlaylistDetailsModel detailsModel = new PlaylistDetailsModel();
+                            List<MusicModel> musicModelList = musicService.transMusicInfo2Models(response.getMusicInfoList());
+                            detailsModel.setMusicModelList(musicModelList);
+                            detailsModel.setPlaylistInfo(response.getPlaylistInfo());
+                            detailsModelList.add(detailsModel);
+                        }
+                        playingViewModel.setFuzzySearchResultPlaylists(detailsModelList);
+                    }
+
+                    @Override
+                    public void onFail(int errorCode, String errorMsg, List<PlaylistInfoWithMusicListResponse> response) {
+
+                    }
+
+                    @Override
+                    public void onError(String msg) {
+
+                    }
+                });
+    }
+
+
+    @Override
     public List<PlaylistMusicAddRequest.MusicAddInfo> transMusicModel2AddInfos(List<MusicModel> musicModels) {
         if (musicModels == null || musicModels.size() == 0) {
             return null;

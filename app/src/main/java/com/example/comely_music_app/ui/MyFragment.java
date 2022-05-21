@@ -60,7 +60,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
     private UserInfoViewModel userInfoViewModel;
 
     private RecyclerView myCreatedPlaylistRecycleView;
-    private PlaylistViewListAdapter adapter;
+    private PlaylistViewListAdapter playlistsAdapter;
 
     private PlaylistService playlistService;
     private FragmentActivity mActivity;
@@ -93,12 +93,12 @@ public class MyFragment extends Fragment implements View.OnClickListener {
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
         myCreatedPlaylistRecycleView.setLayoutManager(manager);
         List<PlaylistModel> myCreatePlaylistFromShp = ShpUtils.getMyCreatePlaylistFromShp(mActivity);
-        adapter = new PlaylistViewListAdapter(myCreatePlaylistFromShp);
-        adapter.setListener(new AdapterClickListener() {
+        playlistsAdapter = new PlaylistViewListAdapter(myCreatePlaylistFromShp);
+        playlistsAdapter.setListener(new AdapterClickListener() {
             @Override
             public void onClick(View itemView, int position) {
                 // 进入歌单界面
-                PlaylistModel clickPlaylistItem = adapter.getPlaylistData().get(position);
+                PlaylistModel clickPlaylistItem = playlistsAdapter.getPlaylistData().get(position);
                 String username = Objects.requireNonNull(ShpUtils.getCurrentUserinfoFromShp(mActivity)).getUsername();
                 PlaylistSelectRequest request = new PlaylistSelectRequest();
                 request.setUsername(username).setPlaylistName(clickPlaylistItem.getName());
@@ -120,13 +120,13 @@ public class MyFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onLongClick(View v, int position) {
                 // 删除当前歌单
-                showDeleteDialog(adapter.getPlaylistData().get(position).getName());
+                showDeleteDialog(playlistsAdapter.getPlaylistData().get(position).getName());
             }
 
             @Override
             public void onClickBtnBehindTitle(View v, int position) {
                 // 修改当前歌单
-                PlaylistModel model = adapter.getPlaylistData().get(position);
+                PlaylistModel model = playlistsAdapter.getPlaylistData().get(position);
                 showUpdateDialog(model.getName(), model.getVisibility());
             }
 
@@ -134,7 +134,7 @@ public class MyFragment extends Fragment implements View.OnClickListener {
             public void onClickRightBtn(View v, int position) {
             }
         });
-        myCreatedPlaylistRecycleView.setAdapter(adapter);
+        myCreatedPlaylistRecycleView.setAdapter(playlistsAdapter);
 
         initDatas();
 
@@ -279,10 +279,10 @@ public class MyFragment extends Fragment implements View.OnClickListener {
 
         if (playingViewModel != null) {
             playingViewModel.getMyCreatedPlaylists().observe(Objects.requireNonNull(mActivity), playlistModels -> {
-                adapter.setPlaylistData(playlistModels);
+                playlistsAdapter.setPlaylistData(playlistModels);
                 // 写入shp，下次直接打开应用不需要联网就可以加载
                 ShpUtils.writeMyCreatePlaylistToShp(mActivity, playlistModels);
-                adapter.notifyDataSetChanged();
+                playlistsAdapter.notifyDataSetChanged();
                 Log.d("TAG", "writeMyCreatePlaylistToShp: 写入shp");
             });
         }

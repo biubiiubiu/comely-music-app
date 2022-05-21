@@ -53,20 +53,39 @@
                     android:layout_gravity="center"
                     android:layout_marginStart="10dp"
                     android:background="@color/ps_color_transparent"
-                    android:hint="搜索你想找的音乐"
-                    android:layout_weight="10"
+                    android:hint="搜索你想找的音乐/歌单"
+                    android:maxLines="1"
+                    android:layout_weight="4"
                     android:textColor="@color/dialog_text_color"
                     android:textColorHint="@color/dialog_text_color"
                     android:textSize="16sp"
                     tools:ignore="TouchTargetSizeCheck" />
 
                 <TextView
-                    android:id="@+id/finding_search"
+                    android:id="@+id/finding_search_music"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginEnd="10dp"
-                    android:text="搜索"
+                    android:text="音乐 "
+                    android:maxLines="1"
+                    android:layout_weight="1"
+                    android:textColor="@color/dialog_text_color"
+                    android:textSize="18sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="|"
+                    android:layout_weight="1"
+                    android:textColor="@color/dialog_text_color"
+                    android:textSize="18sp" />
+                <TextView
+                    android:id="@+id/finding_search_playlist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:maxLines="1"
+                    android:text=" 歌单"
                     android:layout_weight="1"
                     android:textColor="@color/dialog_text_color"
                     android:textSize="18sp" />

@@ -26,7 +26,7 @@ public class PlayingViewModel extends AndroidViewModel {
     private MutableLiveData<Integer> showMainBottomSheetDialog;
 
     // 点击自建歌单/收藏歌单时+1，触发回调，展示歌单详情页
-    private MutableLiveData<Integer> showCreated, showCollect, showMylike, showRecentlyPlay;
+    private MutableLiveData<Integer> showCreated, showCollect, showMylike, showRecentlyPlay, showSearchPlaylist;
     // 创建/删除歌单 成功/失败时设置+1，触发回调
     private MutableLiveData<Integer> createSuccessFlag, deleteSuccessFlag, createFailedFlag, deleteFailedFlag,
             updateSuccessFlag, updateFailedFlag;
@@ -61,6 +61,7 @@ public class PlayingViewModel extends AndroidViewModel {
 
     // =========== 模糊搜索的结果 =============
     private MutableLiveData<List<MusicModel>> fuzzySearchResultMusicList;
+    private MutableLiveData<List<PlaylistDetailsModel>> fuzzySearchResultPlaylists;
 
 
     public PlayingViewModel(@Nullable Application application) {
@@ -187,6 +188,23 @@ public class PlayingViewModel extends AndroidViewModel {
             showRecentlyPlay.setValue(0);
         }
         showRecentlyPlay.setValue(showRecentlyPlay.getValue() + 1);
+    }
+
+    public MutableLiveData<Integer> getShowSearchPlaylist() {
+        if (showSearchPlaylist == null) {
+            showSearchPlaylist = new MutableLiveData<>();
+        }
+        return showSearchPlaylist;
+    }
+
+    public void setShowSearchPlaylist() {
+        if (showSearchPlaylist == null) {
+            showSearchPlaylist = getShowRecentlyPlay();
+        }
+        if (showSearchPlaylist.getValue() == null) {
+            showSearchPlaylist.setValue(0);
+        }
+        showSearchPlaylist.setValue(showSearchPlaylist.getValue() + 1);
     }
 
     // ====================== flag控制 =============================
@@ -812,4 +830,17 @@ public class PlayingViewModel extends AndroidViewModel {
         fuzzySearchResultMusicList.setValue(resultMusicList);
     }
 
+    public MutableLiveData<List<PlaylistDetailsModel>> getFuzzySearchResultPlaylists() {
+        if (fuzzySearchResultPlaylists == null) {
+            fuzzySearchResultPlaylists = new MutableLiveData<>();
+        }
+        return fuzzySearchResultPlaylists;
+    }
+
+    public void setFuzzySearchResultPlaylists(List<PlaylistDetailsModel> responseList) {
+        if (fuzzySearchResultPlaylists == null) {
+            fuzzySearchResultPlaylists = getFuzzySearchResultPlaylists();
+        }
+        fuzzySearchResultPlaylists.setValue(responseList);
+    }
 }
