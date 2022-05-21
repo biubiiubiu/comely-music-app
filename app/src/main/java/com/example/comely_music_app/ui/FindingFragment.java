@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
@@ -27,26 +28,25 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
+import com.example.comely_music_app.enums.PlayerModule;
 import com.example.comely_music_app.network.service.MusicService;
 import com.example.comely_music_app.network.service.impl.MusicServiceImpl;
 import com.example.comely_music_app.ui.adapter.AdapterClickListener;
 import com.example.comely_music_app.ui.adapter.MusicListAdapter;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
+import com.example.comely_music_app.ui.models.PlaylistModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 import com.example.comely_music_app.utils.ShpUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 public class FindingFragment extends Fragment {
-    private TextView searchBtn;
     private EditText searchEdit;
     private RecyclerView searchResultRecycleView;
     private MusicListAdapter musicListAdapter;
@@ -54,9 +54,11 @@ public class FindingFragment extends Fragment {
     private PlayingViewModel playingViewModel;
     private MusicService musicService;
     private int currentItemPosition = 0;
-    private final MutableLiveData<Integer> detailsViewCtrlLiveData = new MutableLiveData<>(0);
+    private final MutableLiveData<Integer> findingViewCtrlLiveData = new MutableLiveData<>(0);
+    private PlaylistPlayingFragment playlistPlayingFragment;
     private View searchMore;
     private View cardview;
+    private View detailsContent, frameBlankPlaying;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,7 +87,7 @@ public class FindingFragment extends Fragment {
                 if (musicListAdapter.getMusicList() != null && musicListAdapter.getMusicList().size() >= position) {
                     Log.d("TAG", "播放歌曲：111");
                     currentItemPosition = position;
-                    detailsViewCtrlLiveData.setValue(1);
+                    findingViewCtrlLiveData.setValue(1);
                 }
             }
 
@@ -205,20 +207,77 @@ public class FindingFragment extends Fragment {
                     }
                     musicListAdapter.setMusicList(musicModels);
                     musicListAdapter.notifyDataSetChanged();
+
+                    PlaylistDetailsModel detailsModel = new PlaylistDetailsModel();
+                    PlaylistModel playlistInfo = new PlaylistModel();
+                    playlistInfo.setName("搜索结果");
+                    playlistInfo.setMusicNum(musicModels.size());
+                    detailsModel.setPlaylistInfo(playlistInfo);
+                    detailsModel.setMusicModelList(musicModels);
+                    playingViewModel.setCurrentPlaylistDetails(detailsModel);
                 }
             });
+        }
+
+        findingViewCtrlLiveData.observe(mActivity, integer -> {
+            if (playlistPlayingFragment == null) {
+                playlistPlayingFragment = new PlaylistPlayingFragment(findingViewCtrlLiveData);
+                FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+                ft.add(R.id.finding_frame_blank_for_playing_viewpager, playlistPlayingFragment);
+                ft.commit();
+            }
+            if (integer == 0) {
+                Log.d("TAG", "setObserveOnViewModels: 展示歌单详情页");
+                FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+                ft.hide(playlistPlayingFragment);
+                ft.commit();
+                hidePlayingFrameBlank();
+            } else if (integer == 1) {
+                playingViewModel.setPlayerModule(PlayerModule.PLAYLIST);
+                playlistPlayingFragment.initDatas();
+                playlistPlayingFragment.setCurItem(currentItemPosition);
+                Log.d("TAG", "setObserveOnViewModels: 展示歌单播放页");
+                FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+                ft.show(playlistPlayingFragment);
+                ft.commit();
+                showPlayingFrameBlank();
+            }
+        });
+
+    }
+
+    private void showPlayingFrameBlank() {
+        if (detailsContent.getVisibility() == View.VISIBLE) {
+            detailsContent.setVisibility(View.INVISIBLE);
+        }
+        playingViewModel.setShowBottomNevBar(false);
+        if (frameBlankPlaying.getVisibility() == View.INVISIBLE) {
+            frameBlankPlaying.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hidePlayingFrameBlank() {
+        playingViewModel.setShowBottomNevBar(true);
+        if (frameBlankPlaying.getVisibility() == View.VISIBLE) {
+            frameBlankPlaying.setVisibility(View.INVISIBLE);
+        }
+        if (detailsContent.getVisibility() == View.INVISIBLE) {
+            detailsContent.setVisibility(View.VISIBLE);
         }
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private void initIcons(View view) {
         cardview = view.findViewById(R.id.finding_search_cardview);
-        searchBtn = view.findViewById(R.id.finding_search);
+        TextView searchBtn = view.findViewById(R.id.finding_search);
         searchEdit = view.findViewById(R.id.finding_editText);
         searchResultRecycleView = view.findViewById(R.id.finding_search_result_recv);
 
         searchMore = view.findViewById(R.id.finding_search_more);
         searchMore.setVisibility(View.INVISIBLE);
+
+        detailsContent = view.findViewById(R.id.finding_playlist_details_content);
+        frameBlankPlaying = view.findViewById(R.id.finding_frame_blank_for_playing_viewpager);
 
         searchBtn.setOnClickListener(v -> {
             String searchContent = searchEdit.getText().toString().trim();
@@ -251,16 +310,13 @@ public class FindingFragment extends Fragment {
             listPopupWindow.setAnchorView(cardview);
             listPopupWindow.setModal(true);
 
-            listPopupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    if (i == historyArray.length - 1) {
-                        ShpUtils.clearSearchHistoryList(mActivity);
-                    } else {
-                        searchEdit.setText(historyArray[i]);
-                    }
-                    listPopupWindow.dismiss();
+            listPopupWindow.setOnItemClickListener((adapterView, view1, i, l) -> {
+                if (i == historyArray.length - 1) {
+                    ShpUtils.clearSearchHistoryList(mActivity);
+                } else {
+                    searchEdit.setText(historyArray[i]);
                 }
+                listPopupWindow.dismiss();
             });
             listPopupWindow.show();
         });

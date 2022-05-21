@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,93 +9,104 @@
     android:orientation="vertical"
     tools:context=".ui.FindingFragment">
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/finding_search_cardview"
+    <LinearLayout
+        android:id="@+id/finding_playlist_details_content"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        app:cardBackgroundColor="@color/main_background"
-        app:cardCornerRadius="20dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <androidx.cardview.widget.CardView
+            android:id="@+id/finding_search_cardview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="40dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="3dp"
-            android:layout_marginEnd="15dp"
-            android:layout_marginBottom="3dp"
-            android:orientation="horizontal">
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            app:cardBackgroundColor="@color/main_background"
+            app:cardCornerRadius="20dp">
 
-            <ImageButton
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_gravity="center"
-                android:background="@android:color/transparent"
-                android:scaleType="centerCrop"
-                app:srcCompat="@drawable/ic_search"
-                android:layout_weight="1"
-                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="3dp"
+                android:orientation="horizontal">
 
-            <EditText
-                android:id="@+id/finding_editText"
-                android:layout_width="290dp"
-                android:layout_height="30dp"
-                android:layout_gravity="center"
-                android:layout_marginStart="10dp"
-                android:background="@color/ps_color_transparent"
-                android:hint="搜索你想找的音乐"
-                android:layout_weight="10"
-                android:textColor="@color/dialog_text_color"
-                android:textColorHint="@color/dialog_text_color"
-                android:textSize="16sp"
-                tools:ignore="TouchTargetSizeCheck" />
+                <ImageButton
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center"
+                    android:background="@android:color/transparent"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/ic_search"
+                    android:layout_weight="1"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                <EditText
+                    android:id="@+id/finding_editText"
+                    android:layout_width="290dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="10dp"
+                    android:background="@color/ps_color_transparent"
+                    android:hint="搜索你想找的音乐"
+                    android:layout_weight="10"
+                    android:textColor="@color/dialog_text_color"
+                    android:textColorHint="@color/dialog_text_color"
+                    android:textSize="16sp"
+                    tools:ignore="TouchTargetSizeCheck" />
+
+                <TextView
+                    android:id="@+id/finding_search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="10dp"
+                    android:text="搜索"
+                    android:layout_weight="1"
+                    android:textColor="@color/dialog_text_color"
+                    android:textSize="18sp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/finding_search_result_recv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="10dp" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/finding_search_more"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="120dp"
+            app:cardBackgroundColor="@color/main_background"
+            app:cardCornerRadius="15dp">
 
             <TextView
-                android:id="@+id/finding_search"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginEnd="10dp"
-                android:text="搜索"
-                android:layout_weight="1"
+                android:background="@color/ps_color_transparent"
+                android:text="查看更多>"
                 android:textColor="@color/dialog_text_color"
-                android:textSize="18sp" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
+                android:textSize="16sp" />
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/finding_search_result_recv"
+    <FrameLayout
+        android:id="@+id/finding_frame_blank_for_playing_viewpager"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="10dp" />
+        android:layout_height="match_parent"
+        android:visibility="invisible" />
 
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/finding_search_more"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="0dp"
-        android:layout_marginBottom="120dp"
-        app:cardBackgroundColor="@color/main_background"
-        app:cardCornerRadius="15dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@color/ps_color_transparent"
-            android:text="查看更多>"
-            android:textColor="@color/dialog_text_color"
-            android:textSize="16sp" />
-    </androidx.cardview.widget.CardView>
-
-
-</LinearLayout>
+</FrameLayout>
