@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.config.ShpConfig;
+import com.example.comely_music_app.enums.PlayerModule;
 import com.example.comely_music_app.network.request.PlaylistMusicAddRequest;
 import com.example.comely_music_app.network.response.UserInfo;
 import com.example.comely_music_app.network.service.PlaylistService;
@@ -245,6 +246,7 @@ public class PlaylistDetailsFragment extends Fragment implements View.OnClickLis
                 ft.commit();
                 hidePlayingFrameBlank();
             } else if (integer == 1) {
+                playingViewModel.setPlayerModule(PlayerModule.PLAYLIST);
                 playlistPlayingFragment.initDatas();
                 playlistPlayingFragment.setCurItem(currentItemPosition);
                 Log.d("TAG", "setObserveOnViewModels: 展示歌单播放页");

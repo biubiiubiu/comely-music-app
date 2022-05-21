@@ -46,15 +46,6 @@ public class MainPlayingViewAdapter extends RecyclerView.Adapter<MainPlayingView
         initMusicModelListByTags(tags);
     }
 
-//    public PlayingViewListAdapter(Context applicationContext, PlayingViewModel playingViewModel) {
-//        this.playingViewModel = playingViewModel;
-//        // 初始化各个item list的数据
-//        modelProvider = new MusicModelProvider(applicationContext);
-//        List<String> tags = new ArrayList<>();
-//        tags.add("古风");
-//        initMusicModelListByTags(tags);
-//    }
-
     /**
      * 每次切换当前item调用
      */

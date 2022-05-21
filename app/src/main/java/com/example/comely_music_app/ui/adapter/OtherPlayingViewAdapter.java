@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.ui.animation.MyClickListener;
+import com.example.comely_music_app.ui.enums.PageStatus;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
@@ -100,7 +101,6 @@ public class OtherPlayingViewAdapter extends RecyclerView.Adapter<OtherPlayingVi
         }
     }
 
-
     /**
      * 用来解析item_playing_view界面，变量绑定绑定控件
      */
@@ -112,7 +112,7 @@ public class OtherPlayingViewAdapter extends RecyclerView.Adapter<OtherPlayingVi
         TextView titleText, lyrics;
         ImageView coverImage;
 
-        ImageButton likeBtn, commentBtn, downloadBtn, moreBtn;
+        ImageButton likeBtn, commentBtn, downloadBtn, moreBtn, playPauseBtn;
 
         // 进度条
         SeekBar seekBar;
@@ -148,6 +148,17 @@ public class OtherPlayingViewAdapter extends RecyclerView.Adapter<OtherPlayingVi
             lyrics = itemView.findViewById(R.id.lyrics_playlist_module);
 
             seekBar = itemView.findViewById(R.id.process_sb_playlist_module);
+            playPauseBtn = itemView.findViewById(R.id.play_pause_btn_playlist_module);
+
+            if (playingViewModel != null && playingViewModel.getPageStatusLiveData().getValue() != null) {
+                PageStatus pageStatus = playingViewModel.getPageStatusLiveData().getValue();
+                if (pageStatus.equals(PageStatus.PLAYING)) {
+                    View v = itemView.findViewById(R.id.seekbar_view_playlist_module);
+                    if (v != null) {
+                        v.setVisibility(View.INVISIBLE);
+                    }
+                }
+            }
         }
 
         @SuppressLint("ClickableViewAccessibility")

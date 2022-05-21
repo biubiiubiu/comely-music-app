@@ -23,6 +23,7 @@ import com.example.comely_music_app.R;
 import com.example.comely_music_app.ui.adapter.OtherPlayingViewAdapter;
 import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
 import com.example.comely_music_app.ui.models.MusicModel;
+import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.viewmodels.PlayingViewModel;
 
 import java.util.List;
@@ -74,6 +75,14 @@ public class PlaylistPlayingFragment extends Fragment implements View.OnClickLis
                     playingViewModel.setCurrentPlayMusic(playingViewModel.getMusicListLiveData_playlistModule().getValue().get(position));
                     Log.d("TAG", "onPageSelected: 当前选择position:" + position + " "
                             + playingViewModel.getMusicListLiveData_playlistModule().getValue().get(position).getName());
+
+
+//                    PlaylistDetailsModel curDetails = playingViewModel.getCurrentPlaylistDetails().getValue();
+//                    if (curDetails != null && curDetails.getMusicModelList() != null) {
+//                        curDetails.getMusicModelList().size();
+//                        List<MusicModel> curMusicModelList = curDetails.getMusicModelList();
+//                        playingViewModel.setMusicListLiveData_playlistModule(curMusicModelList);
+//                    }
                 }
             }
         });

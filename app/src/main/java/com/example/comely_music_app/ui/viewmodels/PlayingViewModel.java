@@ -641,9 +641,8 @@ public class PlayingViewModel extends AndroidViewModel {
                 List<MusicModel> oldList = details.getMusicModelList();
                 Collections.reverse(oldList);
                 for (MusicModel model : toAddList) {
-                    if (!oldList.contains(model)) {
-                        oldList.add(model);
-                    }
+                    oldList.remove(model);
+                    oldList.add(model);
                 }
                 Collections.reverse(oldList);
                 details.setMusicModelList(oldList);
@@ -697,9 +696,8 @@ public class PlayingViewModel extends AndroidViewModel {
                 List<MusicModel> oldList = details.getMusicModelList();
                 Collections.reverse(oldList);
                 for (MusicModel model : toAddList) {
-                    if (!oldList.contains(model)) {
-                        oldList.add(model);
-                    }
+                    oldList.remove(model);
+                    oldList.add(model);
                 }
                 Collections.reverse(oldList);
                 details.setMusicModelList(oldList);

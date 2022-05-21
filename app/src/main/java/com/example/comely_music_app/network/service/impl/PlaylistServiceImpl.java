@@ -335,8 +335,8 @@ public class PlaylistServiceImpl implements PlaylistService {
                         for (MusicSelectResponse.MusicInfo info : infoList) {
                             Log.d("TAG", "addMusicIntoMyLike: 成功加入最近播放：" + info.getName() + info.getArtistName());
                         }
-                        List<MusicModel> modelList = musicService.transMusicInfo2Models(infoList);
-                        playingViewModel.addIntoRecentlyPlaylist(modelList);
+//                        List<MusicModel> modelList = musicService.transMusicInfo2Models(infoList);
+//                        playingViewModel.addIntoRecentlyPlaylist(modelList);
                     }
 
                     @Override
