@@ -219,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             PlaylistMusicAddRequest removeRequest = new PlaylistMusicAddRequest();
             removeRequest.setUsername(username).setMusicAddInfoList(toRemoveInfos);
-            playlistService.addMusicIntoMyLike(removeRequest);
+            playlistService.removeMusicFromMyLike(removeRequest);
         }
 
     }
@@ -359,6 +359,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             mylikePlaylistDetails.setPlaylistInfo(info);
             ShpUtils.writePlaylistDetailsIntoShp(this, mylikePlaylistDetails);
+            // 如果当前展示的歌单是我喜欢歌单，那就通知界面刷新一下
+            PlaylistDetailsModel curPlaylist = playingViewModel.getCurrentPlaylistDetails().getValue();
+            if (curPlaylist != null && curPlaylist.getPlaylistInfo() != null) {
+                if (info.getName().equals(curPlaylist.getPlaylistInfo().getName())) {
+                    playingViewModel.setCurrentPlaylistDetails(mylikePlaylistDetails);
+                }
+            }
         });
 
         playingViewModel.getRecentlyPlaylistDetails().observe(this, recentlyPlaylistDetails -> {
