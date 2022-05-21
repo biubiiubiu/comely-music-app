@@ -29,10 +29,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.enums.PlayerModule;
+import com.example.comely_music_app.network.response.UserInfo;
 import com.example.comely_music_app.network.service.MusicService;
 import com.example.comely_music_app.network.service.impl.MusicServiceImpl;
 import com.example.comely_music_app.ui.adapter.AdapterClickListener;
 import com.example.comely_music_app.ui.adapter.MusicListAdapter;
+import com.example.comely_music_app.ui.adapter.PlaylistViewListAdapter;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
@@ -41,6 +43,7 @@ import com.example.comely_music_app.utils.ShpUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -129,10 +132,13 @@ public class FindingFragment extends Fragment {
         TextView musicNameText = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_music_name);
         TextView artistNameText = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_artist_name);
         List<MusicModel> musicModels = musicListAdapter.getMusicList();
+
+        MusicModel curModel = null;
         if (musicModels != null && musicModels.size() >= position) {
             MusicModel model = musicModels.get(position);
             // 设置当前选中音乐
             if (model != null) {
+                curModel = model;
                 playingViewModel.setCurrentCheckMusic(model);
             }
             if (model != null && musicNameText != null && artistNameText != null) {
@@ -170,10 +176,100 @@ public class FindingFragment extends Fragment {
         }
 
         View add2Playlist = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_add_to_playlist);
-        if (add2Playlist != null) {
-            add2Playlist.setOnClickListener(v12 -> Toast.makeText(getContext(), "抱歉，该功能暂未开放哦~", Toast.LENGTH_SHORT).show());
+        if (add2Playlist != null && curModel != null) {
+            MusicModel finalCurModel = curModel;
+            add2Playlist.setOnClickListener(v12 -> showBottomAdd2CreatedDialog(finalCurModel));
         }
         bottomSheetDialog.show();
+    }
+
+    private void showBottomAdd2CreatedDialog(MusicModel model) {
+        // 修改当前歌曲
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(mActivity);
+        bottomSheetDialog.setContentView(R.layout.dialog_bottom_layout_add_into_mycreated);
+        //给布局设置透明背景色，让图片突出来
+        View viewById = bottomSheetDialog.getDelegate().findViewById(R.id.design_bottom_sheet);
+        if (viewById != null) {
+            viewById.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+        }
+        TextView musicNameText = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_add_to_playlist_music_name);
+        TextView artistNameText = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_add_to_playlist_artist_name);
+        if (model != null && musicNameText != null && artistNameText != null) {
+            musicNameText.setText(model.getName());
+            artistNameText.setText(model.getArtistName());
+        }
+        // 获取mycreated歌单recycleview
+        RecyclerView createdRecv = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_add_to_playlist_mycreated_recv);
+        RecyclerView.LayoutManager manager = new LinearLayoutManager(mActivity.getApplicationContext());
+        if (createdRecv == null) {
+            return;
+        }
+        createdRecv.setLayoutManager(manager);
+        List<PlaylistModel> myCreatePlaylistFromShp = ShpUtils.getMyCreatePlaylistFromShp(mActivity);
+        PlaylistViewListAdapter adapter = new PlaylistViewListAdapter(myCreatePlaylistFromShp);
+        adapter.setListener(new AdapterClickListener() {
+            @Override
+            public void onClick(View itemView, int position) {
+                // 进入歌单界面
+                PlaylistModel clickPlaylistItem = adapter.getPlaylistData().get(position);
+                addMusicIntoCreatedPlaylistByName(model, clickPlaylistItem.getName());
+                bottomSheetDialog.dismiss();
+            }
+
+            @Override
+            public void onLongClick(View v, int position) {
+            }
+
+            @Override
+            public void onClickBtnBehindTitle(View v, int position) {
+            }
+
+            @Override
+            public void onClickRightBtn(View v, int position) {
+            }
+        });
+        createdRecv.setAdapter(adapter);
+        bottomSheetDialog.show();
+    }
+
+    private void addMusicIntoCreatedPlaylistByName(MusicModel model, String targetCreatedPlaylistName) {
+        // 把musicModel添加进目标自建歌单
+        PlaylistDetailsModel targetPlaylistDetails = ShpUtils.getPlaylistDetailsFromShpByPlaylistName(mActivity,
+                targetCreatedPlaylistName);
+        if (targetPlaylistDetails == null) {
+            // 如果没有这个自建歌单详情信息，就新建一个（也可以在新建自建歌单的时候会随之创建歌单详情信息）
+            targetPlaylistDetails = new PlaylistDetailsModel();
+            PlaylistModel info = new PlaylistModel();
+            info.setName(targetCreatedPlaylistName);
+            info.setMusicNum(0);
+            UserInfo userinfo = ShpUtils.getCurrentUserinfoFromShp(mActivity);
+            if (userinfo == null) {
+                return;
+            }
+            info.setCreatedUserNickname(userinfo.getNickname());
+            targetPlaylistDetails.setPlaylistInfo(info);
+            List<MusicModel> musicList = new ArrayList<>();
+            targetPlaylistDetails.setMusicModelList(musicList);
+        }
+        if (targetPlaylistDetails.getMusicModelList() == null) {
+            List<MusicModel> musicList = new ArrayList<>();
+            targetPlaylistDetails.setMusicModelList(musicList);
+        }
+        List<MusicModel> list = targetPlaylistDetails.getMusicModelList();
+        Collections.reverse(list);
+        if (!list.contains(model)) {
+            list.add(model);
+        }
+        Collections.reverse(list);
+        targetPlaylistDetails.setMusicModelList(list);
+
+        PlaylistModel newInfo = targetPlaylistDetails.getPlaylistInfo();
+        newInfo.setMusicNum(newInfo.getMusicNum() + 1);
+        targetPlaylistDetails.setPlaylistInfo(newInfo);
+
+        ShpUtils.writePlaylistDetailsIntoShp(mActivity, targetPlaylistDetails);
+        playingViewModel.updateCreatedPlaylistByName(targetCreatedPlaylistName, targetPlaylistDetails.getPlaylistInfo());
+        Toast.makeText(mActivity.getApplicationContext(), "添加成功！", Toast.LENGTH_SHORT).show();
     }
 
     @Override

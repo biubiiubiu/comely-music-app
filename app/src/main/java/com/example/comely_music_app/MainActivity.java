@@ -20,6 +20,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.comely_music_app.config.ShpConfig;
@@ -33,8 +35,10 @@ import com.example.comely_music_app.network.service.impl.PlaylistServiceImpl;
 import com.example.comely_music_app.network.service.impl.UserServiceImpl;
 import com.example.comely_music_app.ui.FindingFragment;
 import com.example.comely_music_app.ui.MyFragment;
+import com.example.comely_music_app.ui.adapter.AdapterClickListener;
 import com.example.comely_music_app.ui.adapter.MainPlayingViewAdapter;
 import com.example.comely_music_app.ui.adapter.OtherPlayingViewAdapter;
+import com.example.comely_music_app.ui.adapter.PlaylistViewListAdapter;
 import com.example.comely_music_app.ui.animation.DepthPageTransformer;
 import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
 import com.example.comely_music_app.ui.enums.PageStatus;
@@ -50,6 +54,7 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -571,11 +576,98 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             View add2Playlist = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_add_to_playlist);
             if (add2Playlist != null) {
-                add2Playlist.setOnClickListener(v12 -> Toast.makeText(getApplicationContext(), "抱歉，该功能暂未开放哦~",
-                        Toast.LENGTH_SHORT).show());
+                add2Playlist.setOnClickListener(v12 -> showBottomAdd2CreatedDialog(model));
             }
             bottomSheetDialog.show();
         });
+    }
+
+    private void showBottomAdd2CreatedDialog(MusicModel model) {
+        // 修改当前歌曲
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        bottomSheetDialog.setContentView(R.layout.dialog_bottom_layout_add_into_mycreated);
+        //给布局设置透明背景色，让图片突出来
+        View viewById = bottomSheetDialog.getDelegate().findViewById(R.id.design_bottom_sheet);
+        if (viewById != null) {
+            viewById.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+        }
+        TextView musicNameText = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_add_to_playlist_music_name);
+        TextView artistNameText = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_add_to_playlist_artist_name);
+        if (model != null && musicNameText != null && artistNameText != null) {
+            musicNameText.setText(model.getName());
+            artistNameText.setText(model.getArtistName());
+        }
+        // 获取mycreated歌单recycleview
+        RecyclerView createdRecv = bottomSheetDialog.getDelegate().findViewById(R.id.bt_dialog_add_to_playlist_mycreated_recv);
+        RecyclerView.LayoutManager manager = new LinearLayoutManager(getApplicationContext());
+        if (createdRecv == null) {
+            return;
+        }
+        createdRecv.setLayoutManager(manager);
+        List<PlaylistModel> myCreatePlaylistFromShp = ShpUtils.getMyCreatePlaylistFromShp(this);
+        PlaylistViewListAdapter adapter = new PlaylistViewListAdapter(myCreatePlaylistFromShp);
+        adapter.setListener(new AdapterClickListener() {
+            @Override
+            public void onClick(View itemView, int position) {
+                // 进入歌单界面
+                PlaylistModel clickPlaylistItem = adapter.getPlaylistData().get(position);
+                addMusicIntoCreatedPlaylistByName(model, clickPlaylistItem.getName());
+                bottomSheetDialog.dismiss();
+            }
+
+            @Override
+            public void onLongClick(View v, int position) {
+            }
+
+            @Override
+            public void onClickBtnBehindTitle(View v, int position) {
+            }
+
+            @Override
+            public void onClickRightBtn(View v, int position) {
+            }
+        });
+        createdRecv.setAdapter(adapter);
+        bottomSheetDialog.show();
+    }
+
+    private void addMusicIntoCreatedPlaylistByName(MusicModel model, String targetCreatedPlaylistName) {
+        // 把musicModel添加进目标自建歌单
+        PlaylistDetailsModel targetPlaylistDetails = ShpUtils.getPlaylistDetailsFromShpByPlaylistName(this, targetCreatedPlaylistName);
+        if (targetPlaylistDetails == null) {
+            // 如果没有这个自建歌单详情信息，就新建一个（也可以在新建自建歌单的时候会随之创建歌单详情信息）
+            targetPlaylistDetails = new PlaylistDetailsModel();
+            PlaylistModel info = new PlaylistModel();
+            info.setName(targetCreatedPlaylistName);
+            info.setMusicNum(0);
+            UserInfo userinfo = ShpUtils.getCurrentUserinfoFromShp(this);
+            if (userinfo == null) {
+                return;
+            }
+            info.setCreatedUserNickname(userinfo.getNickname());
+            targetPlaylistDetails.setPlaylistInfo(info);
+            List<MusicModel> musicList = new ArrayList<>();
+            targetPlaylistDetails.setMusicModelList(musicList);
+        }
+        if (targetPlaylistDetails.getMusicModelList() == null) {
+            List<MusicModel> musicList = new ArrayList<>();
+            targetPlaylistDetails.setMusicModelList(musicList);
+        }
+        List<MusicModel> list = targetPlaylistDetails.getMusicModelList();
+        Collections.reverse(list);
+        if (!list.contains(model)) {
+            list.add(model);
+        }
+        Collections.reverse(list);
+        targetPlaylistDetails.setMusicModelList(list);
+
+        PlaylistModel newInfo = targetPlaylistDetails.getPlaylistInfo();
+        newInfo.setMusicNum(newInfo.getMusicNum() + 1);
+        targetPlaylistDetails.setPlaylistInfo(newInfo);
+
+        ShpUtils.writePlaylistDetailsIntoShp(this, targetPlaylistDetails);
+        playingViewModel.updateCreatedPlaylistByName(targetCreatedPlaylistName, targetPlaylistDetails.getPlaylistInfo());
+        Toast.makeText(getApplicationContext(), "添加成功！", Toast.LENGTH_SHORT).show();
     }
 
     @SuppressLint("DefaultLocale")
