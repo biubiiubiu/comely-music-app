@@ -110,6 +110,15 @@ public class PlaylistPlayingFragment extends Fragment implements View.OnClickLis
         detailsViewCtrlLiveData = null;
     }
 
+    public void setViewPager2(ViewPager2 vp2) {
+        this.viewPager2 = vp2;
+    }
+
+    public void setAdapter(OtherPlayingViewAdapter adapter) {
+        this.adapter = adapter;
+    }
+
+
     private void initIcons(View inflateView) {
 
         backBtn = inflateView.findViewById(R.id.exit_other_playing_viewpage);

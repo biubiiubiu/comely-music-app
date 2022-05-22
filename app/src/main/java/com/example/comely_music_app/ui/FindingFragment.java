@@ -25,6 +25,7 @@ import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.comely_music_app.R;
 import com.example.comely_music_app.enums.PlayerModule;
@@ -35,7 +36,9 @@ import com.example.comely_music_app.network.service.impl.MusicServiceImpl;
 import com.example.comely_music_app.network.service.impl.PlaylistServiceImpl;
 import com.example.comely_music_app.ui.adapter.AdapterClickListener;
 import com.example.comely_music_app.ui.adapter.MusicListAdapter;
+import com.example.comely_music_app.ui.adapter.OtherPlayingViewAdapter;
 import com.example.comely_music_app.ui.adapter.PlaylistViewListAdapter;
+import com.example.comely_music_app.ui.animation.ZoomOutPageTransformer;
 import com.example.comely_music_app.ui.models.MusicModel;
 import com.example.comely_music_app.ui.models.PlaylistDetailsModel;
 import com.example.comely_music_app.ui.models.PlaylistModel;
@@ -65,8 +68,10 @@ public class FindingFragment extends Fragment {
     private PlaylistDetailsFragment playlistDetailsFragment;
     private View searchMore;
     private View cardview;
-    private View detailsContent, frameBlankPlaying;
+    private View searchResultDetailsContent, frameBlankPlaylistDetails, frameBlankPlayingViewPager;
     private PlaylistService playlistService;
+    private ViewPager2 viewPager2;
+    private OtherPlayingViewAdapter adapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -370,14 +375,16 @@ public class FindingFragment extends Fragment {
         findingViewCtrlLiveData.observe(mActivity, integer -> {
             if (playingFragment == null) {
                 playingFragment = new PlaylistPlayingFragment(findingViewCtrlLiveData);
+                playingFragment.setViewPager2(viewPager2);
+                playingFragment.setAdapter(adapter);
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
-                ft.add(R.id.finding_frame_blank_for_playing_viewpager, playingFragment);
+                ft.add(R.id.finding_frame_blank_for_playing_details, playingFragment);
                 ft.commit();
             }
             if (playlistDetailsFragment == null) {
                 playlistDetailsFragment = new PlaylistDetailsFragment(findingViewCtrlLiveData);
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
-                ft.add(R.id.finding_frame_blank_for_playing_viewpager, playlistDetailsFragment);
+                ft.add(R.id.finding_frame_blank_for_playing_details, playlistDetailsFragment);
                 ft.commit();
             }
             if (integer == 0) {
@@ -386,44 +393,77 @@ public class FindingFragment extends Fragment {
                 ft.hide(playingFragment);
                 ft.hide(playlistDetailsFragment);
                 ft.commit();
-                hidePlayingFrameBlank();
+                showSearchResultFrameBlank();
             } else if (integer == 1) {
                 playingViewModel.setPlayerModule(PlayerModule.PLAYLIST);
                 playingFragment.initDatas();
                 playingFragment.setCurItem(currentItemPosition);
                 Log.d("TAG", "setObserveOnViewModels: 展示歌单播放页");
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+                ft.hide(playlistDetailsFragment);
                 ft.show(playingFragment);
                 ft.commit();
-                showPlayingFrameBlank();
+                showPlayingViewpager2FrameBlank();
             } else if (integer == 2) {
                 Log.d("TAG", "setObserveOnViewModels: 展示歌单详情页");
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+                ft.hide(playingFragment);
                 ft.show(playlistDetailsFragment);
                 ft.commit();
-                showPlayingFrameBlank();
+                showPlaylistDetailsFrameBlank();
             }
         });
 
     }
 
-    private void showPlayingFrameBlank() {
-        if (detailsContent.getVisibility() == View.VISIBLE) {
-            detailsContent.setVisibility(View.INVISIBLE);
+    // 展示歌单详情页
+    private void showPlaylistDetailsFrameBlank() {
+        if (searchResultDetailsContent.getVisibility() == View.VISIBLE) {
+            searchResultDetailsContent.setVisibility(View.INVISIBLE);
         }
         playingViewModel.setShowBottomNevBar(false);
-        if (frameBlankPlaying.getVisibility() == View.INVISIBLE) {
-            frameBlankPlaying.setVisibility(View.VISIBLE);
+        if (frameBlankPlaylistDetails.getVisibility() == View.INVISIBLE) {
+            frameBlankPlaylistDetails.setVisibility(View.VISIBLE);
+        }
+        if (frameBlankPlayingViewPager.getVisibility() == View.VISIBLE) {
+            frameBlankPlayingViewPager.setVisibility(View.INVISIBLE);
+        }
+        if (viewPager2 != null) {
+            viewPager2.setVisibility(View.INVISIBLE);
         }
     }
 
-    private void hidePlayingFrameBlank() {
-        playingViewModel.setShowBottomNevBar(true);
-        if (frameBlankPlaying.getVisibility() == View.VISIBLE) {
-            frameBlankPlaying.setVisibility(View.INVISIBLE);
+    // 展示播放页
+    private void showPlayingViewpager2FrameBlank() {
+        if (searchResultDetailsContent.getVisibility() == View.VISIBLE) {
+            searchResultDetailsContent.setVisibility(View.INVISIBLE);
         }
-        if (detailsContent.getVisibility() == View.INVISIBLE) {
-            detailsContent.setVisibility(View.VISIBLE);
+        playingViewModel.setShowBottomNevBar(false);
+        if (frameBlankPlaylistDetails.getVisibility() == View.VISIBLE) {
+            frameBlankPlaylistDetails.setVisibility(View.INVISIBLE);
+        }
+        if (frameBlankPlayingViewPager.getVisibility() == View.INVISIBLE) {
+            frameBlankPlayingViewPager.setVisibility(View.VISIBLE);
+        }
+        if (viewPager2 != null) {
+            viewPager2.setVisibility(View.VISIBLE);
+        }
+    }
+
+    // 展示搜索结果
+    private void showSearchResultFrameBlank() {
+        playingViewModel.setShowBottomNevBar(true);
+        if (frameBlankPlaylistDetails.getVisibility() == View.VISIBLE) {
+            frameBlankPlaylistDetails.setVisibility(View.INVISIBLE);
+        }
+        if (searchResultDetailsContent.getVisibility() == View.INVISIBLE) {
+            searchResultDetailsContent.setVisibility(View.VISIBLE);
+        }
+        if (frameBlankPlayingViewPager.getVisibility() == View.VISIBLE) {
+            frameBlankPlayingViewPager.setVisibility(View.INVISIBLE);
+        }
+        if (viewPager2 != null) {
+            viewPager2.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -438,8 +478,32 @@ public class FindingFragment extends Fragment {
         searchMore = view.findViewById(R.id.finding_search_more);
         searchMore.setVisibility(View.INVISIBLE);
 
-        detailsContent = view.findViewById(R.id.finding_playlist_details_content);
-        frameBlankPlaying = view.findViewById(R.id.finding_frame_blank_for_playing_viewpager);
+        searchResultDetailsContent = view.findViewById(R.id.finding_playlist_details_content);
+        frameBlankPlaylistDetails = view.findViewById(R.id.finding_frame_blank_for_playing_details);
+        frameBlankPlayingViewPager = view.findViewById(R.id.finding_frame_blank_for_playing_viewpager);
+
+        viewPager2 = view.findViewById(R.id.finding_viewpager_playing_fragment);
+        viewPager2.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
+        viewPager2.setPageTransformer(ZoomOutPageTransformer.getZoomOutPageTransformer());
+
+        String curPlaylistName = "歌单播放";
+        if (playingViewModel != null && playingViewModel.getCurrentPlaylistDetails().getValue() != null
+                && playingViewModel.getCurrentPlaylistDetails().getValue().getPlaylistInfo() != null) {
+            curPlaylistName = playingViewModel.getCurrentPlaylistDetails().getValue().getPlaylistInfo().getName();
+        }
+        adapter = new OtherPlayingViewAdapter(playingViewModel, curPlaylistName);
+        viewPager2.setAdapter(adapter);
+        viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                if (Objects.requireNonNull(playingViewModel.getMusicListLiveData_playlistModule().getValue()).size() > position) {
+                    playingViewModel.setCurrentPlayMusic(playingViewModel.getMusicListLiveData_playlistModule().getValue().get(position));
+                    Log.d("TAG", "onPageSelected: 当前选择position:" + position + " "
+                            + playingViewModel.getMusicListLiveData_playlistModule().getValue().get(position).getName());
+                }
+            }
+        });
 
         searchMusicBtn.setOnClickListener(v -> {
             String searchContent = searchEdit.getText().toString().trim();

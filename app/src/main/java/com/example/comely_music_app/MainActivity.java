@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (position == adapterEndlessModule.getItemCount() - 1) {
                     List<String> tags = new ArrayList<>();
                     tags.add("古风");
+                    tags.add("纯音乐");
                     adapterEndlessModule.addMusicListByTags(tags);
                 }
             }
